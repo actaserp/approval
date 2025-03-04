@@ -13,6 +13,9 @@ import lombok.Setter;
 public class Actas_Fileset {
 
     private String fileNm;
+
+
+
     private Long fileSize;
     private String fileExt;
     private Boolean success;
