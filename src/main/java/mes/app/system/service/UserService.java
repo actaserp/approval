@@ -1,19 +1,11 @@
 package mes.app.system.service;
 
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
+import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
-import mes.app.UtilClass;
 import mes.app.account.service.TB_xusersService;
 import mes.domain.DTO.UserDto;
-import mes.domain.entity.TB_RP945;
 import mes.domain.entity.User;
 import mes.domain.entity.UserGroup;
-import mes.domain.entity.UserProfile;
-import mes.domain.entity.actasEntity.TB_XCLIENT;
 import mes.domain.entity.actasEntity.TB_XUSERS;
 import mes.domain.entity.actasEntity.TB_XUSERSId;
 import mes.domain.model.AjaxResult;
@@ -21,17 +13,20 @@ import mes.domain.repository.UserGroupRepository;
 import mes.domain.repository.UserRepository;
 import mes.domain.repository.actasRepository.TB_XClientRepository;
 import mes.domain.security.Pbkdf2Sha256;
+import mes.domain.services.SqlRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import io.micrometer.core.instrument.util.StringUtils;
-import mes.domain.services.SqlRunner;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -50,8 +45,6 @@ public class UserService {
 
     @Autowired
     TB_xusersService tbxusersService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     // 사용자 리스트
     /*필요시

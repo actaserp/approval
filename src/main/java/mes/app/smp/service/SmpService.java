@@ -51,7 +51,7 @@ public class SmpService {
 			String response = restTemplate.getForObject(uri, String.class);
 			String smp = parseSmp(response, hour, "육지");  // SMP 값을 String으로 변경
 			
-			System.out.println("SMP URI : " + uri);
+			//System.out.println("SMP URI : " + uri);
 //			System.out.println("Fetched SMP: " + smp);
 			
 			// SMP 데이터 업데이트

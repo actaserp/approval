@@ -1,5 +1,46 @@
 package mes.app.account;
 
+import lombok.extern.slf4j.Slf4j;
+import mes.app.MailService;
+import mes.app.account.service.TB_XClientService;
+import mes.app.account.service.TB_xusersService;
+import mes.app.system.service.UserService;
+import mes.domain.DTO.UserCodeDto;
+import mes.domain.DTO.UserDto;
+import mes.domain.entity.User;
+import mes.domain.entity.UserCode;
+import mes.domain.entity.UserGroup;
+import mes.domain.entity.actasEntity.TB_XCLIENT;
+import mes.domain.entity.actasEntity.TB_XUSERS;
+import mes.domain.entity.actasEntity.TB_XUSERSId;
+import mes.domain.model.AjaxResult;
+import mes.domain.repository.UserCodeRepository;
+import mes.domain.repository.UserGroupRepository;
+import mes.domain.repository.UserRepository;
+import mes.domain.repository.actasRepository.TB_XClientRepository;
+import mes.domain.security.CustomAuthenticationToken;
+import mes.domain.security.Pbkdf2Sha256;
+import mes.domain.services.AccountService;
+import mes.domain.services.SqlRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
@@ -8,52 +49,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.transaction.Transactional;
-
-import lombok.extern.slf4j.Slf4j;
-import mes.app.MailService;
-import mes.app.account.service.*;
-import mes.app.system.service.AuthListService;
-import mes.app.system.service.UserService;
-import mes.domain.DTO.UserCodeDto;
-import mes.domain.DTO.UserDto;
-import mes.domain.entity.*;
-import mes.domain.entity.actasEntity.*;
-import mes.domain.repository.*;
-import mes.domain.repository.actasRepository.TB_XA012Repository;
-import mes.domain.repository.actasRepository.TB_XClientRepository;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
-import org.springframework.util.StringUtils;
-
-import org.springframework.web.servlet.ModelAndView;
-
-import mes.domain.model.AjaxResult;
-import mes.domain.security.CustomAuthenticationToken;
-import mes.domain.security.Pbkdf2Sha256;
-import mes.domain.services.AccountService;
-import mes.domain.services.SqlRunner;
 
 @Slf4j
 @RestController
@@ -97,8 +92,6 @@ public class AccountController {
 	@Autowired
     private UserService userService;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 
 	@GetMapping("/login")
 	public ModelAndView loginPage(
@@ -148,82 +141,48 @@ public class AccountController {
 			@RequestParam("password") final String password,
 			final HttpServletRequest request) throws UnknownHostException {
 
-		//log.info("로그인 시도, username: {}", username);
+		//System.out.println("로그인 데이터: " + username + " / " + password);
 
 		AjaxResult result = new AjaxResult();
-		HashMap<String, Object> data = new HashMap<>();
+
+		HashMap<String, Object> data = new HashMap<String, Object>();
 		result.data = data;
 
-		// 사용자 조회
-		Optional<User> optionalUser = userRepository.findByUsername(username);
-		if (optionalUser.isEmpty()) {
+		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(username, password);
+		CustomAuthenticationToken auth = null;
+		try{
+			auth = (CustomAuthenticationToken)authManager.authenticate(authReq);
+		}catch (AuthenticationException e){
+			//e.printStackTrace();
 			data.put("code", "NOUSER");
 			return result;
 		}
 
-		User user = optionalUser.get();
-		String storedPassword = user.getPassword();
-
-		// 비밀번호 검증
-		if (!authenticate(password, storedPassword)) {
-			data.put("code", "NOPW");
-			return result;
-		}
-
-		// 인증 성공 처리
-		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(username, password);
-		CustomAuthenticationToken auth = (CustomAuthenticationToken) authManager.authenticate(authReq);
-
-		if (auth != null) {
+		if(auth!=null) {
+			User user = (User)auth.getPrincipal();
+			user.getActive();
 			data.put("code", "OK");
 
 			try {
-				accountService.saveLoginLog("login", auth);
+				this.accountService.saveLoginLog("login", auth);
 			} catch (UnknownHostException e) {
-				log.error("로그 저장 중 에러 발생", e);
+				// Handle the exception (e.g., log it)
+				e.printStackTrace();
 			}
-
-			// Spring Security 세션 설정
-			SecurityContext sc = SecurityContextHolder.getContext();
-			sc.setAuthentication(auth);
-
-			HttpSession session = request.getSession(true);
-			session.setAttribute("SPRING_SECURITY_CONTEXT", sc);
 		} else {
-			result.success = false;
+			result.success=false;
 			data.put("code", "NOID");
 		}
+
+		SecurityContext sc = SecurityContextHolder.getContext();
+		sc.setAuthentication(auth);
+
+		HttpSession session = request.getSession(true);
+		session.setAttribute("SPRING_SECURITY_CONTEXT", sc);
 
 		return result;
 	}
 
-	public boolean authenticate(String rawPassword, String storedPassword) {
-		// 신규 방식 검증
-		if (passwordEncoder.matches(rawPassword, storedPassword)) {
-			return true;
-		}
-
-		// 기존 방식 검증
-		if (Pbkdf2Sha256.verification(rawPassword, storedPassword)) {
-			// 기존 방식 검증 성공 시 새로운 방식으로 저장
-			String newEncodedPassword = passwordEncoder.encode(rawPassword);
-			updatePasswordInDatabase(newEncodedPassword);
-			return true;
-		}
-
-		// 두 방식 모두 실패
-		return false;
-	}
-
-	private void updatePasswordInDatabase(String newPassword) {
-		Optional<User> optionalUser = userRepository.findByUsername(
-				SecurityContextHolder.getContext().getAuthentication().getName());
-		if (optionalUser.isPresent()) {
-			User user = optionalUser.get();
-			user.setPassword(newPassword); // 새로운 비밀번호 설정
-			userRepository.save(user);    // 변경 내용 저장
-		}
-	}
 
 	//내정보 불러오기
 	@GetMapping("/account/myinfo")
@@ -396,13 +355,10 @@ public class AccountController {
 				String custcd = (String) firstRow.get("custcd");
 				String spjangcd = (String) firstRow.get("spjangcd");
 
-				// 비밀번호 해싱
-				String hashedPassword = passwordEncoder.encode(password);
-
 				// 사용자 저장
 				User user = User.builder()
 						.username(id)
-						.password(hashedPassword)
+						.password(Pbkdf2Sha256.encode(password))
 						.phone(phone)
 						.email(email)
 						.first_name(name)
@@ -434,7 +390,7 @@ public class AccountController {
 				TB_XUSERS xusers = TB_XUSERS.builder()
 						.passwd1(password)
 						.passwd2(password)
-						.shapass(hashedPassword)
+						.shapass(Pbkdf2Sha256.encode(password))
 						.pernm(name)
 						.useyn("1")
 						.domcls("%")
