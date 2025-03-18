@@ -181,29 +181,29 @@
                                         </ul>
                                     </li>
                                     <li class="dep1-1">
-                                        <a href="#a" title="주문의뢰" class="ico-lnb02">
-                                           주문 의뢰
+                                        <a href="#a" title="결재목록" class="ico-lnb02">
+                                            결재목록
                                         </a>
-                                        <ul class="dep2" id="dep2-order-request">
+                                        <ul class="dep2" id="dep2-Payment_list">
 
                                         </ul>
                                     </li>
                                     <li class="dep1-1">
-                                        <a href="#a" title="주문현황" class="ico-lnb03">
-                                            주문 현황
+                                        <a href="#a" title="결재현황" class="ico-lnb03">
+                                            결재현황
                                         </a>
-                                        <ul class="dep2" id="dep2-order-status">
+                                        <ul class="dep2" id="dep2-Payment_status">
 
                                         </ul>
                                     </li>
-                                  <!--  <li class="dep1-1">
-                                        <a href="#a" title="점검관리" class="ico-lnb04">
-                                            점검 관리
+                                    <li class="dep1-1">
+                                        <a href="#a" title="결재라인관리" class="ico-lnb04">
+                                            결재라인관리
                                         </a>
-                                        <ul class="dep2" id="dep2-inspection-management">
+                                        <ul class="dep2" id="dep2-Payment_Line_Management">
 
                                         </ul>
-                                    </li>-->
+                                    </li>
                                     <li class="dep1-1">
                                         <a href="#a" title="시스템설정" class="ico-lnb05">
                                             시스템 설정
@@ -529,10 +529,10 @@
         // 메뉴 매핑(FrontFolder_id)
         const dep2Mappings = {
             1: '#dep2-dashboard',  //대시보드
-            2: '#dep2-order-request',  //주문의뢰
-            3: '#dep2-order-status',    // 주문현황
-            4: '#dep2-inspection-management',
-            5: '#dep2-system-settings'
+            2: '#dep2-Payment_list',  //결재목록
+            3: '#dep2-Payment_status',//결재현황
+            4: '#dep2-Payment_Line_Management', //결제라인관리
+            5: '#dep2-system-settings'  //시스템관리
         };
         nthTabs = $('#main-tabs').nthTabs();
 

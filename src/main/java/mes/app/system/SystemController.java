@@ -26,10 +26,10 @@ import mes.domain.services.SqlRunner;
 @RequestMapping("/api/system")
 @RestController
 public class SystemController {
-	
+
 	@Autowired
 	SystemService systemService;
-	
+
 	@Autowired
 	SqlRunner sqlRunner;
 
@@ -37,7 +37,7 @@ public class SystemController {
 	AjaxResult result = new AjaxResult();
 	@SuppressWarnings("unchecked")
 	@GetMapping("/menus")
-	public AjaxResult menus() {	
+	public AjaxResult menus() {
 		try {
 			SecurityContext sc = SecurityContextHolder.getContext();
 			Authentication auth = sc.getAuthentication();
@@ -114,42 +114,42 @@ public class SystemController {
 	}
 
 	@GetMapping("/bookmark")
-	public AjaxResult bookmark() {	
-		
+	public AjaxResult bookmark() {
+
         SecurityContext sc = SecurityContextHolder.getContext();
-        Authentication auth = sc.getAuthentication();         
+        Authentication auth = sc.getAuthentication();
         User user = (User)auth.getPrincipal();
-       
+
         List<Map<String, Object>> items = this.systemService.getBookmarkList(user.getId());
         AjaxResult result = new AjaxResult();
         result.data = items;
         result.success = true;
 		return result;
-	}	
+	}
 
 	@PostMapping("/bookmark/save")
 	public AjaxResult bookmarkSave(
 			@RequestParam(value="menucode") String menucode,
 			@RequestParam(value="isbookmark", required = false) String isbookmark,
 			Authentication auth
-			) {	
-		
-		User user = (User)auth.getPrincipal();        
+			) {
+
+		User user = (User)auth.getPrincipal();
         AjaxResult result = new AjaxResult();
         result.data = this.systemService.saveBookmark(menucode, isbookmark, user);
         result.success = true;
 		return result;
-	}	
-	
+	}
+
 	@GetMapping("/storyboard")
-	public AjaxResult storyBoard() {	
+	public AjaxResult storyBoard() {
 
         List<Map<String, Object>> items = this.systemService.storyBoard();
-        
+
         AjaxResult result = new AjaxResult();
         result.data = items;
         result.success = true;
 		return result;
-	}	
+	}
 
 }

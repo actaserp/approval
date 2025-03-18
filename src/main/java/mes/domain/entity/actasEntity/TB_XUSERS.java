@@ -42,7 +42,7 @@ public class TB_XUSERS {
     private String useyn;
 
     @Column(name = "perid")
-    private String perid;
+    private String perid;   //사원코드
 
     @Column(name = "sysmain")
     private String sysmain;

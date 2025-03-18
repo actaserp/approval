@@ -15,9 +15,9 @@ public class MenuLogService {
 
 	@Autowired
 	SqlRunner sqlRunner;
-	
+
 	public List<Map<String, Object>> getLogCount(String dateFrom, String dateTo, String menuCode, String userPk) {
-		
+
 		MapSqlParameterSource paramMap = new MapSqlParameterSource();
 		paramMap.addValue("dateFrom", dateFrom + " 00:00:00");
 		paramMap.addValue("dateTo", dateTo + " 23:59:59");

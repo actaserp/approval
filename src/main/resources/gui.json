@@ -1,21 +1,21 @@
 
 {
-  "order_request":       {"name": "주문의뢰",   "templates": { "default": "request/request/order_request.html" }},
-  "order_status":        {"name": "주문 현황",   "templates": { "default": "order_status/order_status.html"}},
-  "progress_status":     {"name": "진행 현황",   "templates": { "default": "progress_status/progress_status.html"}},
   "dashboard":           {"name": "dashboard",   "templates": { "default": "dashboard/dashboard_main.html"}},
   "order_dashboard":     {"name": "order_dashboard",   "templates": { "default": "order_dashboard/order_dashboard_main.html"}},
 
-  
+  "PaymentDetails":       {"name": "결재내역",   "templates": { "default": "PaymentList/PaymentDetails.html" }},
+  "Payment_list":         {"name": "결재목록",   "templates": { "default": "PaymentList/Payment_list.html" }},
+
+  "PaymentStatus":        {"name": "결재 현황",   "templates": { "default": "PaymentStatus/PaymentStatus.html"}},
+  "Notice":              {"name": "공지사항",   "templates": { "default": "PaymentStatus/Notice.html"}},
+
+  "REG_payment_line":     {"name": "결재라인등록",   "templates": { "default": "PaymentLineManagement/REG_payment_line.html"}},
+  "Status_payment_line":  {"name": "결재라인현황",   "templates": { "default": "PaymentLineManagement/Status_payment_line.html"}},
 
   "wm_user_group":          { "name": "사용자 그룹", "templates": { "default": "system/usergroup.html" }  },
   "wm_user":                { "name": "사용자 관리", "templates": { "default": "system/user_main.html" }},
-
   "wm_menu_log":            { "name": "로그 현황", "templates": { "default": "system/menu_log.html" } },
-
-  "wm_code":                { "name": "공통코드 등록", "templates": { "default": "system/code.html" } },
-
+  "wm_code":                { "name": "공통코드 등록", "templates": { "default": "system/code_main.html" } },
   "wm_auth_list" :          { "name": "사용자 권한 신청 조회", "templates": { "default": "system/auth_list.html" } }
 
- 
 }
