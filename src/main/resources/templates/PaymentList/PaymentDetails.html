@@ -19,26 +19,39 @@
     <!-- Page Title -->
     <div class="page-title-wrap">
       <div class="left">
-        <h2>마케팅관리</h2>
+        <h2>결재 내역</h2><a id="toggleButton" onclick="toggleSearchWrap()"><img src="/images/icon/ico-down.png" alt="알람 아이콘"></a>
         <!--<a title="북마크" class="bookmark toggle">
             내메뉴
         </a>-->
       </div>
       <ul class="page-navi">
         <li><img src="/images/icon/ico-nav-home.svg" alt="홈아이콘"></li>
-        <li>시스템 설정</li>
-        <li>마케팅 관리</li>
+        <li>결재목록</li>
+        <li>결재내역</li>
       </ul>
     </div>
     <!-- Select -->
+    <div class="search-wrap" id="searchWrap" style="display: none; padding-top:10px">
+      <ul>
+        <li>
+          <select title="사업장코드" id="search_spjangcd" name="search_sjangcd"
+                  onchange="init()">
+            <option value="" hidden selected disabled>선택</option>
+            <option value="ZZ">대한럭비협회</option>
+            <option value="PP"></option>
+            <!-- 지역 옵션을 JavaScript에서 동적으로 채움 -->
+          </select>
+        </li>
+      </ul>
+    </div>
     <div class="tab-contents">
-      <section class="tab-item" id="tab2" style="height: 750px; overflow: hidden;">
+      <section class="tab-item" id="tab2" style="height: 830px; overflow: hidden;">
         <div class="section-top">
           <div class="search-wrap">
             <dl>
               <dt>
                 <label for="searchUserNm">
-                  날짜<span class="eq">*</span>
+                  작성일자<span class="eq">*</span>
                 </label>
               </dt>
               <dd>
@@ -56,14 +69,28 @@
             </dl>
             <dl>
               <dt>
+                <label for="SearchPayment">
+                  진행구분<span class="eq"></span>
+                </label>
+              </dt>
+              <dd>
+                <div class="srch-box">
+                  <select id="SearchPayment" name="SearchPayment">
+                    <option value="all"></option>
+                  </select>
+                </div>
+              </dd>
+            </dl>
+            <dl>
+              <dt>
                 <label for="searchUserNm">
-                  기관명<span class="eq">*</span>
+                  제목<span class="eq">*</span>
                 </label>
               </dt>
               <dd>
                 <div class="srch-box">
                   <input type="text" id="searchUserNm" name="searchUserNm" class="input-srch"
-                         placeholder="기관명" style="border-radius: 5px;">
+                         placeholder="제목" style="border-radius: 5px;">
                 </div>
               </dd>
             </dl>
@@ -79,7 +106,7 @@
               </dd>
             </dl>
           </div>
-          <div class="button-wrap" style="border-top:none;">
+          <!--<div class="button-wrap" style="border-top:none;">
             <ul>
               <li>
                 <a class="btn btn-excell" title="신규등록" id="Newbtn" onclick="NewSave()">
@@ -94,12 +121,13 @@
                 </a>
               </li>
             </ul>
-          </div>
+          </div>-->
         </div>
 
         <div class="container-fluid">
           <p id="selectedItem"></p>
-          <div id="theGrid" style="max-height: 650px"></div>
+          <div id="theGrid1" style="max-height:200px"></div>
+          <div id="theGrid" style="max-height: 570px"></div>
         </div>
       </section>
     </div> <!--//tab-wrap end-->
@@ -108,95 +136,14 @@
     <p>ⓒ factCheck corp.All rights reserved.</p>
   </footer>
 
-  <div class="dashboard-layout-popup">
-    <div class="popup-overlay" id="popup1"></div>
-    <div class="popup-wrapper" id="wrapper1">
-      <div class="popup-title">
-        <h3>신규 등록</h3>
-        <a onclick="NewClose()" title="팝업닫기" class="btn-popup-close">
-          <img src="/images/icon/btn-popup-close.svg" alt="닫기">
-        </a>
-      </div>
-      <div class="popup-contents">
-        <form id="MarketingForm" autocomplete="off">
-          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-          <div class="table-wrap">
-            <table class="view-table" id="selectedData" style="max-height: 740px;">
-              <caption>마케팅관리 신규 등록 테이블</caption>
-              <colgroup>
-                <col class="wp20">
-                <col class="wauto">
-              </colgroup>
-              <tbody>
-              <tr>
-                <th><label for="makcltnm"> 기관명</label></th>
-                <td colspan="3">
-                  <input id="makcltnm" name="makcltnm" class="wp100" placeholder="기관명"/>
-                  <input id="makseq" type="hidden">
-                </td>
-              </tr>
-              <tr>
-                <th><label for="title">제목</label></th>
-                <td colspan="3">
-                  <input id="title" name="title" class="wp100" placeholder="제 목"/>
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <label for="makcondyul">추출조건</label>
-                </th>
-                <td colspan="3">
-                  <input type="text" id="makcondyul" name="makcondyul" class="wp100" placeholder=" 추출조건 (숫자만 입력)"
-                         oninput="addPercentageSign(this)"/>
-                </td>
-              </tr>
-              <tr>
-                <th><label for="makuseyul">활용수지</label></th>
-                <td colspan="3">
-                  <input type="text" id="makuseyul" name="makuseyul" class="wp100" placeholder="활용 수치 (숫자만 입력)"
-                         oninput="addPercentageSign(this)"/>
-                </td>
-              </tr>
-              <tr>
-                <th><label for="fileInput2">첨부파일</label></th>
-                <td colspan="3">
-                  <div id="uploadComponent2" class="upload-component2">
-                    <div class="upload-filebox2">
-                      <img src="/images/icon/ico-fileupload.svg" alt="업로드아이콘">
-                      <a class="btn" title="파일업로드">파일 업로드</a>
-                      <input type="file" id="fileInput2" class="fileInput2" multiple>
-                      <p>Maximun upload file size <span>1GiB</span></p>
-                    </div>
-
-                    <div class="upload-filelist2">
-                      <div class="title">
-                        <h5>Files (0)</h5>
-                        <a title="Delete all" class="btn-file-deleteall2">Delete all</a>
-                      </div>
-                      <ul class="filelist2" id="filelist2">
-                      </ul>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-        </form>
-      </div>
-      <div class="popup-button">
-        <button class="btn-popup-close" onclick="NewClose()">취소</button>
-        <button class="btn-navy" id="btnSaveAuth" onclick="SaveForm()"> 저장</button>
-      </div>
-    </div>
-  </div>
-
 </th:block>
 <th:block layout:fragment="scripts">
   <th:block th:replace="/common/columns_setting :: columns_setting"></th:block>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="text/javascript">
     let theGrid;
+    let theGrid1;
+    let isBindSpjangcdCalled = false;
 
     $(document).ready(function () {
       // 현재 날짜 설정
@@ -223,21 +170,30 @@
     })
 
     function init() {
+      if (!isBindSpjangcdCalled) {
+        bindSpjangcd();
+        isBindSpjangcdCalled = true; // 플래그 업데이트
+      }
       fetchListData();
+      fetchListData1();
     }
 
     function fetchListData() {
       let data = [];
 
       const params = {
+        search_spjangcd: $('#search_spjangcd').val(),
         startDate: $('#startDate').val(),
         endDate: $('#endDate').val(),
+        SearchPayment:$('#SearchPayment').val(),
         searchUserNm: $('#searchUserNm').val()
       };
 
+      console.log("수집 데이터(결재 목록)",params);
+
       // 서버에서 데이터 가져오기
       $.ajax({
-        url: '/api/Marketing/read',
+        url: '/api/PaymentList/read',
         type: 'GET',
         data: params,
         async: false,
@@ -250,16 +206,17 @@
           if (response && Array.isArray(response.data)) {
             data = response.data.map((item, index) => ({
               rownum: index + 1,
-              makseq: item.makseq || '',
-              indatem: item.indatem || '',
-              makcltnm: item.makcltnm || '',
-              maksubject: item.maksubject || '',
-              makcondyul: item.makcondyul ? item.makcondyul + '%' : '',
-              makuseyul: item.makuseyul ? item.makuseyul + '%' : '',
-              inuserid: item.inuserid || '',
-              makdate: item.makdate || '',
-              fileList: Array.isArray(item.filelist) ? item.filelist : [],
-              isdownload: item.isdownload
+              appdate: item.appdate ||'',
+              appgubun : item.appgubun || '',
+              appgubun_display: item.appgubun_display ||'',
+              appnum: item.appnum || '',
+              appperid: item.appperid||'',
+              papercd: item.papercd || '',
+              remark :item.remark ||'',
+              repodate: item.repodate || '' ,
+              repoperid: item.repoperid || '' ,
+              repopernm : item.repopernm||'',
+              title: item.title ||''
             }));
           }
         },
@@ -271,16 +228,17 @@
       while (data.length < 15) {
         data.push({
           rownum: data.length + 1,
-          makseq: '',
-          indatem: '',
-          makcltnm: '',
-          maksubject: '',
-          makcondyul: '',
-          makuseyul: '',
-          inuserid: '',
-          makdate: '',
-          fileList: [],
-          isdownload: '',
+          appdate: '',
+          appgubun:'',
+          appgubun_display:'',
+          appnum:'',
+          appperid:'',
+          papercd:'',
+          remark:'',
+          repodate:'',
+          repoperid:'',
+          repopernm:'',
+          title:''
         });
       }
 
@@ -291,360 +249,130 @@
           autoGenerateColumns: false,
           showMarquee: true,
           isReadOnly: true,
+          selectionMode: 'ListBox',
+          virtualizationThreshold: 1,
           columns: [
             {binding: 'rownum', header: '순번', width: 70, align: 'center'},
-            {binding: 'makseq', header: '일련번호', visible: false},
-            {binding: 'indatem', header: '등록일자', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'makcltnm', header: '기관명', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'maksubject', header: '제목', width: '*', minWidth: 300, align: 'center'},
-            {binding: 'makcondyul', header: '추출조건 (%)', width: '*', minWidth: 120, align: 'center'},
-            {binding: 'makuseyul', header: '활용수치 (%)', width: '*', minWidth: 120, align: 'center'},
-            {binding: 'inuserid', header: '등록자', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'makdate', header: '의뢰일자', width: '*', align: 'center', minWidth: 100},
-            {binding: 'fileList', header: '첨부파일', width: '*', align: 'center', minWidth: 120},
-            {binding: 'isdownload', visible: false},
+            {binding: 'appnum', header: '문서번호', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'repodate', header: '상신일자', width: '*', minWidth: 110, align: 'center'},
+            {binding: 'repopernm', header: '작성자명', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'papercd', header: '문서명', width: '*', minWidth: 120, align: 'center'},
+            {binding: 'appgubun', header: '결재구분', width: '*', minWidth: 100, align: 'center', visible: false},
+            {binding: 'appgubun_display', header: '결재구분', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appdate', header: '결재일자', width: '*', minWidth: 110, align: 'center'},
+            {binding: 'title', header: '제목', width: '*', align: 'center', minWidth: 100},
+            {binding: 'remark', header: '사유', width: '*', align: 'center', minWidth: 100},
+            {binding: 'appperid', header: '', visible: false},
+            {binding: 'repoperid', header: '', visible: false},
           ],
           itemsSource: viewdata,
-          itemFormatter: function (panel, r, c, cell) {
-            if (panel.cellType === wijmo.grid.CellType.Cell) {
-              let item = panel.rows[r].dataItem;
-
-              if (panel.columns[c].binding === 'fileList') {
-                cell.innerHTML = ''; // 기존 내용 삭제
-
-                if (item.isdownload && item.fileList.length > 0) {
-                  let downloadBtn = document.createElement("a");
-                  downloadBtn.href = "#";
-                  downloadBtn.classList.add("btn-filedown");
-                  downloadBtn.title = "다운로드";
-                  downloadBtn.textContent = "다운로드";
-
-                  // 클릭 시, 해당 행의 `fileList` 전달
-                  downloadBtn.onclick = function (event) {
-                    event.preventDefault();
-                    downloadFile_order(item.fileList);
-                  };
-
-                  cell.appendChild(downloadBtn);
-                }
-              }
-            }
-          }
         });
         theGrid.rowHeaders.columns.splice(0, 1);
-        attachDoubleClickEvent(theGrid); //더블 클릭 이벤트
         new FlexGridContextMenu(theGrid);
-        window.downloadFileName = '마케팅 관리';
+        window.downloadFileName = '결재 목록';
       } else {
         theGrid.itemsSource = viewdata;
       }
     }
 
-    // 더블 클릭 이벤트: 클릭한 데이터로 팝업 열기
-    function attachDoubleClickEvent(grid) {
-      let lastClickTime = 0;
-      grid.hostElement.addEventListener('click', function (e) {
-        const now = new Date().getTime();
+    function fetchListData1() {
+      let data = [];
 
-        if (now - lastClickTime < 300) { // 300ms 이내 클릭 -> 더블클릭 처리
-          const ht = grid.hitTest(e);
-
-          if (ht.cellType === wijmo.grid.CellType.Cell) {
-            const rowData = grid.rows[ht.row].dataItem; // 더블 클릭한 행의 데이터
-            console.log('Row Data:', rowData); // 디버깅
-
-            if (rowData) {
-              modifyData(rowData); // 데이터 입력 필드 채우기
-              NewSave2(); // 팝업 열기
-            }
-          }
-        }
-        lastClickTime = now;
-      });
-    }
-
-    // 선택한 행의 데이터를 팝업 입력 필드에 채우고, 첨부 파일을 UI에 표시
-    function modifyData(rowData) {
-      console.log("✔️ 더블클릭한 행의 데이터:", rowData);
-      console.log("✔️ 파일 목록 데이터:", rowData.fileList || "🚨 fileList가 없습니다!");
-
-      document.getElementById('makseq').value = rowData.makseq || "";
-      document.getElementById('makcltnm').value = rowData.makcltnm || "";
-      document.getElementById('title').value = rowData.maksubject || "";
-      document.getElementById('makcondyul').value = rowData.makcondyul || "";
-      document.getElementById('makuseyul').value = rowData.makuseyul || "";
-
-      let fileList = document.getElementById('filelist2');
-      fileList.innerHTML = "";
-      uploadedFiles2 = [];
-      deletedFiles2 = [];
-
-      if (rowData.fileList && Array.isArray(rowData.fileList)) {
-        rowData.fileList.forEach(file => {
-          let listItem = document.createElement("li");
-
-          let fileInfo = document.createElement("p");
-          fileInfo.textContent = file.fileornm + " ";
-
-          // 파일 사이즈 표시 (서버에서 내려오는 속성명이 "fileSize" 또는 "filesize"에 맞춰 사용)
-          let size = file.fileSize || file.filesize;  // 속성명이 다를 수 있으므로 두 가지 모두 확인
-          let fileSize = document.createElement("span");
-          if (size) {
-            // 예: 85309 bytes → "85 KB" (원하는 단위로 변환 가능)
-            let kb = Math.round(size / 1024);
-            fileSize.textContent = `(${kb} KB)`;
-          } else {
-            fileSize.textContent = "(파일 크기 알 수 없음)";
-          }
-          fileInfo.appendChild(fileSize);
-
-          let deleteBtn = document.createElement("a");
-          deleteBtn.href = "#";
-          deleteBtn.title = "삭제";
-          deleteBtn.classList.add("btn-file-delete2");
-
-          let deleteIcon = document.createElement("img");
-          deleteIcon.src = "/images/icon/ico-filedelete.svg";
-          deleteIcon.alt = "삭제아이콘";
-
-          deleteBtn.appendChild(deleteIcon);
-          deleteBtn.onclick = function (event) {
-            event.preventDefault();
-            uploadedFiles2 = uploadedFiles2.filter(f => f.filesvnm !== file.filesvnm);
-            listItem.remove();
-            updateFileCount();
-          };
-          deleteBtn.onclick = function (event) {
-            event.preventDefault();
-            deletedFiles2.push(file); // 🔹 삭제된 파일을 배열에 추가
-            listItem.remove();
-            updateFileCount();
-          };
-
-          listItem.appendChild(fileInfo);
-          listItem.appendChild(deleteBtn);
-          fileList.appendChild(listItem);
-
-          uploadedFiles2.push(file);
-        });
-
-        updateFileCount();
-      }
-    }
-
-    // 파일 개수 업데이트 함수
-    function updateFileCount() {
-      let fileCount = uploadedFiles2.length;
-      $(".upload-filelist2 h5").text(`Files (${fileCount})`);
-      $(".btn-file2 span").text(`(${fileCount})`);
-    }
-
-    // 다운로드
-    function downloadFile_order(fileList) {
-      if (!fileList || fileList.length === 0) {
-        console.warn("다운로드할 파일이 없습니다.");
-        return;
-      }
-
-      console.log("다운로드할 파일 목록:", fileList);
-
-      let downloadList = fileList.map(file => ({
-        filepath: file.filepath,
-        filesvnm: file.filesvnm,
-        fileornm: file.fileornm
-      }));
-
-      let downloadUrl = '/api/announcement/downloader';
-
-      // 파일 리스트를 서버에 전송하여 다운로드 실행
-      downloadFiles(downloadList, downloadUrl);
-    }
-
-    // 저장& 수정
-    function SaveForm() {
-      const formData = {
-        makseq: $("#makseq").val(),
-        makcltnm: $("#makcltnm").val(),
-        maksubject: $("#title").val(),
-        makcondyul: $("#makcondyul").val(),
-        makuseyul: $("#makuseyul").val(),
+      const params = {
+        search_spjangcd: $('#search_spjangcd').val(),
+        startDate: $('#startDate').val(),
+        endDate: $('#endDate').val(),
+        searchUserNm: $('#searchUserNm').val()
       };
 
-      let formDataObj = new FormData();
-      formDataObj.append("formData", new Blob([JSON.stringify(formData)], { type: "application/json" }));
-
-      console.log("✅ 저장할 데이터 :", formData);
-      // 기존 업로드된 파일 추가
-      if (uploadedFiles2 && uploadedFiles2.length > 0) {
-        console.log(`📂 파일 개수: ${uploadedFiles2.length}`);
-        uploadedFiles2.forEach((file, index) => {
-          formDataObj.append("files", file);
-          console.log(`✅ 파일 추가됨 [${index + 1}/${uploadedFiles2.length}]: ${file.name}`);
-        });
-      } else {
-        console.log("📂 추가할 파일 없음.");
-      }
-
-      // 🔹 삭제된 파일 리스트를 JSON 문자열이 아닌 "plain string"으로 전달 (🚀 수정!)
-      if (deletedFiles2.length > 0) {
-        const deletedFilesJson = JSON.stringify(deletedFiles2.map(file => file.filesvnm)); // 파일 식별자만 추출
-        formDataObj.append("deletedFiles", deletedFilesJson); // ❌ Blob이 아니라 그냥 문자열로 추가!
-      }
-
-      console.log("formData : ", formDataObj);
-      console.log("📂 최종 formDataObj 확인:", formDataObj);
-
-      // AJAX 요청
+      // 서버에서 데이터 가져오기
       $.ajax({
-        url: '/api/Marketing/save',
-        type: 'POST',
-        data: formDataObj,
-        contentType: false,
-        processData: false,
-        headers: {
-          'X-CSRF-Token': $('[name=_csrf]').val()
-        },
+        url: '/api/PaymentList/read1',
+        type: 'GET',
+        data: params,
+        async: false,
         success: function (response) {
-          if (response.success) {
-            Alert.alert("", "저장이 완료되었습니다!");
-            NewClose();
-            fetchListData();
-          } else {
-            console.error("❌ 저장 중 문제가 발생했습니다:", response.message);
-            Alert.alert("", "저장 중 문제가 발생했습니다.");
+          console.log("서버에서 받은 데이터 :", response);
+          // 응답이 올바르게 도착했고, data 속성이 배열인지 확인
+          if (response && Array.isArray(response.data)) {
+            console.log("서버에서 받은 데이터 목록:", response.data); //실제 데이터 확인
+          }
+          if (response && Array.isArray(response.data)) {
+            data = response.data.map((item, index) => ({
+              appgubun1: (item.appgubun1 || '0') + "건",
+              appgubun2: (item.appgubun2 || '0') + "건",
+              appgubun3: (item.appgubun3 || '0') + "건"
+            }));
           }
         },
-        error: function (xhr, status, error) {
-          console.error("🚨 저장 중 오류 발생:", status, error);
-          Alert.alert("", "저장 중 오류가 발생했습니다. 관리자에게 문의하세요.");
+        error: function () {
+          console.error("데이터를 가져오는 중 오류가 발생했습니다.");
         }
       });
-    }
 
-    // 삭제 함수
-    function deleteData() {
-      let selectedItem = theGrid.selection.row >= 0 ? theGrid.rows[theGrid.selection.row].dataItem : null;
-
-      console.log("선택된 아이템:", selectedItem); // 선택된 행의 데이터 확인
-
-      if (!selectedItem || !selectedItem.makseq) {
-        Alert.alert('', "삭제할 데이터를 선택해주세요.");
-        console.warn("삭제할 데이터가 선택되지 않음");
-        return;
-      }
-
-      const makseq = selectedItem.makseq; // 선택한 행의 makseq 값
-      console.log("삭제할 makseq:", makseq); // makseq 값 확인
-
-      Alert.confirm('', '삭제하시겠습니까?', function () {
-        $.ajax({
-          url: '/api/Marketing/delete',  // API URL 확인
-          type: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify({makseq: makseq}),  // JSON 데이터 확인
-          headers: {
-            'X-CSRF-Token': $('[name=_csrf]').val()
-          },
-          success: function (response) {
-            console.log("서버 응답:", response); // 서버 응답 확인
-            if (response.success) {
-              Alert.alert('', "삭제가 완료되었습니다.");
-              fetchListData(); // 데이터 새로고침
-              clearForm(); // 폼 초기화
-            } else {
-              Alert.alert('', "삭제 중 문제가 발생했습니다: " + response.message);
-              console.warn("삭제 중 오류:", response.message);
-            }
-          },
-          error: function (xhr, status, error) {
-            Alert.alert('', "삭제 요청 중 오류가 발생했습니다.");
-            console.error("삭제 요청 실패:", status, error);
-          }
+      while (data.length < 1) {
+        data.push({
+          appgubun1: '',
+          appgubun2: '',
+          appgubun3: ''
         });
-      });
-    }
-
-    /*팝업*/
-
-    function NewSave() {
-      let popup = document.getElementById('popup1');
-      let wrapper = document.getElementById('wrapper1');
-      clearForm();  // 폼 초기화
-      popup.style.display = 'block';
-      wrapper.style.display = 'block';
-    }
-    function NewSave2() {
-      let popup = document.getElementById('popup1');
-      let wrapper = document.getElementById('wrapper1');
-
-      popup.style.display = 'block';
-      wrapper.style.display = 'block';
-    }
-
-    function NewClose() {
-      // 팝업 닫기
-      let popup = document.getElementById('popup1');
-      let wrapper = document.getElementById('wrapper1');
-      clearForm();  // 폼 초기화
-      popup.style.display = 'none';
-      wrapper.style.display = 'none';
-    }
-
-    // 폼 초기화 함수
-    function clearForm() {
-      // 폼 요소 선택
-      const form = document.getElementById('MarketingForm');
-
-      if (form) {
-        form.reset(); // 모든 입력 필드 초기화
       }
 
-      // 파일 입력 필드 초기화
-      let fileInput = document.getElementById('fileInput2');
-      if (fileInput) {
-        fileInput.value = "";
-      }
+      const viewdata = new wijmo.collections.CollectionView(data);
 
-      // 파일 목록 UI 초기화
-      let fileList = document.getElementById('filelist2');
-      if (fileList) {
-        fileList.innerHTML = "";
-      }
-
-      // 파일 리스트 배열 초기화
-      uploadedFiles2 = [];
-
-      // 파일 개수 텍스트 업데이트 (실시간 반영 확인)
-      let fileCountText = document.querySelector(".upload-filelist2 h5");
-      if (fileCountText) {
-        fileCountText.textContent = `Files (${uploadedFiles2.length})`;
-      }
-      let clearButton = document.querySelector(".btn-clear");
-      if (clearButton) {
-        clearButton.remove();  // 요소 자체를 삭제
-      }
-    }
-
-    // 발생비율(기호)
-    function addPercentageSign(input) {
-      const cursorPosition = input.selectionStart;
-      // 숫자만 추출
-      let value = input.value.replace(/[^0-9.]/g, '');
-      // 입력값이 숫자로 변환 가능하고, 최대값 100 이하인지 체크
-      if (value && parseInt(value, 10) > 100) {
-        value = '100'; // 100으로 강제 설정
-      }
-      // 입력 값이 비어 있지 않을 때만 % 추가
-      if (value) {
-        input.value = value + '%';
+      if (!theGrid1) {
+        theGrid1 = new wijmo.grid.FlexGrid('#theGrid1', {
+          autoGenerateColumns: false,
+          showMarquee: true,
+          isReadOnly: true,
+          columns: [
+            {binding: 'appgubun1', header: '결재대기', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appgubun2', header: '결재문서', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appgubun3', header: '반려문서', width: '*', minWidth: 100, align: 'center'},
+          ],
+          itemsSource: viewdata,
+        });
+        theGrid1.rowHeaders.columns.splice(0, 1);
+        new FlexGridContextMenu(theGrid1);
+        window.downloadFileName = '문서 현황';
       } else {
-        input.value = ''; // 빈 값 처리
-      }
-      // 커서 위치 조정
-      if (cursorPosition <= value.length) {
-        input.setSelectionRange(cursorPosition, cursorPosition); // 커서를 유지
+        theGrid1.itemsSource = viewdata;
       }
     }
+
+    //공통코드
+    const selectConfigs = [
+      {parentCode: 'Payment', elementId: 'SearchPayment'},
+    ];
+
+    selectConfigs.forEach(config => {
+      initializeSelect3({
+        url: '/api/PaymentList/payType',
+        params: {parentCode: config.parentCode},
+        elementId: config.elementId,
+        valueField: "code",
+        textField: "value",
+        includeAllOption: true, // "전체" 옵션 사용
+        // defaultValue: "001" // 기본 선택값 [대기]
+      });
+    });
+
+    //사업장 코드
+    function bindSpjangcd() {
+      $.ajax({
+        url: '/api/PaymentList/bindSpjangcd',
+        type: 'GET',
+        async: false,
+        success: function (data) {
+          data2 = data.data;
+          const selectElement = document.getElementById('search_spjangcd');
+          if (selectElement) {
+            selectElement.value = data2; // value 속성으로 선택
+          }
+        }
+      })
+    }
+
 
   </script>
 </th:block>

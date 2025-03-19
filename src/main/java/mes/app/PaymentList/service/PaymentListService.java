@@ -63,8 +63,8 @@ public class PaymentListService {//결재목록
       params.addValue("as_appgubun", searchPayment);
     }
 
-//    log.info("결재 목록 List SQL: {}", sql);
-//    log.info("SQL Parameters: {}", params.getValues());
+    log.info("결재 목록 List SQL: {}", sql);
+    log.info("SQL Parameters: {}", params.getValues());
     return sqlRunner.getRows(sql.toString(), params);
   }
 
@@ -104,4 +104,20 @@ public class PaymentListService {//결재목록
     return resultSpjangcd;
   }
 
+  public List<Map<String, Object>> getPaymentList1(String spjangcd, String startDate, String endDate, String agencycd) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("as_spjangcd", spjangcd);
+    params.addValue("as_stdate", startDate);
+    params.addValue("as_enddate", endDate);
+    params.addValue("as_perid", agencycd);
+    StringBuilder sql = new StringBuilder("""
+        SELECT (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '001' AND appperid = :as_perid AND flag = '1' AND repodate Between :as_stdate AND :as_enddate) as appgubun1,
+        	    (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '101' AND appperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun2,
+        	    (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '131' AND appperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun3
+        FROM dual
+        """);
+    log.info("결재목록_문서현황 List SQL: {}", sql);
+    log.info("SQL Parameters: {}", params.getValues());
+    return sqlRunner.getRows(sql.toString(), params);
+  }
 }

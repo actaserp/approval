@@ -39,7 +39,7 @@ public class SecurityConfiguration {
 		http.csrf().ignoringAntMatchers("/api/gene/**");
         
         http.authorizeRequests().mvcMatchers("/login","/logout", "/useridchk/**", "/Register/save").permitAll()
-				.mvcMatchers("/api/sales/upload/**", "/api/gene/**").permitAll()  // 모든 사용자에게 허용 (임시)
+				.mvcMatchers("/api/sales/upload/**", "/api/gene/**", "/appkey/**").permitAll()  // 모든 사용자에게 허용 (임시)
 				.mvcMatchers("/user-codes/**", "/user-auth/**").permitAll()
 				.mvcMatchers("/authentication/**").permitAll()
 //				.mvcMatchers("/api/sales/upload/**").authenticated()  // 모든 인증된 사용자에게 허용 (임시)
