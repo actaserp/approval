@@ -139,7 +139,7 @@
                     <table class="view-table" id="selectedData">
                       <caption>공지사항 등록 테이블</caption>
                       <colgroup>
-                        <col class="wp20">
+                        <col class="wp15">
                         <col class="wauto">
                       </colgroup>
                       <tbody>
@@ -162,7 +162,7 @@
                         <td>
                           <input type="date" id="create_date" name="create_date" class="wp100">
                         </td>
-                        <th style="width: 85px"><label for="show_start_date">게시기간<span class="eq">*</span></label></th>
+                        <th style="width: 90px"><label for="show_start_date">게시기간<span class="eq">*</span></label></th>
                         <td style="width: 400px;">
                           <input type="date" id="show_start_date" name="show_start_date" class="wp40">&ensp;-&ensp;<input type="date" id="show_end_date" name="show_end_date" class="wp40">
                         </td>
@@ -351,7 +351,7 @@
             document.getElementById('show_start_date').value = item.BBSFRDATE;
             document.getElementById('show_end_date').value = item.BBSTODATE;
             document.getElementById('tel').value = item.BBSTEL;
-            tinymce.get('remark').setContent(item.BBSTEXT);  // 'ordtext'는 TinyMCE가 적용된 요소의 id
+            document.getElementById('remark').value = item.BBSTEXT;
 
             // filelist 처리
             let fileList = Array.isArray(item.filelist) ? item.filelist : [];
@@ -398,15 +398,9 @@
         let field = requiredFields[i];
         let value;
 
-        if (field.isEditor) {
-          // TinyMCE 에디터의 내용을 가져옴
-          const editor = tinymce.get(field.id.replace('#', '')); // '#' 제거
-          value = editor ? editor.getContent({format: 'text'}) : '';
-        } else {
-          // 일반 입력 필드의 값을 가져옴
-          let $element = $(field.id);
-          value = $element.val();
-        }
+        // 일반 입력 필드의 값을 가져옴
+        let $element = $(field.id);
+        value = $element.val();
 
         // 요소가 존재하지 않거나 값이 빈 경우 경고
         if (!value || value.trim() === '') {
@@ -419,7 +413,7 @@
         let formData = new FormData();
         formData.append('BBSSEQ', $('#bbsseq').val())
         formData.append('BBSSUBJECT', $('#subject').val());
-        formData.append('BBSTEXT', tinymce.get('remark').getContent());
+        formData.append('BBSTEXT', $('#remark').val());
         formData.append('BBSTEL', $('#tel').val());
         formData.append('BBSDATE', $('#create_date').val().replace(/-/g, ''));
         formData.append('BBSFRDATE', $('#show_start_date').val().replace(/-/g, ''));
@@ -505,16 +499,12 @@
     function resetFormFields(){
       const fieldsToReset = [
         'bbsseq',
-        'subject', 'create_date', 'show_start_date', 'show_end_date','tel'
+        'subject', 'create_date', 'show_start_date', 'show_end_date','tel', 'remark'
       ];
       fieldsToReset.forEach(fieldId => {
         document.getElementById(fieldId).value = '';
       });
-      // TinyMCE 에디터 초기화
-      const editor = tinymce.get('remark'); // 'remark'는 TinyMCE가 초기화된 textarea의 ID
-      if (editor) {
-        editor.setContent(''); // 에디터 내용 초기화
-      }
+
       document.getElementById('create_date').value = today;
       $('.filelist2').empty(); // 파일 리스트 초기화
       uploadedFiles2 = []; // 업로드된 파일 리스트 초기화
