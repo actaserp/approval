@@ -818,7 +818,7 @@
         const alarmCount = data.length;
         const alarmTab = document.querySelector('.alarm-tab-links a');
         if (alarmTab) {
-            alarmTab.innerHTML = `주문의뢰(${alarmCount})`;
+            alarmTab.innerHTML = `결재(${alarmCount})건`;
         }
     }
 
@@ -833,26 +833,24 @@
             const row = `
             <tr>
                 <td>${item.alert_date || '날짜 없음'}</td>
-                <td>${item.cltnm || '업체명 없음'}</td>
-                <td>${getOrdflagText(item.ordflag)}</td>
+                <td>${item.title || '제목 없음'}</td>
+                <td>${getOrdflagText(item.appgubun)}</td>
             </tr>`;
             tableBody.insertAdjacentHTML('beforeend', row);
         });
     }
 
     // ordflag 값을 텍스트로 변환하는 함수
-    function getOrdflagText(ordflag) {
-        switch (parseInt(ordflag, 10)) { // ordflag를 숫자로 변환
-            case 0:
-                return "주문등록";
-            case 1:
-                return "주문확인";
-            case 2:
-                return "주문확정";
-            case 3:
-                return "제작진행";
-            case 4:
-                return "출고";
+    function getOrdflagText(appgubun) {
+        switch (appgubun) { // ordflag를 숫자로 변환
+            case "001":
+                return "결재대기";
+            case "101":
+                return "결재";
+            case "131":
+                return "보류";
+            case "201":
+                return "반려";
             default:
                 return "상태 없음"; // 기본 값
         }

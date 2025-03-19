@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -87,25 +89,47 @@ public class OrderDashboardService {
         return items;
     }
 
-    public List<Map<String, Object>> initDatas(TB_DA006W_PK tbDa006WPk, String cltcd) {
+    public List<Map<String, Object>> initDatas(String as_perid) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
         StringBuilder sql = new StringBuilder("""
                 SELECT
-                    hd.ordflag,
-                    COUNT(*) AS ordflag_count
-                FROM
-                    TB_DA006W hd
-                WHERE
-                    hd.custcd = :custcd
-                    AND hd.spjangcd = :spjangcd
-                    AND hd.cltcd = :cltcd
-                    AND LEFT(hd.reqdate, 4) = CAST(YEAR(GETDATE()) AS VARCHAR(4))
-                GROUP BY
-                    hd.ordflag;
+                    (SELECT COUNT(appgubun)
+                     FROM S_KRU.dbo.TB_E080 WITH(NOLOCK)
+                     WHERE appgubun = '001'
+                     AND appperid = :as_perid
+                     AND flag = '1'
+                     AND repodate BETWEEN :as_stdate AND :as_enddate) AS appgubun1, -- 대기
+                
+                    (SELECT COUNT(appgubun)
+                     FROM S_KRU.dbo.TB_E080 WITH(NOLOCK)
+                     WHERE appgubun = '101'
+                     AND appperid = :as_perid
+                     AND flag = '1'
+                     AND repodate BETWEEN :as_stdate AND :as_enddate) AS appgubun2, -- 결제
+                
+                    (SELECT COUNT(appgubun)
+                     FROM S_KRU.dbo.TB_E080 WITH(NOLOCK)
+                     WHERE appgubun = '131'
+                     AND appperid = :as_perid
+                     AND flag = '1'
+                     AND repodate BETWEEN :as_stdate AND :as_enddate) AS appgubun3, -- 반려
+                
+                    (SELECT COUNT(appgubun)
+                     FROM S_KRU.dbo.TB_E080 WITH(NOLOCK)
+                     WHERE appgubun = '201'
+                     AND appperid = :as_perid
+                     AND flag = '1'
+                     AND repodate BETWEEN :as_stdate AND :as_enddate) AS appgubun4 -- 보류
                 """);
-        dicParam.addValue("custcd", tbDa006WPk.getCustcd());
-        dicParam.addValue("spjangcd", tbDa006WPk.getSpjangcd());
-        dicParam.addValue("cltcd", cltcd);
+        // 현재 연도의 1월 1일과 12월 31일을 자동으로 설정
+        LocalDate today = LocalDate.now();
+        String startDate = today.withDayOfYear(1).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String endDate = today.withMonth(12).withDayOfMonth(31).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        dicParam.addValue("as_perid", as_perid);
+        dicParam.addValue("as_stdate", startDate);
+        dicParam.addValue("as_enddate", endDate);
+
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql.toString(), dicParam);
         return items;
     }

@@ -78,7 +78,7 @@ public class OrderDashboardController {
         return result;
     }
     @GetMapping("/initDatas")
-    public AjaxResult initDatas(Authentication auth){
+    public AjaxResult initDatas(Authentication auth, String as_perid){
         User user = (User) auth.getPrincipal();
         String username = user.getUsername();
         Map<String, Object> userInfo = orderDashboardService.getUserInfo(username);
@@ -86,7 +86,7 @@ public class OrderDashboardController {
         tbDa006WPk.setSpjangcd((String) userInfo.get("spjangcd"));
         tbDa006WPk.setCustcd((String) userInfo.get("custcd"));
         String cltcd = (String) userInfo.get("cltcd");
-        List<Map<String, Object>> items = this.orderDashboardService.initDatas(tbDa006WPk, cltcd);
+        List<Map<String, Object>> items = this.orderDashboardService.initDatas(as_perid);
         AjaxResult result = new AjaxResult();
         result.data = items;
         return result;

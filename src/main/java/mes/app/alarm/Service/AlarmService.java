@@ -31,24 +31,17 @@ public class AlarmService {
         }
 
         String sql = """
-        SELECT 
-            tb007.reqdate AS alert_date,  
-            tb006.cltnm AS cltnm,        
-            tb006.ordflag AS ordflag     
-        FROM 
-            TB_DA007W tb007
-        LEFT JOIN 
-            TB_DA006W tb006
-        ON 
-            tb007.custcd = tb006.custcd
-            AND tb007.spjangcd = tb006.spjangcd
-            AND tb007.reqdate = tb006.reqdate
-            AND tb007.reqnum = tb006.reqnum
-        WHERE 
-            tb006.adflag = 0           -- spjangcd가 0인 데이터만 가져오기
-        ORDER BY 
-            tb007.reqdate DESC;
-          """;
+        SELECT
+                    e.indate AS alert_date,
+                    e.title,
+                    e.appgubun
+                FROM
+                    TB_E080 e
+                WHERE
+                    e.appgubun = '001'           -- spjangcd가 0인 데이터만 가져오기
+                ORDER BY
+                    e.indate DESC;
+        """;
 
         return sqlRunner.getRows(sql, params);
     }

@@ -4,7 +4,7 @@
         width: 80vw;
         height: 80vh;
         max-width: 800px; /
-        max-height: 600px;
+    max-height: 600px;
     }
     #modalChartHolder {
         width: 100%;
@@ -39,7 +39,6 @@
                         <option value="" hidden selected disabled>선택</option>
                         <option value="ZZ">성우에스피(주)</option>
                         <option value="PP">성우피앤비(주)</option>
-                        <!-- 지역 옵션을 JavaScript에서 동적으로 채움 -->
                     </select>
                 </li>
             </ul>
@@ -47,36 +46,28 @@
         <div class="row row-1" style="margin-bottom: 0;">
             <div class="card-wrap swiper card-swiper">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                        <section class="request">
+                    <div class="swiper-slide" data-index="1">
+                        <section class="waitPayment">
                             <div class="title">
-                                <h3>주문등록</h3>
+                                <h3>결재 대기</h3>
                                 <a href="#" title="더보기" class="btn-plus"></a>
                             </div>
                             <dl>
-                                <dt>전년대비 건수</dt>
                                 <dd>
-                                    <span class="up"></span> - <span class="unit">건</span>
+                                     - <span class="unit">건</span>
                                 </dd>
                             </dl>
-<!--                            <dl>-->
-<!--                                <dt>전일대비</dt>-->
-<!--                                <dd>-->
-<!--                                    <span class="down"></span> 1.20 <span class="unit">%</span>-->
-<!--                                </dd>-->
-<!--                            </dl>-->
                         </section>
                     </div>
-                    <div class="swiper-slide">
-                        <section class="check">
+                    <div class="swiper-slide" data-index="2">
+                        <section class="paymentProgress">
                             <div class="title">
-                                <h3>주문확인</h3>
+                                <h3>결재</h3>
                                 <a href="#" title="더보기" class="btn-plus"></a>
                             </div>
                             <dl>
-                                <dt>전년대비 건수</dt>
                                 <dd>
-                                    <span class="up"></span> - <span class="unit">건</span>
+                                     - <span class="unit">건</span>
                                 </dd>
                             </dl>
                             <!--                            <dl>-->
@@ -87,149 +78,146 @@
                             <!--                            </dl>-->
                         </section>
                     </div>
-                    <div class="swiper-slide">
-                        <section class="order">
+                    <div class="swiper-slide" data-index="3">
+                        <section class="companion">
                             <div class="title">
-                                <h3>주문확정</h3>
+                                <h3>반려</h3>
                                 <a href="#" title="더보기" class="btn-plus"></a>
                             </div>
                             <dl>
-                                <dt>전년대비 건수</dt>
                                 <dd>
-                                    <span class="up"></span> - <span class="unit">건</span>
+                                     - <span class="unit">건</span>
                                 </dd>
                             </dl>
-<!--                            <dl>-->
-<!--                                <dt>전일대비</dt>-->
-<!--                                <dd>-->
-<!--                                    <span class="up"></span> 2.20 <span class="unit">%</span>-->
-<!--                                </dd>-->
-<!--                            </dl>-->
+                            <!--                            <dl>-->
+                            <!--                                <dt>전일대비</dt>-->
+                            <!--                                <dd>-->
+                            <!--                                    <span class="down"></span> 1.20 <span class="unit">%</span>-->
+                            <!--                                </dd>-->
+                            <!--                            </dl>-->
                         </section>
                     </div>
-                    <div class="swiper-slide">
-                        <section class="product">
+                    <div class="swiper-slide" data-index="4">
+                        <section class="hold">
                             <div class="title">
-                                <h3>제작진행</h3>
+                                <h3>보류</h3>
                                 <a href="#" title="더보기" class="btn-plus"></a>
                             </div>
                             <dl>
-                                <dt>전년대비 건수</dt>
                                 <dd>
-                                    <span class="up"></span> - <span class="unit">건</span>
+                                     - <span class="unit">건</span>
                                 </dd>
                             </dl>
-<!--                            <dl>-->
-<!--                                <dt>전일대비</dt>-->
-<!--                                <dd>-->
-<!--                                    <span class="down"></span> 1.20 <span class="unit">%</span>-->
-<!--                                </dd>-->
-<!--                            </dl>-->
+                            <!--                            <dl>-->
+                            <!--                                <dt>전일대비</dt>-->
+                            <!--                                <dd>-->
+                            <!--                                    <span class="up"></span> 2.20 <span class="unit">%</span>-->
+                            <!--                                </dd>-->
+                            <!--                            </dl>-->
                         </section>
                     </div>
-                    <div class="swiper-slide">
-                        <section class="delivery">
+                    <div class="swiper-slide" data-index="5">
+                        <section class="complete">
                             <div class="title">
-                                <h3>출고</h3>
+                                <h3>완료</h3>
                                 <a href="#" title="더보기" class="btn-plus"></a>
                             </div>
                             <dl>
-                                <dt>전년대비 건수</dt>
                                 <dd>
-                                    <span class="up"></span> - <span class="unit">건</span>
+                                     - <span class="unit">건</span>
                                 </dd>
                             </dl>
-<!--                            <dl>-->
-<!--                                <dt>열효율</dt>-->
-<!--                                <dd>-->
-<!--                                    39.0 <span class="unit">%</span>-->
-<!--                                </dd>-->
-<!--                            </dl>-->
+                            <!--                            <dl>-->
+                            <!--                                <dt>전일대비</dt>-->
+                            <!--                                <dd>-->
+                            <!--                                    <span class="down"></span> 1.20 <span class="unit">%</span>-->
+                            <!--                                </dd>-->
+                            <!--                            </dl>-->
                         </section>
                     </div>
                 </div> <!--//swiper-wrapper end -->
             </div> <!--//main-card-wrap end -->
         </div>
 
-      <div class="col wp100">
-        <section style="padding-top: 5px; padding-bottom: 5px; margin-bottom: 0;">
-          <div class="title-wrap">
-            <ul class="tab-links-sub">
-              <li>
-                <a href="#tab1" title="주문의뢰 건수"></a>
-              </li>
-              <li>
-                <a href="#tab2" title="전년대비 건수"></a>
-              </li>
-              <li>
-                <a href="#tab3" title="당월 건수"></a>
-              </li>
-              <li>
-                <a href="#tab4" title="전월 건수"></a>
-              </li>
-            </ul>
-          </div>
+        <div class="col wp100">
+            <section style="padding-top: 5px; padding-bottom: 5px; margin-bottom: 0;">
+                <div class="title-wrap">
+                    <ul class="tab-links-sub">
+                        <li>
+                            <a href="#tab1" title="주문의뢰 건수"></a>
+                        </li>
+                        <li>
+                            <a href="#tab2" title="전년대비 건수"></a>
+                        </li>
+                        <li>
+                            <a href="#tab3" title="당월 건수"></a>
+                        </li>
+                        <li>
+                            <a href="#tab4" title="전월 건수"></a>
+                        </li>
+                    </ul>
+                </div>
 
-          <div class="tab-contents">
-            <div class="tab-row" style="display: flex; width: 100%; gap: 20px; margin-bottom: 3px;">
-              <section style="width: 50%; height: 260px; padding: 10px;">
-                <div class="tab-item-sub" id="tab1" style="height: 100%">
-                  <h5>올해 월별 건수</h5>
-                  <!--<div class="chart-wrap">
-                   &lt;!&ndash; <div id="chartHolder1"  style="width: 100%; height: 420px; padding-top: 13px"></div>&ndash;&gt;
-                      <canvas id="revenueChart"></canvas>
-                  </div>-->
-                    <div class="chart-wrap" style="justify-content: normal;position: relative;height: 210px;">
-                        <canvas id="revenueChart" width="740" height="185" style="width: 740px; height: 185px;"></canvas>
-                        <span class="material-symbols-outlined" style="position: absolute; top: 17px; right: 3px; cursor: pointer; z-index: 10; color: rgb(179, 179, 179);" onclick="openModal('revenueChart')">zoom_out_map</span>
+                <div class="tab-contents">
+                    <div class="tab-row" style="display: flex; width: 100%; gap: 20px; margin-bottom: 3px;">
+                        <section style="width: 50%; height: 260px; padding: 10px;">
+                            <div class="tab-item-sub" id="tab1" style="height: 100%">
+                                <h5>결재요청받은(일별) 데이터</h5>
+                                <!--<div class="chart-wrap">
+                                 &lt;!&ndash; <div id="chartHolder1"  style="width: 100%; height: 420px; padding-top: 13px"></div>&ndash;&gt;
+                                    <canvas id="revenueChart"></canvas>
+                                </div>-->
+                                <div class="chart-wrap" style="justify-content: normal;position: relative;height: 210px;">
+                                    <canvas id="revenueChart" width="740" height="185" style="width: 740px; height: 185px;"></canvas>
+                                    <span class="material-symbols-outlined" style="position: absolute; top: 17px; right: 3px; cursor: pointer; z-index: 10; color: rgb(179, 179, 179);" onclick="openModal('revenueChart')">zoom_out_map</span>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="width: 50%; height: 260px; padding: 10px;">
+                            <div class="tab-item-sub" id="tab2" style="height: 100%">
+                                <h5>결재요청받은(월별) 데이터</h5>
+                                <!-- <div class="chart-wrap">
+                                   &lt;!&ndash;<div id="chartHolder2"  style="width: 100%; height: 420px; padding-top: 13px"></div>&ndash;&gt;
+                                     <canvas id="orderChart"></canvas>
+                                 </div>-->
+                                <div class="chart-wrap" style="justify-content: normal;position: relative;height: 210px;">
+                                    <canvas id="orderChart" width="740" height="185" style="width: 740px; height: 185px;"></canvas>
+                                    <span class="material-symbols-outlined" style="position: absolute; top: 17px; right: 3px; cursor: pointer; z-index: 10; color: rgb(179, 179, 179);" onclick="openModal('orderChart')">zoom_out_map</span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="tab-row" style="display: flex; width: 100%; gap: 20px; margin-bottom: 3px;">
+                        <section style="width: 50%; height: 260px; padding: 10px;">
+                            <div class="tab-item-sub" id="tab3" style="height: 100%">
+                                <h5>결재 올린(일별) 데이터</h5>
+                                <!--<div class="chart-wrap">
+                                  &lt;!&ndash;<div id="chartHolder3"  style="width: 100%; height: 420px; padding-top: 13px"></div>&ndash;&gt;
+                                    <canvas id="estimateChart"></canvas>
+                                </div>-->
+                                <div class="chart-wrap" style="justify-content: normal;position: relative;height: 210px;">
+                                    <canvas id="estimateChart" width="740" height="185" style="width: 740px; height: 185px;"></canvas>
+                                    <span class="material-symbols-outlined" style="position: absolute; top: 17px; right: 3px; cursor: pointer; z-index: 10; color: rgb(179, 179, 179);" onclick="openModal('estimateChart')">zoom_out_map</span>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="width: 50%; height: 260px; padding: 10px;">
+                            <div class="tab-item-sub" id="tab4" style="height: 100%">
+                                <h5>결재 올린(월별) 데이터</h5>
+                                <!--<div class="chart-wrap">
+                                  &lt;!&ndash;<div id="chartHolder4"  style="width: 100%; height: 420px; padding-top: 13px"></div>&ndash;&gt;
+                                    <canvas id="requestChart"></canvas>
+                                </div>-->
+                                <div class="chart-wrap" style="justify-content: normal;position: relative;height: 210px;">
+                                    <canvas id="requestChart" width="740" height="185" style="width: 740px; height: 185px;"></canvas>
+                                    <span class="material-symbols-outlined" style="position: absolute; top: 17px; right: 3px; cursor: pointer; z-index: 10; color: rgb(179, 179, 179);" onclick="openModal('requestChart')">zoom_out_map</span>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </div>
-              </section>
-              <section style="width: 50%; height: 260px; padding: 10px;">
-                <div class="tab-item-sub" id="tab2" style="height: 100%">
-                  <h5>작년 월별 건수</h5>
-                 <!-- <div class="chart-wrap">
-                    &lt;!&ndash;<div id="chartHolder2"  style="width: 100%; height: 420px; padding-top: 13px"></div>&ndash;&gt;
-                      <canvas id="orderChart"></canvas>
-                  </div>-->
-                    <div class="chart-wrap" style="justify-content: normal;position: relative;height: 210px;">
-                        <canvas id="orderChart" width="740" height="185" style="width: 740px; height: 185px;"></canvas>
-                        <span class="material-symbols-outlined" style="position: absolute; top: 17px; right: 3px; cursor: pointer; z-index: 10; color: rgb(179, 179, 179);" onclick="openModal('orderChart')">zoom_out_map</span>
-                    </div>
-                </div>
-              </section>
-            </div>
-            <div class="tab-row" style="display: flex; width: 100%; gap: 20px; margin-bottom: 3px;">
-              <section style="width: 50%; height: 260px; padding: 10px;">
-                <div class="tab-item-sub" id="tab3" style="height: 100%">
-                  <h5>당월 일별 건수</h5>
-                  <!--<div class="chart-wrap">
-                    &lt;!&ndash;<div id="chartHolder3"  style="width: 100%; height: 420px; padding-top: 13px"></div>&ndash;&gt;
-                      <canvas id="estimateChart"></canvas>
-                  </div>-->
-                    <div class="chart-wrap" style="justify-content: normal;position: relative;height: 210px;">
-                        <canvas id="estimateChart" width="740" height="185" style="width: 740px; height: 185px;"></canvas>
-                        <span class="material-symbols-outlined" style="position: absolute; top: 17px; right: 3px; cursor: pointer; z-index: 10; color: rgb(179, 179, 179);" onclick="openModal('estimateChart')">zoom_out_map</span>
-                    </div>
-                </div>
-              </section>
-              <section style="width: 50%; height: 260px; padding: 10px;">
-                <div class="tab-item-sub" id="tab4" style="height: 100%">
-                  <h5>전월 일별 건수</h5>
-                  <!--<div class="chart-wrap">
-                    &lt;!&ndash;<div id="chartHolder4"  style="width: 100%; height: 420px; padding-top: 13px"></div>&ndash;&gt;
-                      <canvas id="requestChart"></canvas>
-                  </div>-->
-                    <div class="chart-wrap" style="justify-content: normal;position: relative;height: 210px;">
-                        <canvas id="requestChart" width="740" height="185" style="width: 740px; height: 185px;"></canvas>
-                        <span class="material-symbols-outlined" style="position: absolute; top: 17px; right: 3px; cursor: pointer; z-index: 10; color: rgb(179, 179, 179);" onclick="openModal('requestChart')">zoom_out_map</span>
-                    </div>
-                </div>
-              </section>
-            </div>
-          </div>
-        </section>
-      </div>
+            </section>
+        </div>
     </div> <!--//layout-contents end -->
     <footer>
         <p>Copyrightⓒ 0000 corp. All rights reserved.</p>
@@ -254,138 +242,25 @@
     <th:block th:replace="/common/upload_one_image_box :: upload_one_image_box"></th:block>
     <th:block th:replace="/common/popup_select_user_code :: popup_select_user_code"></th:block>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/nth-tabs.js"></script>
     <script type="text/javascript">
-        // 차트 데이터 설정
-        const revenueData = {
-            labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-            datasets: [{
-                data: [12, 15, 18, 21, 24, 27, 15, 16, 16, 19, 22, 25],
-                backgroundColor: 'rgba(98, 178, 253, 0.5)',
-                borderColor: 'rgba(98, 178, 253, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const orderData = {
-            labels: ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"],
-            datasets: [{
-                data: [1000, 1200, 1500, 1800, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3500],
-                backgroundColor: 'rgba(98, 178, 253, 0.5)',
-                borderColor: 'rgba(98, 178, 253, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const estimateData = {
-            labels: ["1일", "2일", "3일", "4일", "5일", "6일", "7일", "8일", "9일", "10일"
-                , "11일", "12일", "13일", "14일", "15일", "16일", "17일", "18일", "19일", "20일"
-                , "21일", "22일", "23일", "24일", "25일", "26일", "27일", "28일", "29일", "30일"],
-            datasets: [{
-                data: [700, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400
-                    , 2600, 2800, 700, 800, 1000, 1200, 1400, 1600, 1800, 2000
-                    , 2600, 2800, 700, 800, 1000, 1200, 1400, 1600, 1800, 2000],
-                backgroundColor: 'rgba(98, 178, 253, 0.5)',
-                borderColor: 'rgba(98, 178, 253, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        const requestData = {
-            labels: ["1일", "2일", "3일", "4일", "5일", "6일", "7일", "8일", "9일", "10일"
-                , "11일", "12일", "13일", "14일", "15일", "16일", "17일", "18일", "19일", "20일"
-                , "21일", "22일", "23일", "24일", "25일", "26일", "27일", "28일", "29일", "30일"],
-            datasets: [{
-                data: [700, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200, 2400
-                    , 2600, 2800, 700, 800, 1000, 1200, 1400, 1600, 1800, 2000
-                    , 2600, 2800, 700, 800, 1000, 1200, 1400, 1600, 1800, 2000],
-                backgroundColor: 'rgba(98, 178, 253, 0.5)',
-                borderColor: 'rgba(98, 178, 253, 1)',
-                borderWidth: 1
-            }]
-        };
-
-        // 차트 생성 함수
-        function createCharts() {
-            const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
-            const ctxOrder = document.getElementById('orderChart').getContext('2d');
-            const ctxEstimate = document.getElementById('estimateChart').getContext('2d');
-            const ctxRequest = document.getElementById('requestChart').getContext('2d');
-
-            // 기존 차트 인스턴스가 있으면 제거
-            if ($('#revenueChart').data('chart')) {
-                $('#revenueChart').data('chart').destroy();
-            }
-            if ($('#orderChart').data('chart')) {
-                $('#orderChart').data('chart').destroy();
-            }
-            if ($('#estimateChart').data('chart')) {
-                $('#estimateChart').data('chart').destroy();
-            }
-            if ($('#requestChart').data('chart')) {
-                $('#requestChart').data('chart').destroy();
-            }
-
-            // 차트 생성 후 인스턴스를 data 속성에 저장
-            $('#revenueChart').data('chart', new Chart(ctxRevenue, {
-                type: 'bar',
-                data: revenueData,
-                options: {
-                    plugins: {
-                        legend: {
-                            display: false // 범례 비활성화
-                        }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            }));
-
-            $('#orderChart').data('chart', new Chart(ctxOrder, {
-                type: 'bar',
-                data: orderData,
-                options: {
-                    plugins: {
-                        legend: {
-                            display: false // 범례 비활성화
-                        }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            }));
-
-            $('#estimateChart').data('chart', new Chart(ctxEstimate, {
-                type: 'bar',
-                data: estimateData,
-                options: {
-                    plugins: {
-                        legend: {
-                            display: false // 범례 비활성화
-                        }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            }));
-
-            $('#requestChart').data('chart', new Chart(ctxRequest, {
-                type: 'bar',
-                data: requestData,
-                options: {
-                    plugins: {
-                        legend: {
-                            display: false // 범례 비활성화
-                        }
-                    },
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
-            }));
+        // 오늘 날짜 가져오기
+        function getTodayDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            return `${year}.${month}.${day}`;
         }
+
+        function updateTitle() {
+            const titleElement = document.getElementById("requestDate");
+            if (titleElement) {
+                titleElement.textContent = `주문등록 (${getTodayDate()})`;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", updateTitle);
         // 모달 열기 함수
         function openModal(chartId) {
             // 아이콘 숨기기
@@ -426,7 +301,6 @@
         }
         // 페이지 로드 후 모든 차트 생성 및 이벤트 바인딩
         $(document).ready(function () {
-            createCharts(); // 모든 차트를 생성하고 인스턴스 저장
 
             // 모달 닫기 이벤트
             $(document).on('click', '.close', function () {
@@ -455,7 +329,7 @@
         var swiper = new Swiper(".card-swiper", {
             slidesPerView: 5,
             spaceBetween: 20,
-            loop: true,
+            loop: true,  // 무한 반복 유지
             speed: 600,
             autoplay: {
                 delay: 2500,
@@ -465,7 +339,29 @@
                 nextEl: ".swiper-button-next",
                 prevEl: ".swiper-button-prev",
             },
+            on: {
+                loopFix: function () {
+                    // 🔥 Swiper가 복제된 슬라이드를 원래 위치로 조정할 때 실행됨
+                    let slides = document.querySelectorAll(".swiper-slide");
+                    slides.forEach(slide => {
+                        let index = slide.getAttribute("data-index");
+                        let originalSlide = document.querySelector(`.swiper-slide[data-index="${index}"]:not(.swiper-slide-duplicate)`);
+
+                        if (originalSlide) {
+                            let bgColor = window.getComputedStyle(originalSlide.querySelector("section")).backgroundColor;
+                            let textColor = window.getComputedStyle(originalSlide.querySelector("section")).color;
+
+                            slide.querySelector("section").style.backgroundColor = bgColor;
+                            slide.querySelector("section").style.color = textColor;
+                        }
+                    });
+                }
+            },
+            observer: true,         // 변화 감지 활성화
+            observeParents: true,   // 부모 요소의 변화도 감지
         });
+
+
 
         document.readyState === 'complete' ? init() : window.onload = init;
         let isBindSpjangcdCalled = false;
@@ -509,187 +405,389 @@
                     data2 = data.data;
                     console.log("data2 : ", data2);
 
-                    // 차트 작업
-                    // 올해 월별 데이터(전월로 바꿔야함)
-                    let ThisYearCntOfMonth = data2.ThisYearCntOfMonth;
-                    // X축 레이블과 Y축 데이터 생성
-                    const ThisMonth = ThisYearCntOfMonth.map(item => item.Month.slice(-2) + '월');
-                    const ThisMonthCnt = ThisYearCntOfMonth.map(item => item.TotalCount); // TotalCount
-                    // 새로운 차트 데이터
-                    const revenueData = {
-                        labels: ThisMonth,
-                        datasets: [{
-                            data: ThisMonthCnt,
-                            backgroundColor: 'rgba(98, 178, 253, 0.5)',
-                            borderColor: 'rgba(98, 178, 253, 1)',
-                            borderWidth: 1
-                        }]
-                    };
-                    // 차트 생성 후 인스턴스를 data 속성에 저장
-                    $('#revenueChart').data('chart', new Chart(ctxRevenue, {
-                        type: 'bar',
-                        data: revenueData,
-                        options: {
-                            plugins: {
-                                legend: {
-                                    display: false // 범례 비활성화
-                                }
-                            },
-                            scales: {
-                                y: { beginAtZero: true }
-                            }
-                        }
-                    }));
-                    // 작년 월별 데이터
-                    let LastYearCntOfMonth = data2.LastYearCntOfMonth;
-                    // X축 레이블과 Y축 데이터 생성
-                    const LastMonth = LastYearCntOfMonth.map(item => item.Month.slice(-2) + '월');
-                    const LastMonthCnt = LastYearCntOfMonth.map(item => item.TotalCount); // TotalCount
-                    // 새로운 차트 데이터
-                    const orderData = {
-                        labels: LastMonth,
-                        datasets: [{
-                            data: LastMonthCnt,
-                            backgroundColor: 'rgba(98, 178, 253, 0.5)',
-                            borderColor: 'rgba(98, 178, 253, 1)',
-                            borderWidth: 1
-                        }]
-                    };
-                    // 차트 생성 후 인스턴스를 data 속성에 저장
-                    $('#orderChart').data('chart', new Chart(ctxOrder, {
-                        type: 'bar',
-                        data: orderData,
-                        options: {
-                            plugins: {
-                                legend: {
-                                    display: false // 범례 비활성화
-                                }
-                            },
-                            scales: {
-                                y: { beginAtZero: true }
-                            }
-                        }
-                    }));
+                    // 차트작업
+                    // 결재요청받은(일별) 데이터
+                    // ✅ 데이터 매핑
+                    let ThisMonthResCntOfDate = data2.ThisMonthResCntOfDate; // 올해 상태값별 데이터
 
-                    // 올해 당월 일별 데이터
-                    let ThisMonthCntOfDate = data2.ThisMonthCntOfDate;
-                    // X축 레이블과 Y축 데이터 생성
-                    const ThisDate = ThisMonthCntOfDate.map(item => item.Day.slice(-2) + '일');
-                    const ThisDateCnt = ThisMonthCntOfDate.map(item => item.TotalCount); // TotalCount
-                    // 새로운 차트 데이터
-                    const estimateData = {
-                        labels: ThisDate,
-                        datasets: [{
-                            data: ThisDateCnt,
-                            backgroundColor: 'rgba(98, 178, 253, 0.5)',
-                            borderColor: 'rgba(98, 178, 253, 1)',
-                            borderWidth: 1
-                        }]
-                    };
-                    // 차트 생성 후 인스턴스를 data 속성에 저장
-                    $('#estimateChart').data('chart', new Chart(ctxEstimate, {
-                        type: 'bar',
-                        data: estimateData,
-                        options: {
-                            plugins: {
-                                legend: {
-                                    display: false // 범례 비활성화
-                                }
-                            },
-                            scales: {
-                                y: { beginAtZero: true }
-                            }
-                        }
-                    }));
+                    // ✅ X축 레이블: 날짜 (YYYY-MM-DD → MM-DD 형식)
+                    const labels = ThisMonthResCntOfDate.map(item => item.indate.slice(4, 6) + "-" + item.indate.slice(6, 8));
 
-                    // 전월 일별 데이터
-                    let LastMonthCntOfDate = data2.LastMonthCntOfDate;
-                    // X축 레이블과 Y축 데이터 생성
-                    const LastDate = LastMonthCntOfDate.map(item => item.Day.slice(-2) + '일');
-                    const LastDateCnt = LastMonthCntOfDate.map(item => item.TotalCount); // TotalCount
-                    // 새로운 차트 데이터
-                    const requestData = {
-                        labels: LastDate,
-                        datasets: [{
-                            data: LastDateCnt,
-                            backgroundColor: 'rgba(98, 178, 253, 0.5)',
-                            borderColor: 'rgba(98, 178, 253, 1)',
-                            borderWidth: 1
-                        }]
+                    // ✅ 상태값별 데이터 정리 (Stacked Bar)
+                    const stackedBarData = {
+                        "appgubun001": ThisMonthResCntOfDate.map(item => item.appgubun001),
+                        "appgubun101": ThisMonthResCntOfDate.map(item => item.appgubun101),
+                        "appgubun131": ThisMonthResCntOfDate.map(item => item.appgubun131),
+                        "appgubun201": ThisMonthResCntOfDate.map(item => item.appgubun201),
+                        "totalCnt": ThisMonthResCntOfDate.map(item => item.totalCnt),
                     };
-                    // 차트 생성 후 인스턴스를 data 속성에 저장
-                    $('#requestChart').data('chart', new Chart(ctxRequest, {
-                        type: 'bar',
-                        data: requestData,
-                        options: {
-                            plugins: {
-                                legend: {
-                                    display: false // 범례 비활성화
-                                }
+
+                    // ✅ Stacked Bar 데이터 생성
+                    const chartData = {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "대기",
+                                type: 'bar',
+                                data: stackedBarData["appgubun001"],
+                                backgroundColor: 'rgba(98, 178, 253, 0.7)',
+                                borderColor: 'rgba(98, 178, 253, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
                             },
-                            scales: {
-                                y: { beginAtZero: true }
+                            {
+                                label: "결재",
+                                type: 'bar',
+                                data: stackedBarData["appgubun101"],
+                                backgroundColor: 'rgba(253, 98, 98, 0.7)',
+                                borderColor: 'rgba(253, 98, 98, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "반려",
+                                type: 'bar',
+                                data: stackedBarData["appgubun131"],
+                                backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                                borderColor: 'rgba(255, 206, 86, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "보류",
+                                type: 'bar',
+                                data: stackedBarData["appgubun001"],
+                                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+
+                        ]
+                    };
+
+                    // ✅ 차트 옵션 설정
+                    const chartOptions = {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
                             }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                position: 'left'
+                            },
                         }
-                    }));
+                    };
+
+                    // ✅ 차트 생성
+                    const ctx = document.getElementById('revenueChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar', // 기본 차트 유형
+                        data: chartData,
+                        options: chartOptions
+                    });
+
+                    // 결재요청받은(월별) 데이터
+                    // ✅ 데이터 매핑
+                    let ThisYearResCntOfMonth = data2.ThisYearResCntOfMonth; // 올해 상태값별 데이터
+
+                    // ✅ X축 레이블: 월 (YYYY-MM → MM월 형식)
+                    const labels2 = ThisYearResCntOfMonth.map(item => item.YearMonth.slice(-2) + "월");
+
+                    // ✅ 상태값별 데이터 정리 (Stacked Bar)
+                    const stackedBarData2 = {
+                        "appgubun001": ThisYearResCntOfMonth.map(item => item.appgubun001),
+                        "appgubun101": ThisYearResCntOfMonth.map(item => item.appgubun101),
+                        "appgubun131": ThisYearResCntOfMonth.map(item => item.appgubun131),
+                        "appgubun201": ThisYearResCntOfMonth.map(item => item.appgubun201),
+                        "totalCnt": ThisYearResCntOfMonth.map(item => item.totalCnt),
+                    };
+
+                    // ✅ Stacked Bar 데이터 생성
+                    const chartData2 = {
+                        labels: labels2,
+                        datasets: [
+                            {
+                                label: "대기",
+                                type: 'bar',
+                                data: stackedBarData2["appgubun001"],
+                                backgroundColor: 'rgba(98, 178, 253, 0.7)',
+                                borderColor: 'rgba(98, 178, 253, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "결재",
+                                type: 'bar',
+                                data: stackedBarData2["appgubun101"],
+                                backgroundColor: 'rgba(253, 98, 98, 0.7)',
+                                borderColor: 'rgba(253, 98, 98, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "반려",
+                                type: 'bar',
+                                data: stackedBarData2["appgubun131"],
+                                backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                                borderColor: 'rgba(255, 206, 86, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "보류",
+                                type: 'bar',
+                                data: stackedBarData2["appgubun001"],
+                                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+
+                        ]
+                    };
+
+                    // ✅ 차트 옵션 설정
+                    const chartOptions2 = {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                position: 'left'
+                            },
+                        }
+                    };
+
+                    // ✅ 차트 생성
+                    const ctx2 = document.getElementById('orderChart').getContext('2d');
+                    new Chart(ctx2, {
+                        type: 'bar', // 기본 차트 유형
+                        data: chartData2,
+                        options: chartOptions2
+                    });
+
+                    // 결재올린(일별) 데이터
+                    // ✅ 데이터 매핑
+                    let ThisMonthReqCntOfDate = data2.ThisMonthReqCntOfDate; // 올해 상태값별 데이터
+
+                    // ✅ X축 레이블: 날짜 (YYYY-MM-DD → MM-DD 형식)
+                    const labels3 = ThisMonthReqCntOfDate.map(item => item.indate.slice(4, 6) + "-" + item.indate.slice(6, 8));
+
+                    // ✅ 상태값별 데이터 정리 (Stacked Bar)
+                    const stackedBarData3 = {
+                        "appgubun001": ThisMonthReqCntOfDate.map(item => item.appgubun001),
+                        "appgubun101": ThisMonthReqCntOfDate.map(item => item.appgubun101),
+                        "appgubun131": ThisMonthReqCntOfDate.map(item => item.appgubun131),
+                        "appgubun201": ThisMonthReqCntOfDate.map(item => item.appgubun201),
+                        "totalCnt": ThisMonthReqCntOfDate.map(item => item.totalCnt),
+                    };
+
+                    // ✅ Stacked Bar 데이터 생성
+                    const chartData3 = {
+                        labels: labels3,
+                        datasets: [
+                            {
+                                label: "대기",
+                                type: 'bar',
+                                data: stackedBarData3["appgubun001"],
+                                backgroundColor: 'rgba(98, 178, 253, 0.7)',
+                                borderColor: 'rgba(98, 178, 253, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "결재",
+                                type: 'bar',
+                                data: stackedBarData3["appgubun101"],
+                                backgroundColor: 'rgba(253, 98, 98, 0.7)',
+                                borderColor: 'rgba(253, 98, 98, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "반려",
+                                type: 'bar',
+                                data: stackedBarData3["appgubun131"],
+                                backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                                borderColor: 'rgba(255, 206, 86, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "보류",
+                                type: 'bar',
+                                data: stackedBarData3["appgubun001"],
+                                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+
+                        ]
+                    };
+
+                    // ✅ 차트 옵션 설정
+                    const chartOptions3 = {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                position: 'left'
+                            },
+                        }
+                    };
+
+                    // ✅ 차트 생성
+                    const ctx3 = document.getElementById('estimateChart').getContext('2d');
+                    new Chart(ctx3, {
+                        type: 'bar', // 기본 차트 유형
+                        data: chartData3,
+                        options: chartOptions3
+                    });
+
+                    // 결재요청받은(월별) 데이터
+                    // ✅ 데이터 매핑
+                    let ThisYearReqCntOfMonth = data2.ThisYearReqCntOfMonth; // 올해 상태값별 데이터
+
+                    // ✅ X축 레이블: 월 (YYYY-MM → MM월 형식)
+                    const labels4 = ThisYearReqCntOfMonth.map(item => item.YearMonth.slice(-2) + "월");
+
+                    // ✅ 상태값별 데이터 정리 (Stacked Bar)
+                    const stackedBarData4 = {
+                        "appgubun001": ThisYearReqCntOfMonth.map(item => item.appgubun001),
+                        "appgubun101": ThisYearReqCntOfMonth.map(item => item.appgubun101),
+                        "appgubun131": ThisYearReqCntOfMonth.map(item => item.appgubun131),
+                        "appgubun201": ThisYearReqCntOfMonth.map(item => item.appgubun201),
+                        "totalCnt": ThisYearReqCntOfMonth.map(item => item.totalCnt),
+                    };
+
+                    // ✅ Stacked Bar 데이터 생성
+                    const chartData4 = {
+                        labels: labels4,
+                        datasets: [
+                            {
+                                label: "대기",
+                                type: 'bar',
+                                data: stackedBarData4["appgubun001"],
+                                backgroundColor: 'rgba(98, 178, 253, 0.7)',
+                                borderColor: 'rgba(98, 178, 253, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "결재",
+                                type: 'bar',
+                                data: stackedBarData4["appgubun101"],
+                                backgroundColor: 'rgba(253, 98, 98, 0.7)',
+                                borderColor: 'rgba(253, 98, 98, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "반려",
+                                type: 'bar',
+                                data: stackedBarData4["appgubun131"],
+                                backgroundColor: 'rgba(255, 206, 86, 0.7)',
+                                borderColor: 'rgba(255, 206, 86, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+                            {
+                                label: "보류",
+                                type: 'bar',
+                                data: stackedBarData4["appgubun001"],
+                                backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1,
+                                stack: 'stacked'
+                            },
+
+                        ]
+                    };
+
+                    // ✅ 차트 옵션 설정
+                    const chartOptions4 = {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            x: {
+                                stacked: true
+                            },
+                            y: {
+                                stacked: true,
+                                beginAtZero: true,
+                                position: 'left'
+                            },
+                        }
+                    };
+
+                    // ✅ 차트 생성
+                    const ctx4 = document.getElementById('requestChart').getContext('2d');
+                    new Chart(ctx4, {
+                        type: 'bar', // 기본 차트 유형
+                        data: chartData4,
+                        options: chartOptions4
+                    });
+
 
                     // 카드 작업
-                    // 작년 상태값별 데이터
-                    let LastYearCnt = data2.LastYearCnt;
                     // 올해 상태값별 데이터
                     let ThisYearCnt = data2.ThisYearCnt;
-                    // ordflag가 0인 TotalCount 추출
-                    const lastYearCountOf0 = LastYearCnt.find(item => item.ordflag === '0')?.TotalCount || 0;
-                    const thisYearCountOf0 = ThisYearCnt.find(item => item.ordflag === '0')?.TotalCount || 0;
-                    // 두 값의 차이 계산
-                    const difference0 = thisYearCountOf0 - lastYearCountOf0;
+                    // appgubun 0인 TotalCount 추출
+                    const thisYearCountOf0 = ThisYearCnt.find(item => item.appgubun === '001')?.TotalCount || 0;
                     // 결과를 HTML에 업데이트
-                    const requestSection = document.querySelector('.request dl dd');
-                    if(difference0 >= 0) {
-                        requestSection.innerHTML = `<span class="up"></span> ${difference0} <span class="unit">건</span>`;
-                    }else{
-                        requestSection.innerHTML = `<span class="down"></span> ${difference0} <span class="unit">건</span>`;
-                    }
+                    const requestSection = document.querySelector('.waitPayment dl dd');
+                    requestSection.innerHTML = `${thisYearCountOf0} <span class="unit">건</span>`;
                     // ordflag가 1인 TotalCount 추출
-                    const lastYearCountOf1 = LastYearCnt.find(item => item.ordflag === '1')?.TotalCount || 0;
-                    const thisYearCountOf1 = ThisYearCnt.find(item => item.ordflag === '1')?.TotalCount || 0;
-                    const difference1 = thisYearCountOf1 - lastYearCountOf1;
-                    const checkSection = document.querySelector('.check dl dd');
-                    if(difference1 >= 0) {
-                        checkSection.innerHTML = `<span class="up"></span> ${difference1} <span class="unit">건</span>`;
-                    }else {
-                        checkSection.innerHTML = `<span class="down"></span> ${difference1} <span class="unit">건</span>`;
-                    }
+                    const thisYearCountOf1 = ThisYearCnt.find(item => item.appgubun === '101')?.TotalCount || 0;
+                    const checkSection = document.querySelector('.paymentProgress dl dd');
+                    checkSection.innerHTML = `${thisYearCountOf1} <span class="unit">건</span>`;
                     // ordflag가 2인 TotalCount 추출
-                    const lastYearCountOf2 = LastYearCnt.find(item => item.ordflag === '2')?.TotalCount || 0;
-                    const thisYearCountOf2 = ThisYearCnt.find(item => item.ordflag === '2')?.TotalCount || 0;
-                    const difference2 = thisYearCountOf2 - lastYearCountOf2;
-                    const orderSection = document.querySelector('.order dl dd');
-                    if(difference2 >= 0) {
-                        orderSection.innerHTML = `<span class="up"></span> ${difference2} <span class="unit">건</span>`;
-                    }else {
-                        orderSection.innerHTML = `<span class="down"></span> ${difference2} <span class="unit">건</span>`;
-                    }
+                    const thisYearCountOf2 = ThisYearCnt.find(item => item.appgubun === '131')?.TotalCount || 0;
+                    const orderSection = document.querySelector('.companion dl dd');
+                    orderSection.innerHTML = `${thisYearCountOf2} <span class="unit">건</span>`;
                     // ordflag가 3인 TotalCount 추출
-                    const lastYearCountOf3 = LastYearCnt.find(item => item.ordflag === '3')?.TotalCount || 0;
-                    const thisYearCountOf3 = ThisYearCnt.find(item => item.ordflag === '3')?.TotalCount || 0;
-                    const difference3 = thisYearCountOf3 - lastYearCountOf3;
-                    const productSection = document.querySelector('.product dl dd');
-                    if(difference3 >= 0) {
-                        productSection.innerHTML = `<span class="up"></span> ${difference3} <span class="unit">건</span>`;
-                    }else {
-                        productSection.innerHTML = `<span class="down"></span> ${difference3} <span class="unit">건</span>`;
-                    }
+                    const thisYearCountOf3 = ThisYearCnt.find(item => item.appgubun === '201')?.TotalCount || 0;
+                    const productSection = document.querySelector('.hold dl dd');
+                    productSection.innerHTML = `${thisYearCountOf3} <span class="unit">건</span>`;
                     // ordflag가 4인 TotalCount 추출
-                    const lastYearCountOf4 = LastYearCnt.find(item => item.ordflag === '4')?.TotalCount || 0;
-                    const thisYearCountOf4 = ThisYearCnt.find(item => item.ordflag === '4')?.TotalCount || 0;
-                    const difference4 = thisYearCountOf4 - lastYearCountOf4;
-                    const deliverySection = document.querySelector('.delivery dl dd');
-                    if(difference4 >= 0){
-                        deliverySection.innerHTML = `<span class="up"></span> ${difference4} <span class="unit">건</span>`;
-                    }else {
-                        deliverySection.innerHTML = `<span class="down"></span> ${difference4} <span class="unit">건</span>`;
-                    }
+                    const thisYearCountOf4 = thisYearCountOf0 + thisYearCountOf1 + thisYearCountOf2 + thisYearCountOf3
+                    const deliverySection = document.querySelector('.complete dl dd');
+                    deliverySection.innerHTML = `${thisYearCountOf4} <span class="unit">건</span>`;
+
                 }
             })
         }
@@ -707,6 +805,46 @@
                 }
             })
         }
+        // 가이드 web 팝업창 열기
+        function openPopup(url) {
+            // 새 창 열기
+            window.open(url, '_blank',
+                'width=1040,height=1000,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
+        }
+        // 주문상태별 카드 클릭시 주문확인 페이지로 이동
+        $(document).ready(function () {
+            $(".request, .check, .order, .product, .delivery, .cancel").click(function () {
+                var section = $(this).attr("class"); // 클릭한 버튼의 클래스 가져오기
+                var searchStateValue = getSearchState(section); // 해당 섹션에 맞는 searchState 가져오기
+
+                // sessionStorage에 저장
+                sessionStorage.setItem("activeSection", section);
+                sessionStorage.setItem("searchState", searchStateValue);
+
+                // postMessage로 탭 추가 요청
+                window.parent.postMessage({
+                    action: "addTab",
+                    id: "order_status",
+                    title: "주문현황",
+                    url: '/gui/' + "order_status" + '/default',
+                    active: true,
+                    allowClose: true,
+                }, "*");
+            });
+
+            // searchState 값을 반환하는 메서드
+            function getSearchState(section) {
+                var stateMapping = {
+                    "request": "0",
+                    "check": "1",
+                    "order": "2",
+                    "product": "3",
+                    "delivery": "4",
+                    "cancel": "5"
+                };
+                return stateMapping[section] || "0"; // 매핑된 값이 없으면 default 반환
+            }
+        });
 
 
     </script>

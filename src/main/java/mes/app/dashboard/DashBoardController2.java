@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,30 +29,28 @@ public class DashBoardController2 {
         User user = (User) auth.getPrincipal();
         String username = user.getUsername();
         String spjangcd = dashBoardService2.getSpjangcd(username, search_spjangcd);
-        // 사업장 코드 선택 로직 종료 반환 spjangcd 활용
+        String perid = dashBoardService2.getPerid(username);
+        String splitPerid = perid.replaceFirst("p", ""); // ✅ 첫 번째 "p"만 제거
 
-        // 작년 진행구분(ordflag)별 데이터 개수
-        List<Map<String, Object>> LastYearCnt = this.dashBoardService2.LastYearCnt(spjangcd);
-        // 올해 진행구분(ordflag)별 데이터 개수
-        List<Map<String, Object>> ThisYearCnt = this.dashBoardService2.ThisYearCnt(spjangcd);
+        // 올해 진행구분(appgubun)별 데이터 개수
+        List<Map<String, Object>> ThisYearCnt = this.dashBoardService2.ThisYearCnt(spjangcd, splitPerid);
 
-        // 올해 월별 데이터
-        List<Map<String, Object>> ThisYearCntOfMonth = this.dashBoardService2.ThisYearCntOfMonth(spjangcd);
-        // 작년 월별 데이터
-        List<Map<String, Object>> LastYearCntOfMonth = this.dashBoardService2.LastYearCntOfMonth(spjangcd);
-        // 올해 이번달 일별 데이터 개수
-        List<Map<String, Object>> ThisMonthCntOfDate = this.dashBoardService2.ThisMonthCntOfDate(spjangcd);
-        // 올해 전월 일별 데이터 개수
-        List<Map<String, Object>> LastMonthCntOfDate = this.dashBoardService2.LastMonthCntOfDate(spjangcd);
+        // 결재요청받은(일별) 데이터
+        List<Map<String, Object>> ThisMonthResCntOfDate = this.dashBoardService2.ThisMonthResCntOfDate(spjangcd, splitPerid);
+        // 결재요청받은(월별) 데이터
+        List<Map<String, Object>> ThisYearResCntOfMonth = this.dashBoardService2.ThisYearResCntOfMonth(spjangcd, splitPerid);
+        // 결재 올린(일별) 데이터 개수
+        List<Map<String, Object>> ThisMonthReqCntOfDate = this.dashBoardService2.ThisMonthReqCntOfDate(spjangcd, splitPerid);
+        // 결재 올린(월별) 데이터 개수
+        List<Map<String, Object>> ThisYearReqCntOfMonth = this.dashBoardService2.ThisYearReqCntOfMonth(spjangcd, splitPerid);
 
         AjaxResult result = new AjaxResult();
         Map<String, Object> items = new HashMap<String, Object>();
-        items.put("LastYearCnt", LastYearCnt);
         items.put("ThisYearCnt", ThisYearCnt);
-        items.put("ThisYearCntOfMonth", ThisYearCntOfMonth);
-        items.put("LastYearCntOfMonth", LastYearCntOfMonth);
-        items.put("ThisMonthCntOfDate", ThisMonthCntOfDate);
-        items.put("LastMonthCntOfDate", LastMonthCntOfDate);
+        items.put("ThisMonthResCntOfDate", ThisMonthResCntOfDate);
+        items.put("ThisYearResCntOfMonth", ThisYearResCntOfMonth);
+        items.put("ThisMonthReqCntOfDate", ThisMonthReqCntOfDate);
+        items.put("ThisYearReqCntOfMonth", ThisYearReqCntOfMonth);
         result.data = items;
 
         return result;
