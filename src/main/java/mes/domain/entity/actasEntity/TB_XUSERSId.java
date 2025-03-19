@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Data
 @Embeddable
 public class TB_XUSERSId implements Serializable {
-    private String custcd;
-    private String userid;
+    private String custcd;  //회사 코드
+    private String userid;  // 아이디
 
 }

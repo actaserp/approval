@@ -88,8 +88,8 @@ public class MenuLogService {
 	}
 
 	public List<Map<String, Object>> getUserList() {
-		
-        String sql = """ 
+
+		String sql = """ 
        SELECT u.id AS value,
        u.username + '(' + u.last_name + u.first_name + ')' AS text
 		FROM auth_user u
@@ -99,10 +99,10 @@ public class MenuLogService {
 		  AND u.is_superuser = 0
 		  AND ug.[Code] NOT IN ('dev')
 		ORDER BY 2;
-    	        """;
-        
-        List<Map<String,Object>> items = this.sqlRunner.getRows(sql, null);
-		
+		""";
+
+		List<Map<String,Object>> items = this.sqlRunner.getRows(sql, null);
+
 		return items;
 	}
 

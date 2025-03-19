@@ -27,31 +27,6 @@
             </ul>
         </div>
         <!-- Select -->
-        <div class="search-wrap" id="searchWrap" style="display: none">
-            <ul>
-                <li>
-                    <select title="지역" id="spworkcd" name="spworkcd"
-                            onchange="updateCompcdOptions(); saveSelectedSandanData(); ">
-                        <!-- 지역 옵션을 JavaScript에서 동적으로 채움 -->
-                    </select>
-                    <input type="hidden" id="spworknm" name="spworknm">
-                </li>
-                <li>
-                    <select title="산단" id="spcompcd" name="spcompcd"
-                            onchange="updatePlancdOptions(); saveSelectedSandanData();">
-                        <!-- 산단 옵션을 JavaScript에서 동적으로 채움 -->
-                    </select>
-                    <input type="hidden" id="spcompnm" name="spcompnm">
-                </li>
-                <li>
-                    <select title="시설" id="spplancd" name="spplancd"
-                            onchange="updatePlannm(); saveSelectedSandanData()">
-                        <!-- 시설 옵션을 JavaScript에서 동적으로 채움 -->
-                    </select>
-                    <input type="hidden" id="spplannm" name="spplannm">
-                </li>
-            </ul>
-        </div>
         <div class="tab-wrap">
             <ul class="tab-links">
                 <li>
@@ -179,7 +154,7 @@
                                 </dd>
                             </dl>
 
-                            <dl>
+                            <!--<dl>
                                 <dt>
                                     <label for="text1">
                                         사용자<span class="eq"></span>
@@ -190,7 +165,7 @@
                                         <select class="form-control2 w250" id="cboUser2" name="cboUser" style="border-radius: 5px 5px 5px 5px;"></select>
                                     </div>
                                 </dd>
-                            </dl>
+                            </dl>-->
 
                             <dl>
                                 <dt><span class="eq"></span></dt>
@@ -385,7 +360,7 @@
     </div> <!--//layout-contents end -->
 
     <footer style="margin-top: 24px;">
-        <p>Copyrightⓒ 0000 corp. All rights reserved.</p>
+        <p>Copyrightⓒ factCheck corp. All rights reserved.</p>
     </footer>
 
 </th:block>
@@ -443,7 +418,7 @@
             {binding: 'name', header: '이름', width: 160, align: 'center'},
             {binding: 'created', header: '일시', width: 260, align: 'center'},
             {binding: 'type', header: '구분', width: 160, align: 'center'},
-            {binding: 'login_id', header: '사번', width: 160, align: 'center'},
+            {binding: 'login_id', header: '아이디', width: 160, align: 'center'},
             {binding: 'addr', header: 'IP Address', width: 200, align: 'center'},
             {binding: '', header: '', width: "*", align: 'center'},
         ];

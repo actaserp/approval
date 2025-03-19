@@ -241,6 +241,7 @@
                                 <a class="btn btn-popup-open" data-popup="popup1" title="사용자등록" onclick="RegisterUser()">사용자등록</a>
                             </li>
                             <li>
+                            <li>
                                 <a href="#" class="btn btn-popup-open" data-popup="popup2" title="등록확인" onclick="openModal()">등록 확인</a>
                             </li>
                             <li>
@@ -256,7 +257,7 @@
     <!-- [사용자등록] 팝업  -->
     <div class="dashboard-layout-popup">
         <div class="popup-overlay"  id="popup1"></div>
-        <div class="popup-wrapper" id="wrapper1" style="width: 1100px">
+        <div class="popup-wrapper" id="wrapper1" style="width: 1110px">
             <div class="popup-title">
                 <h3>사용자 등록</h3>
                 <a onclick="RegisterUserClose()" title="팝업닫기" class="btn-popup-close">
@@ -268,7 +269,7 @@
                 <form id="bomForm">
                     <div class="table-wrap">
                         <table class="write-table">
-                            <caption>사용자등록등록 테이블</caption>
+                            <caption>사용자등록 테이블</caption>
                             <colgroup>
                                 <col class="wp20">
                                 <col class="wp30">
@@ -278,82 +279,56 @@
                             <tbody>
                             <tr>
                                 <th>
-                                    <label for="">
-                                        업체명
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="cltnm" name="cltnm">
-                                    </div>
-                                </td>
-                                <th>
-                                    <label for="">
-                                        대표자
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="prenm" name="prenm">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <label for="">
-                                        업태
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="biztypenm" name="biztypenm">
-                                    </div>
-                                </td>
-                                <th>
-                                    <label for="">
-                                        종목
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="bizitemnm" name="bizitemnm">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <label for="">
-                                        전화번호
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="tel" name="tel">
-                                    </div>
-                                </td>
-                                <th>
-                                    <label for="">
-                                        핸드폰
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="phone" name="phone">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <label for="">
-                                        사업자 번호<br>(아이디)
+                                    <label for="id">
+                                        아이디
                                     </label>
                                 </th>
                                 <td colspan="3">
                                     <div class="input-clear">
                                         <input type="text" id="id" name="id" class="wp50"
-                                               style="width: 360px !important;">
+                                               style="width: 360px !important;" placeholder="아이디" autocomplete="username">
                                     </div>
-                                    <a href="#" class="btn" id="btnDuplicate">중복확인</a>
+                                    <a href="#" class="btn" id="btnDuplicate" style="margin:5px; ">중복확인</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <label for="password">
+                                        비밀번호
+                                    </label>
+                                </th>
+                                <td>
+                                    <input type="password" id="password" name="password" placeholder="비밀번호" autocomplete="new-password">
+                                </td>
+                                <th>
+                                    <label for="passwordchk">
+                                        비밀번호 확인
+                                    </label>
+                                </th>
+                                <td>
+                                    <input type="password" id="passwordchk" name="passwordchk" placeholder="비밀번호 확인" autocomplete="new-password">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <label for="saveName">
+                                        이&nbsp;&nbsp;름
+                                    </label>
+                                </th>
+                                <td>
+                                    <div class="input-clear">
+                                        <input type="text" id="saveName" name="saveName" placeholder="이름">
+                                    </div>
+                                </td>
+                                <th>
+                                    <label for="userHP">
+                                        핸드폰 번호
+                                    </label>
+                                </th>
+                                <td colspan="3">
+                                    <div class="input-clear">
+                                        <input type="tel" id="userHP" name="userHP" placeholder="핸드폰 번호">
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
@@ -364,16 +339,14 @@
                                 </th>
                                 <td colspan="3">
                                     <div class="input-clear">
-                                        <input type="text" id="email" name="email">
+                                        <input type="text" id="email" name="email" placeholder="이메일">
                                         <button type="button"
                                                 style="margin: 0 0 0 5px;width: 14.5%;background: white;color: #03428E;border: 1px solid #03428E;"
                                                 id="BtnAuthenticationRegister2">코드발급
                                         </button>
                                         <label style="width: 7%; margin-top: 10px; margin-left: 30px">인증코드:</label>
-                                        <input type="text" id="AuthenticationCodeRegister"
-                                               name="AuthenticationCodeRegister" required="" maxlength="38"
-                                               autocomplete="off" style="width: 10%;border: none;border-bottom: 1px solid;
-                       border-radius: 0px;">
+                                        <input type="text" id="AuthenticationCodeRegister" name="AuthenticationCodeRegister" required="" maxlength="38"
+                                               autocomplete="off" style="width: 10%;border: none;border-bottom: 1px solid;border-radius: 0px;">
                                         <button type="button" id="Authentication"
                                                 style="margin: 0 0 0 5px;width: 14.5%;background: white;color: #03428E;border: 1px solid #03428E;">
                                             코드인증
@@ -384,34 +357,35 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr>
-                                <th>
-                                    <label for="postno">
-                                        주소
-                                    </label>
-                                </th>
-                                <td colspan="3">
-                                    <div class="input-clear">
-                                        <input type="text" id="postno" name="postno" placeholder="우편번호"
-                                               onclick="sample4_execDaumPostcode()"
-                                               style="width: 85px; margin-bottom: 3px; display: inline-block;">
-                                        <input type="text" id="address1" name="address1" placeholder="도로명주소"
-                                               style="width: 380px; display: inline-block; margin-left: 5px;"
-                                               readonly>
-                                        <input type="text" id="address2" name="address2" placeholder="상세주소"
-                                               style="width: 390px; display: inline-block; margin-left: 7px;">
-                                        <span id="guide" style="color:#999;display:none"></span>
-                                    </div>
-                                </td>
-                            </tr>
+                             <tr>
+                                 <th>
+                                     <label for="postno">
+                                         주&nbsp;&nbsp;소
+                                     </label>
+                                 </th>
+                                 <td colspan="3">
+                                     <div class="input-clear">
+                                         <input type="text" id="postno" name="postno" placeholder="우편번호"
+                                                onclick="sample4_execDaumPostcode()"
+                                                style="width: 85px; margin-bottom: 3px; display: inline-block;">
+                                         <input type="text" id="address1" name="address1" placeholder="도로명주소"
+                                                style="width: 380px; display: inline-block; margin-left: 5px;"
+                                                readonly>
+                                         <input type="text" id="address2" name="address2" placeholder="상세주소"
+                                                style="width: 390px; display: inline-block; margin-left: 7px;">
+                                         <span id="guide" style="color:#999;display:none"></span>
+                                     </div>
+                                 </td>
+                             </tr>
                             </tbody>
                         </table>
                     </div>
+
                 </form>
             </div>
             <div class="popup-button">
                 <button class="btn-popup-close" onclick="RegisterUserClose()">취소</button>
-                <button class="btn-navy" id="btnSaveAuth">등록</button>
+                <button class="btn-navy" id="btnSaveAuth">사용자등록</button>
             </div>
         </div>
     </div> <!-- //dashboard-layout-popup end -->
@@ -422,14 +396,14 @@
             <h2 style="text-align: center;">등록여부 확인</h2>
             <form id="idFindForm">
                 <div style="margin-top: 10px;">
-                    <label style="width: 15%;">사업자 번호 : </label>
-                    <input type="text" id="userid1" name="userid1" required="" maxlength="20" autocomplete="off" style="width: 80%;">
+                    <label style="width: 15%;">아이디 : </label>
+                    <input type="text" id="findUserid" name="findUserid" required="" maxlength="20" autocomplete="off" style="width: 80%;">
                 </div>
                <!-- <div class="hint-red" id="ErrMessage" style="margin: 5px auto 0;">
                     <img src="/images/icon/ico-info-red.svg" alt="힌트메세지">등록시 사업자번호를 입력해주세요.
                 </div>-->
                 <div style="margin-top: 10px;">
-                    <label style="width: 15%;">대표자: </label>
+                    <label style="width: 15%;">이름: </label>
                     <input type="text" id="usernm" name="usernm" required="" maxlength="30" autocomplete="off" style="width: 80%;">
                 </div>
                 <div id="ErrMsg" style="margin-top: 10px;text-align: center; display: none; color: red;"><span>해당 사용자는 존재하지 않습니다.</span></div>
@@ -579,7 +553,7 @@
     function closeModal() {
         document.getElementById('idFindModal').style.display = 'none';
         // 입력 필드 초기화
-        document.getElementById('userid1').value = ''; // 사업자 번호 초기화
+        document.getElementById('findUserid').value = ''; // 사업자 번호 초기화
         document.getElementById('usernm').value = ''; // 대표자 이름 초기화
         document.getElementById('ErrMsg').style.display = 'none'; // 오류 메시지 숨기기
     }
@@ -777,25 +751,34 @@
 
     //취소버튼
     function RegisterUserClose() {
+        // 팝업 닫기
         let popup = document.getElementById('popup1');
         let wrapper = document.getElementById('wrapper1');
 
-        // 모든 입력 필드 초기화
-        let form = document.getElementById('bomForm');
-        form.reset(); // 폼 전체 초기화
-
-        // 추가로 초기화가 필요한 필드들 처리 (예: 비활성화된 필드 등)
-        document.getElementById('postno').value = '';
-        document.getElementById('address1').value = '';
-        document.getElementById('address2').value = '';
-        document.getElementById('AuthenticationCodeRegister').value = '';
-        document.getElementById('timer2').innerText = ''; // 타이머 초기화
-
-        // 팝업 및 래퍼 숨기기
         popup.style.display = 'none';
         wrapper.style.display = 'none';
-    }
 
+        // 입력폼 초기화
+        const form = document.getElementById('bomForm');
+        form.reset(); // form 태그의 모든 입력 필드 초기화
+
+        // 추가로 초기화가 필요한 필드들 처리 (예: 비활성화된 필드 등)
+        document.getElementById('AuthenticationCodeRegister').value = '';
+        document.getElementById('timer2').innerText = ''; // 타이머 UI 초기화
+
+        // 실행 중인 타이머 중단
+        if (activeTimerInterval) {
+            clearInterval(activeTimerInterval); // 타이머 중단
+            activeTimerInterval = null; // 변수 초기화
+        }
+
+        // 입력 필드의 readOnly 속성 초기화
+        Array.from(form.elements).forEach(element => {
+            if (element.hasAttribute('readOnly')) {
+                element.removeAttribute('readOnly'); // readOnly 속성 제거
+            }
+        });
+    }
 
 
     function initializeSelect({
@@ -941,7 +924,7 @@
 
         })
 
-        /*//아이디 찾기
+        //아이디 찾기
         $('#btnSearch').click(function (e){
 
             const errMsgDiv = document.getElementById('ErrMsg');
@@ -952,19 +935,14 @@
             errMsgDiv.classList.remove('show');
             errMsgSpan.textContent = '해당 사용자는 존재하지 않습니다.';
 
-            let usernm = document.getElementById('usernm').value;
-            let mail = document.getElementById('mail').value;
+            let usernm = document.getElementById('usernm').value;       //아이디
+            let findUserid = document.getElementById('findUserid').value;   //이름
 
-            if(usernm.trim().length === 0 || mail.trim().length === 0){
+            if(usernm.trim().length === 0 || findUserid.trim().length === 0) {
                 Alert.alert('', '빈 값은 불가능합니다.');
                 return false;
             }
-
-
-            if(!emailValidate(mail.trim()))
-            { Alert.alert('', '유효한 이메일 형식을 입력하세요.'); return false; }
-
-            let data = { usernm, mail, _CsrfValue }
+            let data = { usernm, findUserid, _CsrfValue }
 
             let fnSuccess = function (res){
                 if(res.success){
@@ -988,45 +966,7 @@
                 }
             };
             AjaxUtil.postAsyncData("/user-auth/searchAccount", data, fnSuccess, function(){ Alert.alert('', '서버통신 실패') });
-        })*/
-
-        // 등록자 확인
-        $('#btnSearch').click(function (e) {
-            const errMsgDiv = document.getElementById('ErrMsg');
-            const errMsgSpan = errMsgDiv.querySelector('span');
-
-            errMsgDiv.style.display = 'none';
-            errMsgDiv.style.color = 'red';
-            errMsgDiv.classList.remove('show');
-            errMsgSpan.textContent = '해당 사용자는 존재하지 않습니다.';
-
-            let usernm = document.getElementById('usernm').value;
-            let userid1 = document.getElementById('userid1').value;
-
-            if (usernm.trim().length === 0 || userid1.trim().length === 0) {
-                Alert.alert('', '빈 값은 불가능합니다.');
-                return false;
-            }
-
-            let data = { usernm, userid1, _CsrfValue };
-
-            let fnSuccess = function (res) {
-                if (res.success) {
-                    errMsgSpan.textContent = '등록된 사용자입니다.';
-                    errMsgDiv.style.display = 'block';
-                    errMsgDiv.style.color = 'black';
-                    errMsgDiv.classList.add('show');
-                } else {
-                    errMsgDiv.style.display = 'block';
-                    errMsgDiv.classList.add('show');
-                    errMsgSpan.textContent = '해당 사용자는 존재하지 않습니다.'; // 실패 메시지
-                }
-            };
-
-            AjaxUtil.postAsyncData("/user-auth/searchAccount", data, fnSuccess, function () {
-                Alert.alert('', '서버통신 실패')
-            });
-        });
+        })
 
         //사용자 등록
         $('#BtnAuthenticationRegister2').click(function (e) {
@@ -1187,91 +1127,6 @@
             });
 
         })
-
-        //사용자신청 버튼 클릭
-        /*let btnRegistersend = $('#btnSaveAuth');
-
-        btnRegistersend.click(function (e) {
-
-            const authCode = $('#AuthenticationCodeRegister').val().trim();
-            if (!authCode) {
-                Alert.alert('', '인증코드를 입력해주세요.');
-                $('#AuthenticationCodeRegister').focus();
-                return;
-            }
-
-            // let authType = document.getElementById('authType');
-            // let authTypeText = authType.options[authType.selectedIndex].text;
-
-            if (!validateFields()) {
-                return false;
-            }
-
-            if(!AuthCode){
-                Alert.alert('', '아이디중복 확인을 하지 않으셨습니다.');
-                return;
-            }
-
-            const emailInput = document.getElementById('email');
-            const emailValue = emailInput.value.trim();
-
-            if (!emailValidate(emailValue.trim()))
-            { Alert.alert('', '유효한 이메일 형식을 입력하세요.'); return false; }
-
-
-            let password = document.getElementById('password').value;
-            let password2 = document.getElementById('passwordchk').value;
-
-            if(password !== password2){
-                Alert.alert('', '비밀번호가 맞지 않습니다.');
-                return;
-            }
-
-            function extractSelectValues(selectName) {
-                let inputs = document.querySelectorAll(`select[name="${selectName}"]`);
-                return Array.from(inputs).map(input => input.value).join(',');
-            }
-
-            function extractSelectTexts(selectName) {
-                let inputs = document.querySelectorAll(`select[name="${selectName}"]`);
-                return Array.from(inputs).map(input => input.options[input.selectedIndex].text).join(',');
-            }
-
-            let data = FormUtil.extractForm($('#bomForm'));
-
-            console.log("요청 data : ", data);
-            // data.authTypeText = authTypeText;
-
-            data.AuthenticationCode = $('#AuthenticationCodeRegister').val().trim();
-
-            let fnSuccess = function (res) {
-                if(res.success){
-                    Alert.alert('', res.message);
-                    $("#modal-close-button").trigger('click');
-                }else if (!res.success){
-                    Alert.alert('', res.message);
-                }
-            };
-            AjaxUtil.postAsyncData("/Register/save", data, fnSuccess);
-
-            AuthCode = false;
-            for(let i=0; i < clearFieldList.length; i++){
-                clearForm(clearFieldList[i]);
-            }
-            let idfield = document.getElementById('id')
-            idfield.removeAttribute('readonly')
-
-            //추가된 발전지역 요소들 삭제
-            const elements = document.getElementsByClassName('new-fl-ac');
-            const elementsArray = Array.from(elements);
-
-            elementsArray.forEach(element => {
-                element.remove();
-            });
-            //끝
-
-            RegisterUserClose();
-        })*/
 
         // 사용자 등록 버튼 클릭
         let btnRegistersend = $('#btnSaveAuth');

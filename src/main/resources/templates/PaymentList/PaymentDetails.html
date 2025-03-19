@@ -19,31 +19,18 @@
     <!-- Page Title -->
     <div class="page-title-wrap">
       <div class="left">
-        <h2>결재 목록</h2><a id="toggleButton" onclick="toggleSearchWrap()"><img src="/images/icon/ico-down.png" alt="알람 아이콘"></a>
+        <h2>마케팅관리</h2>
         <!--<a title="북마크" class="bookmark toggle">
             내메뉴
         </a>-->
       </div>
       <ul class="page-navi">
         <li><img src="/images/icon/ico-nav-home.svg" alt="홈아이콘"></li>
-        <li>결재목록</li>
-        <li>결재목록</li>
+        <li>시스템 설정</li>
+        <li>마케팅 관리</li>
       </ul>
     </div>
     <!-- Select -->
-    <div class="search-wrap" id="searchWrap" style="display: none; padding-top:10px">
-      <ul>
-        <li>
-          <select title="사업장코드" id="search_spjangcd" name="search_sjangcd"
-                  onchange="init()">
-            <option value="" hidden selected disabled>선택</option>
-            <option value="ZZ"></option>
-            <option value="PP"></option>
-            <!-- 지역 옵션을 JavaScript에서 동적으로 채움 -->
-          </select>
-        </li>
-      </ul>
-    </div>
     <div class="tab-contents">
       <section class="tab-item" id="tab2" style="height: 750px; overflow: hidden;">
         <div class="section-top">
@@ -51,7 +38,7 @@
             <dl>
               <dt>
                 <label for="searchUserNm">
-                  작성일자<span class="eq">*</span>
+                  날짜<span class="eq">*</span>
                 </label>
               </dt>
               <dd>
@@ -69,28 +56,14 @@
             </dl>
             <dl>
               <dt>
-                <label for="SearchPayment">
-                  진행구분<span class="eq"></span>
-                </label>
-              </dt>
-              <dd>
-                <div class="srch-box">
-                  <select id="SearchPayment" name="SearchPayment">
-                    <option value="all"></option>
-                  </select>
-                </div>
-              </dd>
-            </dl>
-            <dl>
-              <dt>
                 <label for="searchUserNm">
-                  제목<span class="eq">*</span>
+                  기관명<span class="eq">*</span>
                 </label>
               </dt>
               <dd>
                 <div class="srch-box">
                   <input type="text" id="searchUserNm" name="searchUserNm" class="input-srch"
-                         placeholder="제목" style="border-radius: 5px;">
+                         placeholder="기관명" style="border-radius: 5px;">
                 </div>
               </dd>
             </dl>
@@ -135,6 +108,89 @@
     <p>ⓒ factCheck corp.All rights reserved.</p>
   </footer>
 
+  <div class="dashboard-layout-popup">
+    <div class="popup-overlay" id="popup1"></div>
+    <div class="popup-wrapper" id="wrapper1">
+      <div class="popup-title">
+        <h3>신규 등록</h3>
+        <a onclick="NewClose()" title="팝업닫기" class="btn-popup-close">
+          <img src="/images/icon/btn-popup-close.svg" alt="닫기">
+        </a>
+      </div>
+      <div class="popup-contents">
+        <form id="MarketingForm" autocomplete="off">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <div class="table-wrap">
+            <table class="view-table" id="selectedData" style="max-height: 740px;">
+              <caption>마케팅관리 신규 등록 테이블</caption>
+              <colgroup>
+                <col class="wp20">
+                <col class="wauto">
+              </colgroup>
+              <tbody>
+              <tr>
+                <th><label for="makcltnm"> 기관명</label></th>
+                <td colspan="3">
+                  <input id="makcltnm" name="makcltnm" class="wp100" placeholder="기관명"/>
+                  <input id="makseq" type="hidden">
+                </td>
+              </tr>
+              <tr>
+                <th><label for="title">제목</label></th>
+                <td colspan="3">
+                  <input id="title" name="title" class="wp100" placeholder="제 목"/>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label for="makcondyul">추출조건</label>
+                </th>
+                <td colspan="3">
+                  <input type="text" id="makcondyul" name="makcondyul" class="wp100" placeholder=" 추출조건 (숫자만 입력)"
+                         oninput="addPercentageSign(this)"/>
+                </td>
+              </tr>
+              <tr>
+                <th><label for="makuseyul">활용수지</label></th>
+                <td colspan="3">
+                  <input type="text" id="makuseyul" name="makuseyul" class="wp100" placeholder="활용 수치 (숫자만 입력)"
+                         oninput="addPercentageSign(this)"/>
+                </td>
+              </tr>
+              <tr>
+                <th><label for="fileInput2">첨부파일</label></th>
+                <td colspan="3">
+                  <div id="uploadComponent2" class="upload-component2">
+                    <div class="upload-filebox2">
+                      <img src="/images/icon/ico-fileupload.svg" alt="업로드아이콘">
+                      <a class="btn" title="파일업로드">파일 업로드</a>
+                      <input type="file" id="fileInput2" class="fileInput2" multiple>
+                      <p>Maximun upload file size <span>1GiB</span></p>
+                    </div>
+
+                    <div class="upload-filelist2">
+                      <div class="title">
+                        <h5>Files (0)</h5>
+                        <a title="Delete all" class="btn-file-deleteall2">Delete all</a>
+                      </div>
+                      <ul class="filelist2" id="filelist2">
+                      </ul>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+      <div class="popup-button">
+        <button class="btn-popup-close" onclick="NewClose()">취소</button>
+        <button class="btn-navy" id="btnSaveAuth" onclick="SaveForm()"> 저장</button>
+      </div>
+    </div>
+  </div>
+
 </th:block>
 <th:block layout:fragment="scripts">
   <th:block th:replace="/common/columns_setting :: columns_setting"></th:block>
@@ -165,31 +221,23 @@
         fetchListData(); // 엔터 키를 눌렀을 때 실행할 함수
       }
     })
-    let isBindSpjangcdCalled = false;
+
     function init() {
-      if (!isBindSpjangcdCalled) {
-        bindSpjangcd();
-        isBindSpjangcdCalled = true; // 플래그 업데이트
-      }
       fetchListData();
-      }
+    }
 
     function fetchListData() {
       let data = [];
 
       const params = {
-        search_spjangcd: $('#search_spjangcd').val(),
         startDate: $('#startDate').val(),
         endDate: $('#endDate').val(),
-        SearchPayment:$('#SearchPayment').val(),
         searchUserNm: $('#searchUserNm').val()
       };
 
-      console.log("수집 데이터(결재 목록)",params);
-
       // 서버에서 데이터 가져오기
       $.ajax({
-        url: '/api/PaymentList/read',
+        url: '/api/Marketing/read',
         type: 'GET',
         data: params,
         async: false,
@@ -202,17 +250,16 @@
           if (response && Array.isArray(response.data)) {
             data = response.data.map((item, index) => ({
               rownum: index + 1,
-              appdate: item.appdate ||'',
-              appgubun : item.appgubun || '',
-              appgubun_display: item.appgubun_display ||'',
-              appnum: item.appnum || '',
-              appperid: item.appperid||'',
-              papercd: item.papercd || '',
-              remark :item.remark ||'',
-              repodate: item.repodate || '' ,
-              repoperid: item.repoperid || '' ,
-              repopernm : item.repopernm||'',
-              title: item.title ||''
+              makseq: item.makseq || '',
+              indatem: item.indatem || '',
+              makcltnm: item.makcltnm || '',
+              maksubject: item.maksubject || '',
+              makcondyul: item.makcondyul ? item.makcondyul + '%' : '',
+              makuseyul: item.makuseyul ? item.makuseyul + '%' : '',
+              inuserid: item.inuserid || '',
+              makdate: item.makdate || '',
+              fileList: Array.isArray(item.filelist) ? item.filelist : [],
+              isdownload: item.isdownload
             }));
           }
         },
@@ -224,17 +271,16 @@
       while (data.length < 15) {
         data.push({
           rownum: data.length + 1,
-          appdate: '',
-          appgubun:'',
-          appgubun_display:'',
-          appnum:'',
-          appperid:'',
-          papercd:'',
-          remark:'',
-          repodate:'',
-          repoperid:'',
-          repopernm:'',
-          title:''
+          makseq: '',
+          indatem: '',
+          makcltnm: '',
+          maksubject: '',
+          makcondyul: '',
+          makuseyul: '',
+          inuserid: '',
+          makdate: '',
+          fileList: [],
+          isdownload: '',
         });
       }
 
@@ -245,27 +291,50 @@
           autoGenerateColumns: false,
           showMarquee: true,
           isReadOnly: true,
-          virtualizationThreshold: 1,
           columns: [
             {binding: 'rownum', header: '순번', width: 70, align: 'center'},
-            {binding: 'appnum', header: '문서번호', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'repodate', header: '상신일자', width: '*', minWidth: 110, align: 'center'},
-            {binding: 'repopernm', header: '작성자명', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'papercd', header: '문서명', width: '*', minWidth: 120, align: 'center'},
-            {binding: 'appgubun', header: '결재구분', width: '*', minWidth: 100, align: 'center',  visible: false },
-            {binding: 'appgubun_display', header: '결재구분', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'appdate', header: '결재일자', width: '*', minWidth: 110, align: 'center'},
-            {binding: 'title', header: '제목', width: '*', align: 'center', minWidth: 100},
-            {binding: 'remark', header: '사유',width: '*' ,align: 'center', minWidth: 100},
-            {binding:'appperid', header: '', visible: false },
-            {binding:'repoperid', header: '', visible: false },
+            {binding: 'makseq', header: '일련번호', visible: false},
+            {binding: 'indatem', header: '등록일자', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'makcltnm', header: '기관명', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'maksubject', header: '제목', width: '*', minWidth: 300, align: 'center'},
+            {binding: 'makcondyul', header: '추출조건 (%)', width: '*', minWidth: 120, align: 'center'},
+            {binding: 'makuseyul', header: '활용수치 (%)', width: '*', minWidth: 120, align: 'center'},
+            {binding: 'inuserid', header: '등록자', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'makdate', header: '의뢰일자', width: '*', align: 'center', minWidth: 100},
+            {binding: 'fileList', header: '첨부파일', width: '*', align: 'center', minWidth: 120},
+            {binding: 'isdownload', visible: false},
           ],
           itemsSource: viewdata,
+          itemFormatter: function (panel, r, c, cell) {
+            if (panel.cellType === wijmo.grid.CellType.Cell) {
+              let item = panel.rows[r].dataItem;
+
+              if (panel.columns[c].binding === 'fileList') {
+                cell.innerHTML = ''; // 기존 내용 삭제
+
+                if (item.isdownload && item.fileList.length > 0) {
+                  let downloadBtn = document.createElement("a");
+                  downloadBtn.href = "#";
+                  downloadBtn.classList.add("btn-filedown");
+                  downloadBtn.title = "다운로드";
+                  downloadBtn.textContent = "다운로드";
+
+                  // 클릭 시, 해당 행의 `fileList` 전달
+                  downloadBtn.onclick = function (event) {
+                    event.preventDefault();
+                    downloadFile_order(item.fileList);
+                  };
+
+                  cell.appendChild(downloadBtn);
+                }
+              }
+            }
+          }
         });
         theGrid.rowHeaders.columns.splice(0, 1);
         attachDoubleClickEvent(theGrid); //더블 클릭 이벤트
         new FlexGridContextMenu(theGrid);
-        window.downloadFileName = '결재 목록';
+        window.downloadFileName = '마케팅 관리';
       } else {
         theGrid.itemsSource = viewdata;
       }
@@ -389,93 +458,6 @@
 
       // 파일 리스트를 서버에 전송하여 다운로드 실행
       downloadFiles(downloadList, downloadUrl);
-    }
-
-    function fetchListData2() {
-      let data = [];
-
-      const params = {
-        startDate: $('#startDate').val(),
-        endDate: $('#endDate').val(),
-        searchUserNm: $('#searchUserNm').val()
-      };
-
-      // 서버에서 데이터 가져오기
-      $.ajax({
-        url: '/api/PaymentList/read2',
-        type: 'GET',
-        data: params,
-        async: false,
-        success: function (response) {
-          console.log("서버에서 받은 데이터 :", response);
-          // 응답이 올바르게 도착했고, data 속성이 배열인지 확인
-          if (response && Array.isArray(response.data)) {
-            console.log("서버에서 받은 데이터 목록:", response.data); //실제 데이터 확인
-          }
-          if (response && Array.isArray(response.data)) {
-            data = response.data.map((item, index) => ({
-              rownum: index + 1,
-              makseq: item.makseq || '',
-              indatem: item.indatem || '',
-              makcltnm: item.makcltnm || '',
-              maksubject: item.maksubject || '',
-              makcondyul: item.makcondyul ? item.makcondyul + '%' : '',
-              makuseyul: item.makuseyul ? item.makuseyul + '%' : '',
-              inuserid: item.inuserid || '',
-              makdate: item.makdate || '',
-              fileList: Array.isArray(item.filelist) ? item.filelist : [],
-              isdownload: item.isdownload
-            }));
-          }
-        },
-        error: function () {
-          console.error("데이터를 가져오는 중 오류가 발생했습니다.");
-        }
-      });
-
-      while (data.length < 15) {
-        data.push({
-          rownum: data.length + 1,
-          makseq: '',
-          indatem: '',
-          makcltnm: '',
-          maksubject: '',
-          makcondyul: '',
-          makuseyul: '',
-          inuserid: '',
-          makdate: '',
-          fileList: [],
-          isdownload: '',
-        });
-      }
-
-      const viewdata = new wijmo.collections.CollectionView(data);
-
-      if (!theGrid2) {
-        theGrid2 = new wijmo.grid.FlexGrid('#theGrid2', {
-          autoGenerateColumns: false,
-          showMarquee: true,
-          isReadOnly: true,
-          columns: [
-            {binding: 'rownum', header: '순번', width: 70, align: 'center'},
-            {binding: 'makseq', header: '일련번호', visible: false},
-            {binding: 'indatem', header: '문서번호', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'makcltnm', header: '상신일자', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'maksubject', header: '작성자명', width: '*', minWidth: 300, align: 'center'},
-            {binding: 'makcondyul', header: '문서명', width: '*', minWidth: 120, align: 'center'},
-            {binding: 'makuseyul', header: '결재구분', width: '*', minWidth: 120, align: 'center'},
-            {binding: 'inuserid', header: '결재일자', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'makdate', header: '제목', width: '*', align: 'center', minWidth: 100},
-          ],
-          itemsSource: viewdata,
-        });
-        theGrid2.rowHeaders.columns.splice(0, 1);
-        attachDoubleClickEvent(theGrid2); //더블 클릭 이벤트
-        new FlexGridContextMenu(theGrid2);
-        window.downloadFileName = '마케팅 관리';
-      } else {
-        theGrid2.itemsSource = viewdata;
-      }
     }
 
     // 저장& 수정
@@ -663,40 +645,6 @@
         input.setSelectionRange(cursorPosition, cursorPosition); // 커서를 유지
       }
     }
-
-    //공통코드
-    const selectConfigs = [
-      {parentCode: 'Payment', elementId: 'SearchPayment'},
-    ];
-
-    selectConfigs.forEach(config => {
-      initializeSelect3({
-        url: '/api/PaymentList/payType',
-        params: {parentCode: config.parentCode},
-        elementId: config.elementId,
-        valueField: "code",
-        textField: "value",
-        includeAllOption: true, // "전체" 옵션 사용
-        defaultValue: "001" // 기본 선택값 [대기]
-        });
-    });
-
-    //사업장 코드
-    function bindSpjangcd() {
-      $.ajax({
-        url: '/api/PaymentList/bindSpjangcd',
-        type: 'GET',
-        async: false,
-        success: function (data) {
-          data2 = data.data;
-          const selectElement = document.getElementById('search_spjangcd');
-          if (selectElement) {
-            selectElement.value = data2; // value 속성으로 선택
-          }
-        }
-      })
-    }
-
 
   </script>
 </th:block>

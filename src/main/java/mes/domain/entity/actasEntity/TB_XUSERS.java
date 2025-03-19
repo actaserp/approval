@@ -1,12 +1,12 @@
 package mes.domain.entity.actasEntity;
 
 
-import antlr.build.ANTLR;
 import lombok.*;
 
-import javax.persistence.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "TB_XUSERS")
@@ -23,22 +23,19 @@ public class TB_XUSERS {
     @Column(name = "rnum")
     private String rnum;
 
-    @Column(name = "passwd1")
+    @Column(name = "passwd1")   //비밀번호
     private String passwd1;
 
-    @Column(name = "passwd2")
+    @Column(name = "passwd2")   //비밀번호
     private String passwd2;
-
-    @Column(name = "shapass")
-    private String shapass;
 
     @Column(name = "custnm")
     private String custnm;
 
-    @Column(name = "pernm")
+    @Column(name = "pernm")     //이름
     private String pernm;
 
-    @Column(name = "useyn")
+    @Column(name = "useyn")     //사용여부?
     private String useyn;
 
     @Column(name = "perid")
@@ -50,13 +47,7 @@ public class TB_XUSERS {
     @Column(name = "grpid")
     private String grpid;
 
-    @Column(name = "domcls")
-    private String domcls;
-
     @Column(name = "spjangcd")
     private String spjangcd;
-
-    @Column(name = "upddate", length = 8)
-    private String upddate;
 }
 

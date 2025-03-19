@@ -45,4 +45,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	boolean existsByUsername(String username);
 
 	Optional<User> findByPassword(String storedPassword);
+
+	@Query("SELECT u.username FROM User u WHERE u.first_name = :usernm AND u.username = :findUserid")
+	List<String> findByFirstNameAndEmail(String usernm, String findUserid);
 }

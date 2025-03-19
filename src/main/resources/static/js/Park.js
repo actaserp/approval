@@ -169,6 +169,47 @@ function initializeSelect({
     });
 }
 
+//공통코드 사용
+function initializeSelect3({
+                               url,
+                               params = {},
+                               elementId,
+                               defaultOption = "선택하세요",  // 기본 옵션 유지
+                               includeAllOption = false,  // "전체" 옵션 추가 여부
+                               valueField = "code",
+                               textField = "value",
+                               defaultValue = null  // 기본 선택값 추가
+                           }) {
+    $.get(url, params, function(response) {
+        const data = response.data || [];
+        let selectElement = $(`#${elementId}`);
+        if (!selectElement.length) {
+            return;
+        }
+
+        selectElement.empty();
+
+        // "전체" 옵션이 없을 때만 "선택하세요" 추가
+        if (!includeAllOption) {
+            selectElement.append(`<option value="">${defaultOption}</option>`);
+        } else {
+            selectElement.append(`<option value="all">전체</option>`);
+        }
+
+        // API 데이터 추가
+        if (Array.isArray(data)) {
+            data.forEach(function(item) {
+                selectElement.append(`<option value="${item[valueField]}">${item[textField]}</option>`);
+            });
+        }
+        // defaultValue가 설정된 경우에만 적용
+        if (defaultValue !== null && defaultValue !== undefined) {
+            selectElement.val(defaultValue);
+        }
+    }).fail(function(xhr, status, error) {
+        Alert.alert("데이터를 불러오는 중 문제가 발생했습니다. 관리자에게 문의하세요.", '');
+    });
+}
 
 //이메일 정규식
 function emailValidate(emailVal){

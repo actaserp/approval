@@ -394,8 +394,6 @@ public class UserService {
                 xusers.setPernm(userDto.getFirst_name() != null ? userDto.getFirst_name() : xusers.getPernm());
                 xusers.setPasswd1(userDto.getPw() != null ? userDto.getPw() : xusers.getPasswd1());
                 xusers.setPasswd2(userDto.getPw() != null ? userDto.getPw() : xusers.getPasswd2());
-                xusers.setShapass(userDto.getPw() != null ? Pbkdf2Sha256.encode(userDto.getPw()) : xusers.getShapass());
-                xusers.setUpddate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
 
                 tbxusersService.save(xusers);
                 //log.info("TB_XUSERS 테이블 업데이트 완료 - username: {}", userDto.getUserid());
