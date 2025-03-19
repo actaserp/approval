@@ -44,39 +44,31 @@ public class HomeController {
 	}
 
 
-	@RequestMapping(value= "/", method=RequestMethod.GET)
-    public ModelAndView pageIndex(HttpServletRequest request, HttpSession session) {
+	@RequestMapping(value = "/", method = RequestMethod.GET)
+	public ModelAndView pageIndex(HttpServletRequest request, HttpSession session) {
 
 		// User-Agent 확인
 		String userAgent = request.getHeader("User-Agent").toLowerCase();
 		boolean isMobile = userAgent.contains("mobile") || userAgent.contains("android") || userAgent.contains("iphone");
 
 		SecurityContext sc = SecurityContextHolder.getContext();
-        Authentication auth = sc.getAuthentication();         
-        User user = (User)auth.getPrincipal();
+		Authentication auth = sc.getAuthentication();
+		User user = (User) auth.getPrincipal();
 		String userid = user.getUsername();
-        String username = user.getUserProfile().getName();;
+		String username = user.getUserProfile().getName();
+		;
 
 
-        SystemOption sysOpt= this.systemOptionRepository.getByCode("LOGO_TITLE");
-        String logoTitle = sysOpt.getValue();
-        
-        //q = this.systemOptionRepository.getByCode("main_menu");        
+		SystemOption sysOpt = this.systemOptionRepository.getByCode("LOGO_TITLE");
+		String logoTitle = sysOpt.getValue();
 
-
+		//q = this.systemOptionRepository.getByCode("main_menu");
 		ModelAndView mv = new ModelAndView();
 		mv.addObject("userid", userid);
 		mv.addObject("username", username);
 		mv.addObject("userinfo", user);
 		mv.addObject("system_title", logoTitle);
-//		mv.addObject("default_menu_code", "wm_dashboard_summary");
 
-
-
-
-		// 모바일 첫페이지
-		mv.addObject("currentPage", "ticket-list");
-//		mv.addObject("default_menu_code", "wm_dashboard_summary");
 		mv.setViewName(isMobile ? "mobile/ticket-list" : "index");
 		return mv;
 	}

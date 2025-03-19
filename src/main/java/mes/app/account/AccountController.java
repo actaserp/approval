@@ -44,8 +44,6 @@ import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -141,39 +139,45 @@ public class AccountController {
 			@RequestParam("password") final String password,
 			final HttpServletRequest request) throws UnknownHostException {
 
-		//System.out.println("로그인 데이터: " + username + " / " + password);
+		log.info("로그인 요청 - username: {}, password: {}", username, password);
 
 		AjaxResult result = new AjaxResult();
-
-		HashMap<String, Object> data = new HashMap<String, Object>();
+		HashMap<String, Object> data = new HashMap<>();
 		result.data = data;
 
 		UsernamePasswordAuthenticationToken authReq = new UsernamePasswordAuthenticationToken(username, password);
 		CustomAuthenticationToken auth = null;
-		try{
-			auth = (CustomAuthenticationToken)authManager.authenticate(authReq);
-		}catch (AuthenticationException e){
-			//e.printStackTrace();
+
+		try {
+			log.info("인증 시작 - authManager.authenticate() 호출");
+			auth = (CustomAuthenticationToken) authManager.authenticate(authReq);
+			log.info("인증 성공 - 사용자 정보: {}", auth.getPrincipal());
+		} catch (AuthenticationException e) {
+			log.error("인증 실패 - 예외 발생: {}", e.getMessage(), e);
 			data.put("code", "NOUSER");
 			return result;
 		}
 
-		if(auth!=null) {
-			User user = (User)auth.getPrincipal();
-			user.getActive();
+		if (auth != null) {
+			User user = (User) auth.getPrincipal();
+			log.info("사용자 로그인 성공 - username: {}, active 상태: {}", user.getUsername(), user.getActive());
+
 			data.put("code", "OK");
 
 			try {
+				log.info("로그인 로그 저장 시작");
 				this.accountService.saveLoginLog("login", auth);
+				log.info("로그인 로그 저장 완료");
 			} catch (UnknownHostException e) {
-				// Handle the exception (e.g., log it)
-				e.printStackTrace();
+				log.error("로그인 로그 저장 중 오류 발생: {}", e.getMessage(), e);
 			}
 		} else {
-			result.success=false;
+			log.warn("인증 객체 null - 로그인 실패");
+			result.success = false;
 			data.put("code", "NOID");
 		}
 
+		log.info("SecurityContext 설정");
 		SecurityContext sc = SecurityContextHolder.getContext();
 		sc.setAuthentication(auth);
 
@@ -182,7 +186,6 @@ public class AccountController {
 
 		return result;
 	}
-
 
 	//내정보 불러오기
 	@GetMapping("/account/myinfo")
@@ -332,7 +335,8 @@ public class AccountController {
 			@RequestParam(value = "email", required = false) String email,
 			@RequestParam(value = "id") String id,
 			@RequestParam(value = "name") String name,
-			@RequestParam(value = "password") String password
+			@RequestParam(value = "password") String password,
+			@RequestParam(value = "add") String addess
 	) {
 		log.info("phone: {}, email: {}, id: {}, name: {}, password: {}", phone, email, id, name, password);
 		AjaxResult result = new AjaxResult();
@@ -370,7 +374,6 @@ public class AccountController {
 						.date_joined(new Timestamp(System.currentTimeMillis()))
 						.superUser(false)
 						.build();
-
 				userService.save(user); // User 저장
 
 				jdbcTemplate.execute("SET IDENTITY_INSERT user_profile ON");
@@ -385,17 +388,12 @@ public class AccountController {
 				);
 				jdbcTemplate.execute("SET IDENTITY_INSERT user_profile OFF");
 
-				String currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
 				TB_XUSERS xusers = TB_XUSERS.builder()
 						.passwd1(password)
 						.passwd2(password)
-						.shapass(Pbkdf2Sha256.encode(password))
 						.pernm(name)
 						.useyn("1")
-						.domcls("%")
 						.spjangcd(spjangcd)
-						.upddate(currentDate)
 						.id(new TB_XUSERSId(custcd, id))
 						.build();
 
@@ -514,24 +512,39 @@ public class AccountController {
 		}
 	}
 
+
+	// 등록 확인
 	@PostMapping("/user-auth/searchAccount")
-	public AjaxResult IdSearch(@RequestParam("usernm") final String usernm,
-							   @RequestParam("mail") final String mail){
+	public AjaxResult IdSearch(@RequestParam(value = "usernm", required = false) String usernm,   // 이름
+														 @RequestParam(value = "findUserid", required = false) String findUserid) { // 아이디
 
 		AjaxResult result = new AjaxResult();
 
-		// 사업자 번호와 대표자를 기반으로 사용자 검색
-		List<String> user = userRepository.findByFirstNameAndEmailNative(usernm, mail);
+		// 입력값 검증
+		if (usernm == null || usernm.trim().isEmpty() || findUserid == null || findUserid.trim().isEmpty()) {
+			result.success = false;
+			result.message = "이름과 아이디를 모두 입력해야 합니다.";
+			return result;
+		}
 
-		if (!user.isEmpty()) {
+		log.info("사용자 검색 시작 - usernm: {}, findUserid: {}", usernm, findUserid);
+
+		// 사용자 검색
+		List<String> users = userRepository.findByFirstNameAndEmail(usernm, findUserid);
+
+		if (!users.isEmpty()) {
 			result.success = true;
-			result.data = user;
+			result.data = users;
+			log.info("사용자 검색 성공 - {}개의 사용자 발견", users.size());
 		} else {
 			result.success = false;
 			result.message = "해당 사용자가 존재하지 않습니다.";
+			log.warn("사용자 검색 실패 - 검색 결과 없음");
 		}
+
 		return result;
 	}
+
 
 	@PostMapping("/user-auth/AuthenticationEmail")
 	public AjaxResult PwSearch(@RequestParam("usernm") final String usernm,
