@@ -25,7 +25,6 @@ public class AlarmController {
     @GetMapping("/notifications")
     public AjaxResult getNotifications(Authentication auth) {
         AjaxResult result = new AjaxResult();
-        System.out.println("알람 조회 메서드 호출");
         try {
             // 로그인한 사용자 정보
             User user = (User) auth.getPrincipal();
@@ -57,12 +56,14 @@ public class AlarmController {
         try {
             // 로그인한 사용자 정보 가져오기
             User user = (User) auth.getPrincipal();
-            String userId = user.getUsername();
+            String username = user.getUsername();
+            String userCd = alarmService.getPerid(username);
+            String userCode = userCd.replaceFirst("p", ""); // ✅ 첫 번째 "p"만 제거
             String spjangcd = user.getSpjangcd();
             UserGroup userGroupId = user.getUserProfile().getUserGroup();
 
             // 알림 상태 업데이트
-            alarmService.markAsRead(userId, spjangcd, userGroupId);
+            alarmService.markAsRead(userCode, spjangcd, userGroupId);
 
             result.success = true;
             result.message = "알림 상태가 업데이트되었습니다.";

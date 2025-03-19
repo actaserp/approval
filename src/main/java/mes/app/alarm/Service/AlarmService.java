@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,7 @@ public class AlarmService {
     public void markAsRead(String userId, String spjangcd, UserGroup userGroupId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("spjangcd", spjangcd);
+        params.addValue("userId", userId); // ✅ SQL 인젝션 방지
 
         String flagColumn;
         String resetFlagColumn;
@@ -90,17 +92,23 @@ public class AlarmService {
             throw new IllegalArgumentException("유효하지 않은 UserGroup ID입니다.");
         }
 
-        // 1. 지정된 flagColumn을 1로 업데이트
+        // ✅ SQL 인젝션 방지 및 안전한 컬럼 검증
+        List<String> allowedColumns = Arrays.asList("userflag", "adflag");
+        if (!allowedColumns.contains(resetFlagColumn)) {
+            throw new IllegalArgumentException("잘못된 컬럼 값입니다: " + resetFlagColumn);
+        }
+
+        // ✅ 안전한 SQL (바인딩 변수 사용)
         String updateFlagSql =
                 "UPDATE TB_E080 " +
                         "SET " + resetFlagColumn + " = '1' " +
                         "WHERE spjangcd = :spjangcd " +
-                        "AND " + resetFlagColumn + " = '0'" +
-                        "AND appperid = " + userId;
+                        "AND " + resetFlagColumn + " = '0' " +
+                        "AND appperid = :userId";
 
         sqlRunner.execute(updateFlagSql, params);
 
-//        // 2. 다른 플래그를 0으로 설정
+        //        // 2. 다른 플래그를 0으로 설정
 //        String resetFlagSql =
 //                "UPDATE TB_DA006W " +
 //                        "SET " + resetFlagColumn + " = '0' " +
@@ -108,6 +116,8 @@ public class AlarmService {
 //
 //        sqlRunner.execute(resetFlagSql, params);
     }
+
+
     // 사용자 사원코드 조회(맨앞 'p'제거 필요)
     public String getPerid(String username) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
