@@ -285,10 +285,15 @@ public class OrderStatusService {
         }
         // 진행구분 필터
         if (searchType != null && !searchType.isEmpty()) {
-            sql.append(" AND appgubun LIKE :searchType");
+            if ("0".equals(searchType)) {
+                sql.append(" AND appgubun != '001'"); // ✅ 0일 경우 '001' 제외
+            } else {
+                sql.append(" AND appgubun LIKE :searchType"); // ✅ 기존 필터 유지
+            }
         }
+
         // 정렬 조건 추가
-        sql.append(" ORDER BY reqdate ASC");
+        sql.append(" ORDER BY indate ASC");
 
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql.toString(), dicParam);
         return items;
@@ -337,7 +342,7 @@ public class OrderStatusService {
                         AND CAST(CAST(YEAR(GETDATE()) AS VARCHAR(4)) + '1231' AS INT)
                 """);
         // 정렬 조건 추가
-        sql.append(" ORDER BY reqdate ASC");
+        sql.append(" ORDER BY indate ASC");
 
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql.toString(), dicParam);
         return items;

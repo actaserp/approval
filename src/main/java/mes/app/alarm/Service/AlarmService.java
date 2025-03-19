@@ -93,19 +93,20 @@ public class AlarmService {
         // 1. 지정된 flagColumn을 1로 업데이트
         String updateFlagSql =
                 "UPDATE TB_E080 " +
-                        "SET " + flagColumn + " = '1' " +
+                        "SET " + resetFlagColumn + " = '1' " +
                         "WHERE spjangcd = :spjangcd " +
-                        "AND " + flagColumn + " = '0'";
+                        "AND " + resetFlagColumn + " = '0'" +
+                        "AND appperid = " + userId;
 
         sqlRunner.execute(updateFlagSql, params);
 
-        // 2. 다른 플래그를 0으로 설정
-        String resetFlagSql =
-                "UPDATE TB_DA006W " +
-                        "SET " + resetFlagColumn + " = '0' " +
-                        "WHERE spjangcd = :spjangcd";
-
-        sqlRunner.execute(resetFlagSql, params);
+//        // 2. 다른 플래그를 0으로 설정
+//        String resetFlagSql =
+//                "UPDATE TB_DA006W " +
+//                        "SET " + resetFlagColumn + " = '0' " +
+//                        "WHERE spjangcd = :spjangcd";
+//
+//        sqlRunner.execute(resetFlagSql, params);
     }
     // 사용자 사원코드 조회(맨앞 'p'제거 필요)
     public String getPerid(String username) {
