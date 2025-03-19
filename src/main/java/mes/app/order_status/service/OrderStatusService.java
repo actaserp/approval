@@ -1,5 +1,7 @@
 package mes.app.order_status.service;
 
+import lombok.extern.slf4j.Slf4j;
+import mes.domain.entity.actasEntity.TB_DA006W;
 import mes.domain.entity.actasEntity.TB_DA006W_PK;
 import mes.domain.services.SqlRunner;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,51 +11,96 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class OrderStatusService {
 
     @Autowired
     SqlRunner sqlRunner;
 
-    public List<Map<String, Object>> getOrderStatusByOperid(String perid, String spjangcd) {
+    public List<Map<String, Object>> getOrderStatusByOperid(String startDate, String endDate, String perid, String spjangcd, String searchCltnm, String searchtketnm, String searchstate) {
+
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("perid", perid);
         params.addValue("spjangcd", spjangcd);
 
-        String sql = """
-        SELECT
-            tb007.*,
-            tb007.hgrb,
-            tb007.qty,
-            tb007.panel_t,
-            tb007.panel_w,
-            tb007.panel_l,
-            tb007.exfmtypedv,
-            tb007.infmtypedv,
-            tb007.stframedv,
-            tb007.stexplydv,
-            tb007.ordtext,
-            tb006.*,
-            tb006.ordflag,
-            tb006.reqdate,
-            tb006.cltnm,
-            tb006.remark,
-            tb006.deldate
-        FROM
-            TB_DA007W tb007
-        LEFT JOIN
-            TB_DA006W tb006
-        ON
-            tb007.custcd = tb006.custcd
-            AND tb007.spjangcd = tb006.spjangcd
-            AND tb007.reqdate = tb006.reqdate
-            AND tb007.reqnum = tb006.reqnum
-        WHERE
-            tb006.spjangcd = :spjangcd
-""";
+        if (startDate != null && !startDate.isEmpty()) {
+            params.addValue("startDate", startDate);
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            params.addValue("endDate", endDate);
+        }
 
-        return sqlRunner.getRows(sql, params);
+        StringBuilder sql = new StringBuilder("""
+       SELECT
+          tb006.*,
+          uc.Value AS ordflag_display,
+          (
+              SELECT ISNULL((
+                  SELECT
+                      bd.filepath,
+                      bd.filesvnm,
+                      bd.fileextns,
+                      bd.fileurl,
+                      bd.fileornm,
+                      bd.filesize,
+                      bd.fileid
+                  FROM
+                      tb_DA006WFILE bd
+                  WHERE
+                      bd.custcd = tb006.custcd
+                      AND bd.spjangcd = tb006.spjangcd
+                      AND bd.reqdate = tb006.reqdate
+                      AND bd.reqnum = tb006.reqnum
+                  ORDER BY
+                      bd.indatem DESC
+                  FOR JSON PATH
+              ), '[]')
+          ) AS hd_files
+      FROM
+          TB_DA006W tb006 
+      left join user_code uc on uc.Code = tb006.ordflag
+      WHERE
+          tb006.spjangcd = :spjangcd
+    """);
+
+        // 날짜 필터링 (TB_DA006W 기준)
+        if (startDate != null && !startDate.isEmpty()) {
+            startDate = startDate.replace("-", ""); // "2025-03-01" -> "20250301"
+            sql.append(" and tb006.reqdate >= :startDate ");
+            params.addValue("startDate", startDate );
+        }
+        if (endDate != null && !endDate.isEmpty()) {
+            sql.append("  AND tb006.reqdate <= :endDate ");
+            params.addValue("endDate", endDate);
+        }
+
+        // 검색 조건 추가 (TB_DA006W 기준)
+        if (searchCltnm != null && !searchCltnm.isEmpty()) {
+            sql.append(" AND tb006.cltnm LIKE :searchCltnm ");
+            params.addValue("searchCltnm", "%" + searchCltnm + "%"); //`%` 추가하여 LIKE 검색 가능하도록 변경
+        }
+        if (searchtketnm != null && !searchtketnm.isEmpty()) {
+            sql.append(" AND tb006.remark LIKE :searchtketnm ");
+            params.addValue("searchtketnm", "%" + searchtketnm + "%");
+        }
+
+        // "전체"일 경우 조건을 추가하지 않음
+        if (searchstate != null && !searchstate.equals("all") && !searchstate.isEmpty()) {
+            sql.append(" AND tb006.ordflag = :searchstate ");
+            params.addValue("searchstate", searchstate);
+        }
+
+        // 정렬 조건 추가
+        sql.append(" ORDER BY tb006.reqdate DESC");
+
+        //log.info(" 실행될 SQL: {}", sql);
+        //log.info("바인딩된 파라미터: {}", params.getValues());
+
+        return sqlRunner.getRows(sql.toString(), params);
     }
+
+
 
     public List<Map<String, Object>> getModalListByClientName(String searchTerm) {
         MapSqlParameterSource params = new MapSqlParameterSource();
@@ -61,7 +108,7 @@ public class OrderStatusService {
         // searchTerm이 있을 때만 LIKE 조건 추가
         String sql = """
         SELECT *
-                FROM ERP_SWSPANEL1.dbo.TB_XCLIENT
+                FROM TB_XCLIENT
         """ + (searchTerm != null && !searchTerm.isEmpty() ? " WHERE cltnm LIKE :searchTerm" : "");
 
         // searchTerm이 비어 있지 않을 때만 파라미터에 추가
@@ -98,7 +145,27 @@ public class OrderStatusService {
             tb006.*,
             tb006.cltnm,
             tb006.remark,
-            tb006.ordflag
+            tb006.ordflag,
+            (
+                   SELECT
+                       bd.filepath,
+                       bd.filesvnm,
+                       bd.fileextns,
+                       bd.fileurl,
+                       bd.fileornm,
+                       bd.filesize,
+                       bd.fileid
+                   FROM
+                       tb_DA006WFILE bd
+                   WHERE
+                       bd.custcd = tb007.custcd
+                       AND bd.spjangcd = tb007.spjangcd
+                       AND bd.reqdate = tb007.reqdate
+                       AND bd.reqnum = tb007.reqnum
+                   ORDER BY
+                       bd.indatem DESC
+                   FOR JSON PATH
+               ) AS hd_files
         FROM
             TB_DA007W tb007
         LEFT JOIN
@@ -129,6 +196,8 @@ public class OrderStatusService {
         }
 
         // 쿼리 실행 및 결과 반환
+//        log.info(" 실행될 SQL: {}", sql);
+//        log.info("바인딩된 파라미터: {}", params.getValues());
         return sqlRunner.getRows(sql, params);
     }
 
@@ -166,6 +235,7 @@ public class OrderStatusService {
         }
         return null; // 데이터가 없을 경우 null 반환
     }
+
     // username으로 cltcd, cltnm, saupnum, custcd 가지고 오기
     public Map<String, Object> getUserInfo(String username) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
@@ -184,46 +254,38 @@ public class OrderStatusService {
         Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
         return userInfo;
     }
+
     //주문현황 그리드
-    public List<Map<String, Object>> getOrderList(TB_DA006W_PK tbDa006W_pk,
+    public List<Map<String, Object>> getOrderList(String perid, String spjangcd,
                                                   String searchStartDate, String searchEndDate, String searchType) {
 
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
         dicParam.addValue("searchStartDate", searchStartDate);
         dicParam.addValue("searchEndDate", searchEndDate);
         dicParam.addValue("searchType", searchType);
-        dicParam.addValue("custcd", tbDa006W_pk.getCustcd());
-        dicParam.addValue("spjangcd", tbDa006W_pk.getSpjangcd());
+        dicParam.addValue("perid", perid);
+        dicParam.addValue("spjangcd", spjangcd);
 
         StringBuilder sql = new StringBuilder("""
                 SELECT
-                    custcd,
-                    spjangcd,
-                    reqnum,
-                    reqdate,
-                    ordflag,
-                    deldate,
-                    telno,
-                    perid,
-                    cltzipcd,
-                    cltaddr,
-                    remark
+                    *
                 FROM
-                    TB_DA006W hd
+                    TB_E080 e
                 WHERE
-                    hd.spjangcd = :spjangcd
+                    e.spjangcd = :spjangcd
+                    AND (e.appperid = :perid OR e.inperid = :perid)
                 """);
         // 날짜 필터
         if (searchStartDate != null && !searchStartDate.isEmpty()) {
-            sql.append(" AND reqdate >= :searchStartDate");
+            sql.append(" AND indate >= :searchStartDate");
         }
         //
         if (searchEndDate != null && !searchEndDate.isEmpty()) {
-            sql.append(" AND reqdate <= :searchEndDate");
+            sql.append(" AND indate <= :searchEndDate");
         }
         // 진행구분 필터
         if (searchType != null && !searchType.isEmpty()) {
-            sql.append(" AND ordflag LIKE :searchType");
+            sql.append(" AND appgubun LIKE :searchType");
         }
         // 정렬 조건 추가
         sql.append(" ORDER BY reqdate ASC");
@@ -232,22 +294,127 @@ public class OrderStatusService {
         return items;
     }
 
-    public List<Map<String, Object>> initDatas(TB_DA006W_PK tbDa006WPk) {
+    public List<Map<String, Object>> initDatas(String perid, String spjangcd, String searchStartDate, String searchEndDate) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
         StringBuilder sql = new StringBuilder("""
                 SELECT
-                    hd.ordflag,
-                    COUNT(*) AS ordflag_count
+                    e.appgubun,
+                    COUNT(*) AS appgubun_count
                 FROM
-                    TB_DA006W hd
+                    TB_E080 e
                 WHERE
-                    hd.spjangcd = :spjangcd
-                    AND LEFT(hd.reqdate, 4) = CAST(YEAR(GETDATE()) AS VARCHAR(4))
+                    e.spjangcd = :spjangcd
+                    AND (e.appperid = :perid OR e.inperid = :perid)
+                    AND e.indate BETWEEN :searchStartDate AND :searchEndDate
                 GROUP BY
-                    hd.ordflag;
+                    e.appgubun;
                 """);
-        dicParam.addValue("spjangcd", tbDa006WPk.getSpjangcd());
+        dicParam.addValue("spjangcd", spjangcd);
+        dicParam.addValue("perid", perid);
+        dicParam.addValue("searchStartDate", searchStartDate);
+        dicParam.addValue("searchEndDate", searchEndDate);
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql.toString(), dicParam);
         return items;
     }
+
+    // 주문현황 캘린더
+    public List<Map<String, Object>> getOrderList2(String userCode, String spjancd) {
+
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+        dicParam.addValue("perid", userCode);
+        dicParam.addValue("spjangcd", spjancd);
+
+        StringBuilder sql = new StringBuilder("""
+                SELECT
+                    *
+                FROM
+                    TB_E080 e
+                WHERE
+                    e.spjangcd = :spjangcd
+                    AND(e.appperid = :perid OR e.inperid = :perid)
+                    AND e.indate BETWEEN
+                        CAST(CAST(YEAR(GETDATE()) - 1 AS VARCHAR(4)) + '0101' AS INT)
+                        AND CAST(CAST(YEAR(GETDATE()) AS VARCHAR(4)) + '1231' AS INT)
+                """);
+        // 정렬 조건 추가
+        sql.append(" ORDER BY reqdate ASC");
+
+        List<Map<String, Object>> items = this.sqlRunner.getRows(sql.toString(), dicParam);
+        return items;
+    }
+
+
+    public TB_DA006W UpdateOrdflag(List<Map<String, Object>> orders) {
+        for (Map<String, Object> order : orders) {
+            String reqnum = (String) order.get("reqnum"); // 주문 번호
+            String ordflag = (String) order.get("ordflag"); // 0 또는 1 (문자열)
+
+            // "0" → "1", "1" → "0" 변환 후 업데이트
+            String newOrdflag = "0".equals(ordflag) ? "1" : "0";
+
+            String sql = """
+            UPDATE TB_DA006W 
+            SET ordflag = :ordflag
+            WHERE reqnum = :reqnum
+        """;
+
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("ordflag", newOrdflag);
+            params.addValue("reqnum", reqnum);
+
+//            log.info("📌 주문 상태 변경 SQL 실행: {}", sql);
+//            log.info("📌 SQL Parameters: {}", params.getValues());
+
+            sqlRunner.execute(sql, params);
+        }
+
+        return new TB_DA006W(); // 업데이트 결과 반환 (실제 로직에 맞게 수정 필요)
+    }
+
+    public int CancelOrderUpdateOrdflag(List<Map<String, Object>> orders) {
+        int updatedCount = 0;
+        for (Map<String, Object> order : orders) {
+            String reqnum = (String) order.get("reqnum"); // 주문 번호
+
+            String sql = """
+        UPDATE TB_DA006W 
+        SET ordflag = :ordflag
+        WHERE reqnum = :reqnum
+        """;
+
+            MapSqlParameterSource params = new MapSqlParameterSource();
+            params.addValue("ordflag", "5"); // 컨트롤러에서 "5"로 변환했으므로 그대로 저장
+            params.addValue("reqnum", reqnum);
+
+            // SQL 실행 로그 추가
+//            log.info("📌 실행할 SQL: {}", sql);
+//            log.info("📌 SQL 파라미터: {}", params.getValues());
+
+            // SQL 실행 및 변경된 행 수 확인
+            int result = sqlRunner.execute(sql, params);
+            updatedCount += result;
+        }
+
+        // 업데이트된 행 수 반환
+        return updatedCount;
+    }
+    // 사용자 사원코드 조회(맨앞 'p'제거 필요)
+    public String getPerid(String username) {
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+
+        String sql = """
+                SELECT perid
+                FROM tb_xusers
+                WHERE userid = :username
+                """;
+        dicParam.addValue("username", username);
+        Map<String, Object> perid = this.sqlRunner.getRow(sql, dicParam);
+        String Perid = "";
+        if(perid != null && perid.containsKey("perid")) {
+            Perid = (String) perid.get("perid");
+        }
+        return Perid;
+    }
+
+
 }

@@ -31,7 +31,6 @@ public class DashBoardController2 {
         String spjangcd = dashBoardService2.getSpjangcd(username, search_spjangcd);
         String perid = dashBoardService2.getPerid(username);
         String splitPerid = perid.replaceFirst("p", ""); // ✅ 첫 번째 "p"만 제거
-
         // 올해 진행구분(appgubun)별 데이터 개수
         List<Map<String, Object>> ThisYearCnt = this.dashBoardService2.ThisYearCnt(spjangcd, splitPerid);
 

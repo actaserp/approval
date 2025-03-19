@@ -22,6 +22,7 @@ public class AlarmService {
     public List<Map<String, Object>> getNotifications(String userId, String spjangcd, int userGroupId) {
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("spjangcd", spjangcd);
+        params.addValue("perid", userId);
 
         String flagCondition = "";
         if (userGroupId == 35) {
@@ -38,7 +39,9 @@ public class AlarmService {
                 FROM
                     TB_E080 e
                 WHERE
-                    e.appgubun = '001'           -- spjangcd가 0인 데이터만 가져오기
+                    e.adflag = '0'           -- spjangcd가 0인 데이터만 가져오기
+                    AND e.spjangcd = :spjangcd
+                    AND e.appperid = :perid
                 ORDER BY
                     e.indate DESC;
         """;
@@ -89,7 +92,7 @@ public class AlarmService {
 
         // 1. 지정된 flagColumn을 1로 업데이트
         String updateFlagSql =
-                "UPDATE TB_DA006W " +
+                "UPDATE TB_E080 " +
                         "SET " + flagColumn + " = '1' " +
                         "WHERE spjangcd = :spjangcd " +
                         "AND " + flagColumn + " = '0'";
@@ -103,6 +106,23 @@ public class AlarmService {
                         "WHERE spjangcd = :spjangcd";
 
         sqlRunner.execute(resetFlagSql, params);
+    }
+    // 사용자 사원코드 조회(맨앞 'p'제거 필요)
+    public String getPerid(String username) {
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+
+        String sql = """
+                SELECT perid
+                FROM tb_xusers
+                WHERE userid = :username
+                """;
+        dicParam.addValue("username", username);
+        Map<String, Object> perid = this.sqlRunner.getRow(sql, dicParam);
+        String Perid = "";
+        if(perid != null && perid.containsKey("perid")) {
+            Perid = (String) perid.get("perid");
+        }
+        return Perid;
     }
 
 

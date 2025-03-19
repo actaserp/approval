@@ -250,58 +250,6 @@
 
 <th:block layout:fragment="scripts">
   <th:block th:replace="/common/columns_setting :: columns_setting"></th:block>
-  <script>
-    tinymce.init({
-      language: "ko_KR",
-      selector: "#remark",
-      plugins: "paste image imagetools",
-      height: 420,
-      width: 650,
-      toolbar: "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image",
-      paste_data_images: false,
-      file_picker_types: 'image',
-      automatic_uploads: false, // 자동 업로드 비활성화
-
-      // 파일 선택기 콜백
-      file_picker_callback: function (callback, value, meta) {
-        if (meta.filetype === 'image') {
-          const input = document.createElement('input');
-          input.setAttribute('type', 'file');
-          input.setAttribute('accept', 'image/*');
-
-          input.onchange = function () {
-            const file = input.files[0];
-            if (file) {
-              const formData = new FormData();
-              formData.append('file', file);
-
-              // 업로드 요청
-              fetch('/api/announcement/uploadEditor', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                  'X-CSRF-Token': csrfToken // CSRF 토큰 추가
-                }
-              })
-                      .then(response => response.json())
-                      .then(data => {
-                        if (data.location) {
-                          // 업로드된 URL을 에디터에 삽입
-                          callback(data.location, { alt: file.name });
-                        }
-                      })
-                      .catch(error => {
-                        console.error('Image upload failed:', error);
-                        alert('이미지 업로드에 실패했습니다.');
-                      });
-            }
-          };
-
-          input.click(); // 파일 탐색기 열기
-        }
-      }
-    });
-  </script>
   <script type="text/javascript">
     var theGrid;
     var viewdata;

@@ -456,7 +456,7 @@
                             {
                                 label: "보류",
                                 type: 'bar',
-                                data: stackedBarData["appgubun001"],
+                                data: stackedBarData["appgubun201"],
                                 backgroundColor: 'rgba(75, 192, 192, 0.7)',
                                 borderColor: 'rgba(75, 192, 192, 1)',
                                 borderWidth: 1,
@@ -545,7 +545,7 @@
                             {
                                 label: "보류",
                                 type: 'bar',
-                                data: stackedBarData2["appgubun001"],
+                                data: stackedBarData2["appgubun201"],
                                 backgroundColor: 'rgba(75, 192, 192, 0.7)',
                                 borderColor: 'rgba(75, 192, 192, 1)',
                                 borderWidth: 1,
@@ -634,7 +634,7 @@
                             {
                                 label: "보류",
                                 type: 'bar',
-                                data: stackedBarData3["appgubun001"],
+                                data: stackedBarData3["appgubun201"],
                                 backgroundColor: 'rgba(75, 192, 192, 0.7)',
                                 borderColor: 'rgba(75, 192, 192, 1)',
                                 borderWidth: 1,
@@ -723,7 +723,7 @@
                             {
                                 label: "보류",
                                 type: 'bar',
-                                data: stackedBarData4["appgubun001"],
+                                data: stackedBarData4["appgubun201"],
                                 backgroundColor: 'rgba(75, 192, 192, 0.7)',
                                 borderColor: 'rgba(75, 192, 192, 1)',
                                 borderWidth: 1,
@@ -766,25 +766,25 @@
                     // 카드 작업
                     // 올해 상태값별 데이터
                     let ThisYearCnt = data2.ThisYearCnt;
-                    // appgubun 0인 TotalCount 추출
+                    // appgubun 001인 TotalCount 추출
                     const thisYearCountOf0 = ThisYearCnt.find(item => item.appgubun === '001')?.TotalCount || 0;
                     // 결과를 HTML에 업데이트
                     const requestSection = document.querySelector('.waitPayment dl dd');
                     requestSection.innerHTML = `${thisYearCountOf0} <span class="unit">건</span>`;
-                    // ordflag가 1인 TotalCount 추출
+                    // appgubun가 101인 TotalCount 추출
                     const thisYearCountOf1 = ThisYearCnt.find(item => item.appgubun === '101')?.TotalCount || 0;
                     const checkSection = document.querySelector('.paymentProgress dl dd');
                     checkSection.innerHTML = `${thisYearCountOf1} <span class="unit">건</span>`;
-                    // ordflag가 2인 TotalCount 추출
+                    // appgubun가 131인 TotalCount 추출
                     const thisYearCountOf2 = ThisYearCnt.find(item => item.appgubun === '131')?.TotalCount || 0;
                     const orderSection = document.querySelector('.companion dl dd');
                     orderSection.innerHTML = `${thisYearCountOf2} <span class="unit">건</span>`;
-                    // ordflag가 3인 TotalCount 추출
+                    // appgubun가 201인 TotalCount 추출
                     const thisYearCountOf3 = ThisYearCnt.find(item => item.appgubun === '201')?.TotalCount || 0;
                     const productSection = document.querySelector('.hold dl dd');
                     productSection.innerHTML = `${thisYearCountOf3} <span class="unit">건</span>`;
-                    // ordflag가 4인 TotalCount 추출
-                    const thisYearCountOf4 = thisYearCountOf0 + thisYearCountOf1 + thisYearCountOf2 + thisYearCountOf3
+                    //  TotalCount 추출
+                    const thisYearCountOf4 = thisYearCountOf1 + thisYearCountOf2 + thisYearCountOf3
                     const deliverySection = document.querySelector('.complete dl dd');
                     deliverySection.innerHTML = `${thisYearCountOf4} <span class="unit">건</span>`;
 

@@ -784,9 +784,10 @@
 </script>
 <script type="text/javascript">
     //알람
+    // ✅ 알림 데이터를 서버에서 가져와 UI 업데이트
     function loadNotifications() {
         $.ajax({
-            url: '/api/Alarm/notifications',
+            url: '/api/Alarm/notifications', // 서버의 알림 조회 API
             method: 'GET',
             success: function (response) {
                 if (response.success && Array.isArray(response.data) && response.data.length > 0) {
@@ -796,7 +797,7 @@
                     renderNotifications(response.data); // 알림 내용 렌더링
                 } else {
                     console.log("표시할 알림이 없습니다.");
-                    updateAlarmCount(''); // 알림이 없을 때 카운트 0으로 설정
+                    updateAlarmCount(''); // 알림이 없을 때 카운트 초기화
                     clearNotifications(); // 알림 UI 초기화
                 }
             },
@@ -805,6 +806,15 @@
             }
         });
     }
+
+    // ✅ 1분마다 자동으로 알림 데이터를 불러와 UI 업데이트
+    // setInterval(loadNotifications, 60000);
+
+    // ✅ 페이지가 로드될 때 즉시 알림을 불러옴
+    $(document).ready(function () {
+        loadNotifications();
+    });
+
 
     // 알림 카운트를 업데이트하는 함수
     function updateAlarmCount(count) {

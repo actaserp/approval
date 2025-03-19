@@ -37,7 +37,7 @@ public class DashBoardService2 {
         String sql = """
                 SELECT perid
                 FROM tb_xusers
-                WHERE username = :username
+                WHERE userid = :username
                 """;
         dicParam.addValue("username", username);
         Map<String, Object> perid = this.sqlRunner.getRow(sql, dicParam);
