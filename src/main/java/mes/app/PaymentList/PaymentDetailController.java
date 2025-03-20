@@ -1,11 +1,9 @@
 package mes.app.PaymentList;
 
 import lombok.extern.slf4j.Slf4j;
-import mes.app.PaymentList.service.PaymentListService;
+import mes.app.PaymentList.service.PaymentDetailService;
 import mes.domain.entity.User;
-import mes.domain.entity.UserCode;
 import mes.domain.model.AjaxResult;
-import mes.domain.repository.UserCodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,27 +16,27 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/PaymentList")
-public class PaymentListController { //결재목록
+@RequestMapping("/api/PaymentDetail")
+public class PaymentDetailController {
 
   @Autowired
-  private UserCodeRepository userCodeRepository;
-
-  @Autowired
-  private PaymentListService paymentListService;
+  PaymentDetailService paymentDetailService;
 
   @GetMapping("/read")
   public AjaxResult getPaymentList(@RequestParam(value = "startDate") String startDate,
                                    @RequestParam(value = "endDate") String endDate,
                                    @RequestParam(value = "search_spjangcd", required = false) String spjangcd,
                                    @RequestParam(value = "SearchPayment", required = false) String SearchPayment,
-                                   @RequestParam(value = "searchUserNm", required = false) String searchUserNm) {
+                                   @RequestParam(value = "searchUserNm", required = false) String searchUserNm,
+                                   Authentication auth) {
     AjaxResult result = new AjaxResult();
     log.info("주문 확인 read 들어온 데이터:startDate{}, endDate{}, spjangcd {}, SearchPayment {} ,searchUserNm {} ", startDate, endDate, spjangcd, SearchPayment,searchUserNm);
 
     try {
       // 데이터 조회
-      List<Map<String, Object>> getPaymentList = paymentListService.getPaymentList(spjangcd, startDate, endDate, SearchPayment,searchUserNm);
+      User user = (User) auth.getPrincipal();
+      String agencycd = user.getAgencycd().replaceFirst("^p", "");
+      List<Map<String, Object>> getPaymentList = paymentDetailService.getPaymentList(spjangcd, startDate, endDate, SearchPayment,searchUserNm,agencycd);
 
       for (Map<String, Object> item : getPaymentList) {
         //날짜 포맷 변환 (repodate)
@@ -68,9 +66,9 @@ public class PaymentListController { //결재목록
 
   @GetMapping("/read1")
   public AjaxResult getPaymentList1(@RequestParam(value = "startDate") String startDate,
-                                   @RequestParam(value = "endDate") String endDate,
-                                   @RequestParam(value = "search_spjangcd", required = false) String spjangcd,
-                                   Authentication auth) {
+                                    @RequestParam(value = "endDate") String endDate,
+                                    @RequestParam(value = "search_spjangcd", required = false) String spjangcd,
+                                    Authentication auth) {
     AjaxResult result = new AjaxResult();
     log.info("결재목록_문서현황 read 들어온 데이터:startDate{}, endDate{}, spjangcd {} ", startDate, endDate, spjangcd);
 
@@ -79,7 +77,7 @@ public class PaymentListController { //결재목록
       User user = (User) auth.getPrincipal();
       String agencycd = user.getAgencycd().replaceFirst("^p", "");
       // 데이터 조회
-      List<Map<String, Object>> getPaymentList = paymentListService.getPaymentList1(spjangcd, startDate, endDate,agencycd);
+      List<Map<String, Object>> getPaymentList = paymentDetailService.getPaymentList1(spjangcd, startDate, endDate,agencycd);
 
 
       // 데이터가 있을 경우 성공 메시지
@@ -114,43 +112,4 @@ public class PaymentListController { //결재목록
       }
     }
   }
-
-  @GetMapping("/payType")
-  public AjaxResult ordFlagType(
-      @RequestParam(value = "parentCode", required = false) String parentCode) {
-    AjaxResult result = new AjaxResult();
-
-    try {
-      // parentCode를 기준으로 하위 그룹 필터링
-      List<UserCode> data = (parentCode != null)
-          ? userCodeRepository.findByParentId(userCodeRepository.findByCode(parentCode).stream().findFirst().get().getId())
-          : userCodeRepository.findAll();
-
-      // 성공 시 데이터와 메시지 설정
-      result.success = true;
-      result.message = "데이터 조회 성공";
-      result.data = data;
-
-    } catch (Exception e) {
-      // 예외 발생 시 처리
-      result.success = false;
-      result.message = "데이터 조회 중 오류 발생: " + e.getMessage();
-    }
-
-    return result;
-  }
-
-  @GetMapping("/bindSpjangcd")
-  public AjaxResult bindSpjangcd(Authentication auth) {
-    // 관리자 사용가능 페이지 사업장 코드 선택 로직
-    User user = (User) auth.getPrincipal();
-    String username = user.getUsername();
-    String spjangcd = paymentListService.getSpjangcd(username, "");
-    // 사업장 코드 선택 로직 종료 반환 spjangcd 활용
-    AjaxResult result = new AjaxResult();
-    result.data = spjangcd;
-    return result;
-  }
-
-
 }

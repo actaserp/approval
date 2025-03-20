@@ -2,6 +2,7 @@ package mes.app.weather.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import mes.app.account.service.TB_XClientService;
 import mes.domain.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class WeatherService {
 
@@ -83,7 +85,6 @@ public class WeatherService {
 
 		// 사용자 주소를 가져오기
 		String address = tbXClientService.getUserAddress(userId);
-//		System.out.println("조회된 사용자 주소: " + address);
 		if (address == null || address.isEmpty()) {
 			return ResponseEntity.badRequest().body("주소가 유효하지 않습니다.");
 		}

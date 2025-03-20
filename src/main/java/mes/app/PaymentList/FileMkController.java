@@ -17,23 +17,34 @@ import java.nio.file.Paths;
 public class FileMkController {
 
   @Autowired
-  private PdfService pdfService; // DB에서 PDF 데이터를 가져오는 서비스
+  private PdfService pdfService;
 
   @GetMapping
   public ResponseEntity<String> generatePdf(@RequestParam String key) {
     try {
       log.info("🔹 요청 수신: key={}", key);
 
-      // 📌 DB에서 PDF 데이터 가져오기
-      byte[] pdfData = pdfService.getPdfByKey(key);
+      byte[] pdfData;
+      String custcd;
+
+      // 📌 key 값이 "A"로 시작하는 경우 별도 테이블에서 조회
+      if (key.startsWith("A")) {
+        log.info("🔹 A로 시작하는 key 감지, 다른 테이블에서 조회: key={}", key);
+        pdfData = pdfService.getPdfByKeyForA(key);  // 다른 테이블에서 조회
+        custcd = pdfService.getCustcdBySpdateForA(key);  // 다른 테이블에서 조회
+      } else {
+        log.info("🔹 일반 key 처리 진행: key={}", key);
+        pdfData = pdfService.getPdfByKey(key);  // 기존 테이블에서 조회
+        custcd = pdfService.getCustcdBySpdate(key);  // 기존 테이블에서 조회
+      }
+
+      // 📌 데이터 존재 여부 확인
       if (pdfData == null) {
         log.warn("❌ 파일을 찾을 수 없음: key={}", key);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("파일을 찾을 수 없습니다.");
       }
       log.info("✅ PDF 데이터 조회 성공: key={}", key);
 
-      // 📌 DB에서 `custcd` 값 가져오기
-      String custcd = pdfService.getCustcdBySpdate(key);
       if (custcd == null || custcd.isEmpty()) {
         log.warn("❌ 고객 코드(custcd)를 찾을 수 없음: key={}", key);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("고객 코드(custcd)를 찾을 수 없습니다.");
@@ -69,4 +80,7 @@ public class FileMkController {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 생성 중 오류 발생: " + e.getMessage());
     }
   }
+
+
+
 }

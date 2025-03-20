@@ -136,6 +136,89 @@
     <p>ⓒ factCheck corp.All rights reserved.</p>
   </footer>
 
+  <div class="dashboard-layout-popup">
+    <div class="popup-overlay" id="popup1"></div>
+    <div class="popup-wrapper" id="wrapper1">
+      <div class="popup-title">
+        <h3>신규 등록</h3>
+        <a onclick="NewClose()" title="팝업닫기" class="btn-popup-close">
+          <img src="/images/icon/btn-popup-close.svg" alt="닫기">
+        </a>
+      </div>
+      <div class="popup-contents">
+        <form id="MarketingForm" autocomplete="off">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+          <div class="table-wrap">
+            <table class="view-table" id="selectedData" style="max-height: 740px;">
+              <caption>마케팅관리 신규 등록 테이블</caption>
+              <colgroup>
+                <col class="wp20">
+                <col class="wauto">
+              </colgroup>
+              <tbody>
+              <tr>
+                <th><label for="makcltnm"> 기관명</label></th>
+                <td colspan="3">
+                  <input id="makcltnm" name="makcltnm" class="wp100" placeholder="기관명"/>
+                  <input id="makseq" type="hidden">
+                </td>
+              </tr>
+              <tr>
+                <th><label for="title">제목</label></th>
+                <td colspan="3">
+                  <input id="title" name="title" class="wp100" placeholder="제 목"/>
+                </td>
+              </tr>
+              <tr>
+                <th>
+                  <label for="makcondyul">추출조건</label>
+                </th>
+                <td colspan="3">
+                  <input type="text" id="makcondyul" name="makcondyul" class="wp100" placeholder=" 추출조건 (숫자만 입력)"
+                         oninput="addPercentageSign(this)"/>
+                </td>
+              </tr>
+              <tr>
+                <th><label for="makuseyul">활용수지</label></th>
+                <td colspan="3">
+                  <input type="text" id="makuseyul" name="makuseyul" class="wp100" placeholder="활용 수치 (숫자만 입력)"
+                         oninput="addPercentageSign(this)"/>
+                </td>
+              </tr>
+              <tr>
+                <th><label for="fileInput2">첨부파일</label></th>
+                <td colspan="3">
+                  <div id="uploadComponent2" class="upload-component2">
+                    <div class="upload-filebox2">
+                      <img src="/images/icon/ico-fileupload.svg" alt="업로드아이콘">
+                      <a class="btn" title="파일업로드">파일 업로드</a>
+                      <input type="file" id="fileInput2" class="fileInput2" multiple>
+                      <p>Maximun upload file size <span>1GiB</span></p>
+                    </div>
+
+                    <div class="upload-filelist2">
+                      <div class="title">
+                        <h5>Files (0)</h5>
+                        <a title="Delete all" class="btn-file-deleteall2">Delete all</a>
+                      </div>
+                      <ul class="filelist2" id="filelist2">
+                      </ul>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </form>
+      </div>
+      <div class="popup-button">
+        <button class="btn-popup-close" onclick="NewClose()">취소</button>
+        <button class="btn-navy" id="btnSaveAuth" onclick="SaveForm()"> 저장</button>
+      </div>
+    </div>
+  </div>
+
 </th:block>
 <th:block layout:fragment="scripts">
   <th:block th:replace="/common/columns_setting :: columns_setting"></th:block>
@@ -193,7 +276,7 @@
 
       // 서버에서 데이터 가져오기
       $.ajax({
-        url: '/api/PaymentList/read',
+        url: '/api/PaymentDetail/read',
         type: 'GET',
         data: params,
         async: false,
@@ -268,10 +351,100 @@
           itemsSource: viewdata,
         });
         theGrid.rowHeaders.columns.splice(0, 1);
+        attachDoubleClickEvent(theGrid); //더블 클릭 이벤트
         new FlexGridContextMenu(theGrid);
         window.downloadFileName = '결재 목록';
       } else {
         theGrid.itemsSource = viewdata;
+      }
+    }
+    function attachDoubleClickEvent(grid) {
+      let lastClickTime = 0;
+      grid.hostElement.addEventListener('click', function (e) {
+        const now = new Date().getTime();
+
+        if (now - lastClickTime < 300) { // 300ms 이내 클릭 -> 더블클릭 처리
+          const ht = grid.hitTest(e);
+
+          if (ht.cellType === wijmo.grid.CellType.Cell) {
+            const rowData = grid.rows[ht.row].dataItem; // 더블 클릭한 행의 데이터
+            console.log('Row Data:', rowData); // 디버깅
+
+            if (rowData) {
+              modifyData(rowData); // 데이터 입력 필드 채우기
+              NewSave2(); // 팝업 열기
+            }
+          }
+        }
+        lastClickTime = now;
+      });
+    }
+    function modifyData(rowData) {
+      console.log("✔️ 더블클릭한 행의 데이터:", rowData);
+      console.log("✔️ 파일 목록 데이터:", rowData.fileList || "🚨 fileList가 없습니다!");
+
+      document.getElementById('makseq').value = rowData.makseq || "";
+      document.getElementById('makcltnm').value = rowData.makcltnm || "";
+      document.getElementById('title').value = rowData.maksubject || "";
+      document.getElementById('makcondyul').value = rowData.makcondyul || "";
+      document.getElementById('makuseyul').value = rowData.makuseyul || "";
+
+      let fileList = document.getElementById('filelist2');
+      fileList.innerHTML = "";
+      uploadedFiles2 = [];
+      deletedFiles2 = [];
+
+
+    }
+    function NewSave2() {
+      let popup = document.getElementById('popup1');
+      let wrapper = document.getElementById('wrapper1');
+
+      popup.style.display = 'block';
+      wrapper.style.display = 'block';
+    }
+
+    function NewClose() {
+      // 팝업 닫기
+      let popup = document.getElementById('popup1');
+      let wrapper = document.getElementById('wrapper1');
+      clearForm();  // 폼 초기화
+      popup.style.display = 'none';
+      wrapper.style.display = 'none';
+    }
+
+    // 폼 초기화 함수
+    function clearForm() {
+      // 폼 요소 선택
+      const form = document.getElementById('MarketingForm');
+
+      if (form) {
+        form.reset(); // 모든 입력 필드 초기화
+      }
+
+      // 파일 입력 필드 초기화
+      let fileInput = document.getElementById('fileInput2');
+      if (fileInput) {
+        fileInput.value = "";
+      }
+
+      // 파일 목록 UI 초기화
+      let fileList = document.getElementById('filelist2');
+      if (fileList) {
+        fileList.innerHTML = "";
+      }
+
+      // 파일 리스트 배열 초기화
+      uploadedFiles2 = [];
+
+      // 파일 개수 텍스트 업데이트 (실시간 반영 확인)
+      let fileCountText = document.querySelector(".upload-filelist2 h5");
+      if (fileCountText) {
+        fileCountText.textContent = `Files (${uploadedFiles2.length})`;
+      }
+      let clearButton = document.querySelector(".btn-clear");
+      if (clearButton) {
+        clearButton.remove();  // 요소 자체를 삭제
       }
     }
 
@@ -287,7 +460,7 @@
 
       // 서버에서 데이터 가져오기
       $.ajax({
-        url: '/api/PaymentList/read1',
+        url: '/api/PaymentDetail/read1',
         type: 'GET',
         data: params,
         async: false,
