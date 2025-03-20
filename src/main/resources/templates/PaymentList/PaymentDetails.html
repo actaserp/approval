@@ -361,7 +361,7 @@
 
       document.getElementById('appnum').value = rowData.appnum || "";
 
-      params={
+     /* params={
         appnum:$('#appnum').val()
       }
 
@@ -396,10 +396,10 @@
         error: function () {
           console.error("데이터를 가져오는 중 오류가 발생했습니다.");
         }
-      });
+      });*/
 
       // PDF 파일이 존재하는지 확인 후 PDF.js로 렌더링
-      if (pdfUrl) {
+      /*if (pdfUrl) {
         console.log(" PDF URL 확인:", pdfUrl);
 
         fetch(pdfUrl, {method: 'GET', mode: 'cors'})
@@ -418,7 +418,7 @@
             Alert.alert('', "PDF 파일이 존재하지 않습니다.");
             container.innerHTML = "<p style='color:red;'>PDF를 불러올 수 없습니다.</p>";
           });
-      }
+      }*/
 
     }
 
