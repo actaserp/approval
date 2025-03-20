@@ -7,6 +7,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 
@@ -39,8 +40,8 @@ public class PdfService {
             FROM TB_AA010PDF 
             WHERE LTRIM(RTRIM(spdate)) = :file_key
         """;
-      log.info("🔹 실행할 SQL: {}", sql);
-      log.info("🔹 SQL 파라미터: file_key={}", trimmedKey);
+//      log.info("🔹 실행할 SQL: {}", sql);
+//      log.info("🔹 SQL 파라미터: file_key={}", trimmedKey);
 
       // 📌 SQL 실행
       Map<String, Object> result = sqlRunner.getRow(sql, params);
@@ -48,7 +49,7 @@ public class PdfService {
       // 📌 결과 확인 후 변환
       if (result != null && result.containsKey("pdf_data")) {
         byte[] pdfData = (byte[]) result.get("pdf_data");
-        log.info("✅ PDF 데이터 조회 성공: key={}", key);
+        //log.info("✅ PDF 데이터 조회 성공: key={}", key);
         return pdfData;
       } else {
         log.warn("❌ PDF 데이터 없음: key={}", key);
@@ -149,4 +150,29 @@ public class PdfService {
     }
   }
 
+  @Transactional
+  public boolean updateFilePath(String key, String filePath) {
+    try {
+      int updatedRows;
+      if (key.startsWith("A")) {
+        // "A"로 시작하는 경우 A 테이블 업데이트
+        log.info("🔹 A용 테이블 업데이트: key={}, filePath={}", key, filePath);
+
+        String sql = "UPDATE TB_AA010ATCH SET filepath = ? WHERE spdate = ?";
+        updatedRows = jdbcTemplate.update(sql, filePath, key);
+
+      } else {
+        // 일반 테이블 업데이트
+        log.info("🔹 기존 테이블 업데이트: key={}, filePath={}", key, filePath);
+
+        String sql = "UPDATE TB_AA010PDF SET filepath = ? WHERE spdate = ?";
+        updatedRows = jdbcTemplate.update(sql, filePath, key);
+      }
+
+      return updatedRows > 0;  // 하나라도 업데이트되었으면 true 반환
+    } catch (Exception e) {
+      log.error("🚨 파일 경로 업데이트 중 오류 발생: key={}, filePath={}, error={}", key, filePath, e.getMessage(), e);
+      return false;
+    }
+  }
 }

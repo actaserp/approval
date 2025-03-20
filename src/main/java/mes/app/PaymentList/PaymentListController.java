@@ -32,13 +32,17 @@ public class PaymentListController { //결재목록
                                    @RequestParam(value = "endDate") String endDate,
                                    @RequestParam(value = "search_spjangcd", required = false) String spjangcd,
                                    @RequestParam(value = "SearchPayment", required = false) String SearchPayment,
-                                   @RequestParam(value = "searchUserNm", required = false) String searchUserNm) {
+                                   @RequestParam(value = "searchUserNm", required = false) String searchUserNm,
+                                   Authentication auth) {
     AjaxResult result = new AjaxResult();
     log.info("주문 확인 read 들어온 데이터:startDate{}, endDate{}, spjangcd {}, SearchPayment {} ,searchUserNm {} ", startDate, endDate, spjangcd, SearchPayment,searchUserNm);
 
     try {
+
+      User user = (User) auth.getPrincipal();
+      String agencycd = user.getAgencycd().replaceFirst("^p", "");
       // 데이터 조회
-      List<Map<String, Object>> getPaymentList = paymentListService.getPaymentList(spjangcd, startDate, endDate, SearchPayment,searchUserNm);
+      List<Map<String, Object>> getPaymentList = paymentListService.getPaymentList(spjangcd, startDate, endDate, SearchPayment,searchUserNm, agencycd);
 
       for (Map<String, Object> item : getPaymentList) {
         //날짜 포맷 변환 (repodate)
@@ -47,9 +51,9 @@ public class PaymentListController { //결재목록
         formatDateField(item, "appdate");
 
         //papercd 값이 "101"이면 "전표결재(지출결의서)"
-        if ("101".equals(item.get("papercd"))) {
+        /*if ("101".equals(item.get("papercd"))) {
           item.put("papercd", "전표결재(지출결의서)");
-        }
+        }*/
       }
 
       // 데이터가 있을 경우 성공 메시지
@@ -80,7 +84,7 @@ public class PaymentListController { //결재목록
       String agencycd = user.getAgencycd().replaceFirst("^p", "");
       String userName = user.getFirst_name();
       // 데이터 조회
-      List<Map<String, Object>> getPaymentList = paymentListService.getPaymentList1(spjangcd, startDate, endDate,agencycd);
+      List<Map<String, Object>> getPaymentList = paymentListService.getPaymentList1(spjangcd, startDate, endDate, agencycd);
 
 
       // 데이터가 있을 경우 성공 메시지

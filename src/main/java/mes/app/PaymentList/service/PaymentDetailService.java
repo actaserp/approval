@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -79,11 +80,34 @@ public class PaymentDetailService {
     StringBuilder sql = new StringBuilder("""
         SELECT (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '001' AND appperid = :as_perid AND flag = '1' AND repodate Between :as_stdate AND :as_enddate) as appgubun1,
         	    (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '101' AND appperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun2,
-        	    (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '131' AND appperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun3
+        	    (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '131' AND appperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun3,
+        	    (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '201' AND appperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun4
         FROM dual
         """);
     log.info("결재목록_문서현황 List SQL: {}", sql);
     log.info("SQL Parameters: {}", params.getValues());
     return sqlRunner.getRows(sql.toString(), params);
+  }
+
+  public Optional<String> findPdfFilenameByRealId(String appnum) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("appnum", appnum);
+
+    String sql = "select filename from TB_AA010PDF where spdate = :appnum;";
+
+    try {
+      // SQL 실행 후 결과 조회
+      log.info("결재승인PDF 파일 찾기 SQL: {}", sql);
+      log.info("SQL Parameters: {}", params.getValues());
+      List<Map<String, Object>> result = sqlRunner.getRows(sql, params);
+
+      if (!result.isEmpty() && result.get(0).get("filename") != null) {
+        return Optional.of((String) result.get(0).get("filename"));
+      }
+    } catch (Exception e) {
+      log.info("PDF 파일명을 조회하는 중 오류 발생: {}", e.getMessage(), e);
+    }
+
+    return Optional.empty(); // 결과가 없으면 빈 Optional 반환
   }
 }

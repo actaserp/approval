@@ -155,6 +155,7 @@
                 <col class="wp20">
                 <col class="wauto">
               </colgroup>
+              <button class="btn-download btn-navy" id="btnDownloadPdf" onclick="downloadPdf()">다운로드</button>
               <tbody>
               <tr>
                 <th colspan="2">PDF 보기</th>
@@ -198,7 +199,7 @@
 </th:block>
 <th:block layout:fragment="scripts">
   <th:block th:replace="/common/columns_setting :: columns_setting"></th:block>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script><!-- PDF.js 라이브러리 추가 -->
   <script type="text/javascript">
     let theGrid;
     let theGrid1;
@@ -347,7 +348,7 @@
             console.log('Row Data:', rowData); // 디버깅
 
             if (rowData) {
-              modifyData(rowData); // 데이터 입력 필드 채우기
+              modifyData(rowData);
               NewSave2(); // 팝업 열기
             }
           }
@@ -355,95 +356,58 @@
         lastClickTime = now;
       });
     }
+
+
     function modifyData(rowData) {
       console.log("✔️ 더블클릭한 행의 데이터:", rowData);
       let container = document.getElementById("pdfContainer");
 
-      document.getElementById('appnum').value = rowData.appnum || "";
+      // ✅ appnum 값을 currentRealId로 설정
+      currentRealId = rowData.appnum || "";
 
-     /* params={
-        appnum:$('#appnum').val()
-      }
+      document.getElementById('appnum').value = currentRealId;
+
+      let params = { appnum: rowData.appnum };
+
+      console.log("📂 요청할 데이터:", params);
 
       $.ajax({
-        url: '/api/IssueInquiry/pdf',
+        url: '/api/PaymentDetail/pdf',  // ✅ PDF 파일을 요청하는 API
         type: 'GET',
         data: params,
-        async: false,
+        xhrFields: { responseType: 'blob' },  // ✅ 응답을 Blob 형식으로 받음
         success: function (response) {
-          console.log("서버에서 받은 데이터 :", response);
-          // 응답이 올바르게 도착했고, data 속성이 배열인지 확인
-          if (response && Array.isArray(response.data)) {
-            console.log("서버에서 받은 데이터 목록:", response.data); //실제 데이터 확인
-          }
-          if (response && Array.isArray(response.data)) {
-            data = response.data.map((item, index) => ({
-              rownum: index + 1,
-              appdate: item.appdate ||'',
-              appgubun : item.appgubun || '',
-              appgubun_display: item.appgubun_display ||'',
-              appnum: item.appnum || '',
-              appperid: item.appperid||'',
-              papercd: item.papercd || '',
-              remark :item.remark ||'',
-              repodate: item.repodate || '' ,
-              repoperid: item.repoperid || '' ,
-              repopernm : item.repopernm||'',
-              title: item.title ||''
-            }));
-          }
+          console.log("📂 PDF 데이터 수신 완료");
+
+          let filepath = URL.createObjectURL(response); // ✅ Blob 데이터를 URL로 변환
+          console.log("📂 PDF URL 생성됨:", filepath);
+
+          container.innerHTML = ""; // 기존 내용 초기화
+          showPdf(filepath);  // ✅ PDF 렌더링 함수 호출
         },
         error: function () {
-          console.error("데이터를 가져오는 중 오류가 발생했습니다.");
+          console.error("🚨 데이터 요청 중 오류 발생");
+          container.innerHTML = "<p style='color:red;'>PDF 파일을 불러올 수 없습니다.</p>";
         }
-      });*/
-
-      // PDF 파일이 존재하는지 확인 후 PDF.js로 렌더링
-      /*if (pdfUrl) {
-        console.log(" PDF URL 확인:", pdfUrl);
-
-        fetch(pdfUrl, {method: 'GET', mode: 'cors'})
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(' PDF 파일을 찾을 수 없습니다.');
-            }
-            // console.log(" PDF 파일 확인 완료:", pdfUrl);
-
-            // 기존 내용 초기화 후 PDF 렌더링
-            container.innerHTML = "";
-            showPdf(pdfUrl);
-          })
-          .catch(error => {
-            console.error(error.message);
-            Alert.alert('', "PDF 파일이 존재하지 않습니다.");
-            container.innerHTML = "<p style='color:red;'>PDF를 불러올 수 없습니다.</p>";
-          });
-      }*/
-
+      });
     }
-
-    function showPdf(pdfUrl) {
-      console.log(" PDF.js를 사용하여 PDF 렌더링:", pdfUrl);
+    function showPdf(filepath) {
+      console.log(" PDF.js를 사용하여 PDF 렌더링:", filepath);
 
       let container = document.getElementById("pdfContainer");
       container.innerHTML = ""; // 기존 내용 초기화
 
-      // 🛠 스크롤 단일화 (이중 스크롤 제거)
-      container.style.overflowX = "hidden"; // 가로 스크롤 제거
-      container.style.overflowY = "hidden"; // 이중 스크롤 방지
-      container.style.maxHeight = "100vh";  // 전체 화면 높이 사용
-
-      // PDF 파일 불러오기
-      pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+      // 🛠 PDF.js를 이용하여 PDF 불러오기
+      pdfjsLib.getDocument({ url: filepath }).promise.then(pdf => {  // ✅ PDF.js는 Blob URL을 객체 형태로 받아야 함.
         console.log(" PDF 로드 완료. 총 페이지 수:", pdf.numPages);
 
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
           pdf.getPage(pageNum).then(page => {
-            let viewport = page.getViewport({scale: 1.5}); // 기본 스케일
+            let viewport = page.getViewport({ scale: 1.5 }); // 기본 스케일
 
-            // 🛠 컨테이너 너비에 맞춰 PDF를 자동 확대 (여백 없이 꽉 차게)
+            // 🛠 컨테이너 너비에 맞춰 PDF를 자동 확대
             let scale = container.clientWidth / viewport.width;
-            let scaledViewport = page.getViewport({scale: scale});
+            let scaledViewport = page.getViewport({ scale: scale });
 
             // 페이지별 <canvas> 생성
             let canvas = document.createElement("canvas");
@@ -452,7 +416,7 @@
 
             let context = canvas.getContext("2d");
 
-            // 🛠 PDF 크기를 컨테이너에 맞게 설정 (여백 제거)
+            // 🛠 PDF 크기를 컨테이너에 맞게 설정
             let scaleFactor = 3; // 3배 확대
             canvas.width = scaledViewport.width * scaleFactor;
             canvas.height = scaledViewport.height * scaleFactor;
@@ -470,10 +434,172 @@
           });
         }
       }).catch(error => {
-        console.error(" PDF 렌더링 오류:", error);
-        alert(" PDF를 불러올 수 없습니다.");
+        console.error("❌ PDF 렌더링 오류:", error);
+        Alert.alert(''," PDF를 불러올 수 없습니다.");
       });
     }
+
+    /*function downloadPdf() {
+      if (!currentRealId) {
+        console.error("다운로드할 PDF 파일을 찾을 수 없습니다.");
+        alert("다운로드할 PDF 파일을 찾을 수 없습니다.");
+        return;
+      }
+
+      console.log("📄 PDF 다운로드 시작: realId=", currentRealId);
+
+      let downloadUrl = `/api/PaymentDetail/pdfDownload?appnum=${currentRealId}`;
+      console.log("📌 다운로드 URL:", downloadUrl);
+
+      fetch(downloadUrl)
+        .then(response => {
+          if (!response.ok) throw new Error("다운로드 실패");
+          return response.blob();
+        })
+        .then(blob => {
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          link.download = currentRealId + ".pdf";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+        .catch(error => {
+          console.error("🚨 PDF 다운로드 오류:", error);
+          alert("PDF 다운로드 중 오류가 발생했습니다.");
+        });
+    }*/
+
+    // 다운로드
+    // 다운로드 함수
+    function downloadPdf() {
+      let appnum = document.getElementById("appnum").value; // ✅ `appnum` 값 가져오기
+
+      if (!appnum) {
+        console.warn("📌 `appnum` 값이 없습니다. 다운로드를 진행할 수 없습니다.");
+        alert("다운로드할 파일이 없습니다.");
+        return;
+      }
+
+      console.log("📄 다운로드 요청: appnum =", appnum);
+
+      // 다운로드할 파일 정보 리스트 (파일 경로, 서버 저장명, 원본 파일명)
+      let fileList = [{
+        filepath: "C:/Temp/APP/S_KRU/",  // ✅ 파일이 저장된 경로 (백엔드에서 변경 가능)
+        filesvnm: appnum + ".pdf",       // ✅ 서버에 저장된 파일명 (예: 202502110034ZZ.pdf)
+        fileornm: appnum + ".pdf"        // ✅ 다운로드될 원본 파일명 (사용자에게 보여줄 이름)
+      }];
+
+      let downloadUrl = "/api/PaymentDetail/downloader";
+
+      // ✅ 파일 리스트를 서버에 전송하여 다운로드 실행
+      downloadFiles(fileList, downloadUrl);
+    }
+
+    // 다운로드 함수
+    function downloadPdf() {
+      let appnum = document.getElementById("appnum").value; // ✅ `appnum` 값 가져오기
+
+      if (!appnum) {
+        console.warn("📌 `appnum` 값이 없습니다. 다운로드를 진행할 수 없습니다.");
+        alert("다운로드할 파일이 없습니다.");
+        return;
+      }
+
+      console.log("📄 다운로드 요청: appnum =", appnum);
+
+      // 다운로드할 파일 정보 리스트 (파일 경로, 서버 저장명, 원본 파일명)
+      let fileList = [{
+        filepath: "C:/Temp/APP/S_KRU/",  // ✅ 파일이 저장된 경로 (백엔드에서 변경 가능)
+        filesvnm: appnum + ".pdf",       // ✅ 서버에 저장된 파일명 (예: 202502110034ZZ.pdf)
+        fileornm: appnum + ".pdf"        // ✅ 다운로드될 원본 파일명 (사용자에게 보여줄 이름)
+      }];
+
+      let downloadUrl = "/api/PaymentDetail/downloader";
+
+      // ✅ 파일 리스트를 서버에 전송하여 다운로드 실행
+      downloadFiles(fileList, downloadUrl);
+    }
+
+    // ✅ AJAX 다운로드 함수
+    function downloadFiles(fileList, url) {
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(fileList)  // ✅ JSON 데이터를 서버로 전달
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("다운로드 실패");
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          let contentDisposition = response.headers.get("Content-Disposition");
+          let filename = "download.pdf";  // 기본 파일명
+
+          if (contentDisposition) {
+            let match = contentDisposition.match(/filename\*?=['"]?([^;'\"]+)/);
+            if (match && match.length > 1) {
+              filename = decodeURIComponent(match[1]);
+            }
+          }
+
+          // ✅ Blob 데이터를 이용하여 파일 다운로드 실행
+          const link = document.createElement("a");
+          link.href = window.URL.createObjectURL(blob);
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        })
+        .catch(error => {
+          console.error("🚨 파일 다운로드 중 오류 발생:", error);
+          alert("파일 다운로드 중 오류가 발생했습니다.");
+        });
+    }
+
+    // 다운로드
+    function downloadFile_order(fileList) {
+      if (!fileList || fileList.length === 0) {
+        console.warn("다운로드할 파일이 없습니다.");
+        return;
+      }
+
+      console.log("다운로드할 파일 목록:", fileList);
+
+      let downloadList = fileList.map(file => ({
+        filepath: "C:/Temp/APP/S_KRU/",  // ✅ 파일이 저장된 경로 (백엔드에서 변경 가능)
+        filesvnm: appnum + ".pdf",       // ✅ 서버에 저장된 파일명 (예: 202502110034ZZ.pdf)
+        fileornm: appnum + ".pdf"        // ✅ 다운로드될 원본 파일명 (사용자에게 보여줄 이름)
+      }));
+
+      let downloadUrl = '/api/announcement/downloader';
+
+      // 파일 리스트를 서버에 전송하여 다운로드 실행
+      downloadFiles(downloadList, downloadUrl);
+    }
+
+
+
+    // 다운로드
+    /*function downloadPdf() {
+         let downloadList = [];
+
+      // 선택된 항목에서 다운로드할 파일 목록 생성
+
+        downloadList.push({
+          appnum: currentRealId
+        });
+
+      // 다운로드 URL 지정
+      let downloadUrl = '/api/PaymentDetail/pdfDownload';
+
+      // Jung.js에서 정의한 downloadFiles 함수 호출
+      downloadFiles(downloadList, downloadUrl);
+    }*/
 
     function NewSave2() {
       let popup = document.getElementById('popup1');
@@ -539,7 +665,8 @@
                 userName: userName, // 모든 항목에 동일한 사용자 이름 추가
                 appgubun1: (item.appgubun1 || '0') + "건",
                 appgubun2: (item.appgubun2 || '0') + "건",
-                appgubun3: (item.appgubun3 || '0') + "건"
+                appgubun3: (item.appgubun3 || '0') + "건",
+                appgubun4: (item.appgubun4 || '0') + "건"
               }));
             }
           }
@@ -555,7 +682,8 @@
           userName: '',
           appgubun1: '',
           appgubun2: '',
-          appgubun3: ''
+          appgubun3: '',
+          appgubun4: ''
         });
       }
 
@@ -570,6 +698,7 @@
             { binding: 'userName', header: '결재자명', width: '*', minWidth: 100, align: 'center' },
             { binding: 'appgubun1', header: '결재대기', width: '*', minWidth: 100, align: 'center' },
             { binding: 'appgubun2', header: '결재문서', width: '*', minWidth: 100, align: 'center' },
+            { binding: 'appgubun4', header: '보류문서', width: '*', minWidth: 100, align: 'center' },
             { binding: 'appgubun3', header: '반려문서', width: '*', minWidth: 100, align: 'center' },
           ],
           itemsSource: viewdata,

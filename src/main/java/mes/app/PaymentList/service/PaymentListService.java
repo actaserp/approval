@@ -16,24 +16,28 @@ public class PaymentListService {//결재목록
   @Autowired
   SqlRunner sqlRunner;
 
-  public List<Map<String, Object>> getPaymentList(String spjangcd , String startDate, String endDate, String searchPayment, String searchUserNm) {
+  public List<Map<String, Object>> getPaymentList(String spjangcd , String startDate, String endDate, String searchPayment, String searchUserNm, String agencycd) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("as_spjangcd", spjangcd);
+    params.addValue("agencycd", agencycd);
     StringBuilder sql = new StringBuilder("""
            SELECT e080.repodate,
-              e080.repoperid,
-              (select pernm from tb_ja001 where perid = 'p' + repoperid) as repopernm,
-              e080.papercd,
-              e080.appgubun,
-              uc.Value AS appgubun_display,
-              e080.appdate,
-              e080.appnum,
-              e080.appperid,
-              e080.title,
-              e080.remark
-              FROM tb_e080 e080 WITH(NOLOCK)
-              left join user_code uc on uc.Code = e080.appgubun
+                e080.repoperid,
+                (select pernm from tb_ja001 where perid = 'p' + repoperid) as repopernm,
+                ca510.com_code AS papercd,
+                ca510.com_cnam AS papercd_name,
+                e080.appgubun,
+                uc.Value AS appgubun_display,
+                e080.appdate,
+                e080.appnum,
+                e080.appperid,
+                e080.title,
+                e080.remark
+         FROM tb_e080 e080 WITH(NOLOCK)
+         LEFT JOIN user_code uc ON uc.Code = e080.appgubun
+         LEFT JOIN tb_ca510 ca510 ON ca510.com_cls = '620' AND ca510.com_code <> '00'
          WHERE spjangcd = :as_spjangcd
+         and repoperid = :agencycd
            AND flag = '1'
     """);
 
@@ -62,6 +66,8 @@ public class PaymentListService {//결재목록
       sql.append(" AND appgubun = :as_appgubun ");
       params.addValue("as_appgubun", searchPayment);
     }
+
+    sql.append(" ORDER BY repodate DESC");
 
     log.info("결재 목록 List SQL: {}", sql);
     log.info("SQL Parameters: {}", params.getValues());
@@ -109,11 +115,13 @@ public class PaymentListService {//결재목록
     params.addValue("as_spjangcd", spjangcd);
     params.addValue("as_stdate", startDate);
     params.addValue("as_enddate", endDate);
+    params.addValue("as_perid", agencycd);
     StringBuilder sql = new StringBuilder("""
-        SELECT (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '001'  AND flag = '1' AND repodate Between :as_stdate AND :as_enddate) as appgubun1,
-        	    (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '101'  AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun2,
-        	    (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '131'  AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun3
-        FROM dual
+        SELECT (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '001' AND repoperid = :as_perid AND flag = '1' AND repodate Between :as_stdate AND :as_enddate) as appgubun1,
+               (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '101' AND repoperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun2,
+               (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '131' AND repoperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun3,
+               (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '201' AND repoperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun4
+         FROM dual
         """);
     log.info("결재목록_문서현황 List SQL: {}", sql);
     log.info("SQL Parameters: {}", params.getValues());

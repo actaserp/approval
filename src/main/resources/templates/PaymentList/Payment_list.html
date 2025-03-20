@@ -106,28 +106,12 @@
               </dd>
             </dl>
           </div>
-          <!--<div class="button-wrap" style="border-top:none;">
-            <ul>
-              <li>
-                <a class="btn btn-excell" title="신규등록" id="Newbtn" onclick="NewSave()">
-                  <img src="/images/icon/ico-plus.svg" alt="등록 아이콘">
-                  신규등록
-                </a>
-              </li>
-              <li>
-                <a class="btn btn-delete" title="삭제" id="btnDelete" onclick="deleteData()">
-                  <img src="/images/icon/ico-delete.svg" alt="엑셀 아이콘">
-                  삭제
-                </a>
-              </li>
-            </ul>
-          </div>-->
         </div>
 
         <div class="container-fluid">
           <p id="selectedItem"></p>
           <div id="theGrid1" style="max-height:200px"></div>
-          <div id="theGrid" style="max-height: 570px"></div>
+          <div id="theGrid" style="max-height: 590px"></div>
         </div>
       </section>
     </div> <!--//tab-wrap end-->
@@ -212,6 +196,7 @@
               appnum: item.appnum || '',
               appperid: item.appperid||'',
               papercd: item.papercd || '',
+              papercd_name : item.papercd_name || '',
               remark :item.remark ||'',
               repodate: item.repodate || '' ,
               repoperid: item.repoperid || '' ,
@@ -234,6 +219,7 @@
           appnum:'',
           appperid:'',
           papercd:'',
+          papercd_name:'',
           remark:'',
           repodate:'',
           repoperid:'',
@@ -253,15 +239,19 @@
           virtualizationThreshold: 1,
           columns: [
             {binding: 'rownum', header: '순번', width: 70, align: 'center'},
-            {binding: 'appnum', header: '문서번호', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'repodate', header: '상신일자', width: '*', minWidth: 110, align: 'center'},
-            {binding: 'repopernm', header: '작성자명', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'papercd', header: '문서명', width: '*', minWidth: 120, align: 'center'},
+            {binding: 'appnum', header: '문서번호', width: '*', minWidth: 200, align: 'center'},
+            {binding: 'repodate', header: '상신일자', width: '*', minWidth: 120, align: 'center'},
+            {binding: 'repopernm', header: '작성자명', width: '*', minWidth: 110, align: 'center'},
+            {binding: 'papercd', header: '문서명', width: '*', minWidth: 250, align: 'center', visible: false},
+            {binding: 'papercd_name', header: '문서명', width: '*', minWidth: 250, align: 'center'},
             {binding: 'appgubun', header: '결재구분', width: '*', minWidth: 100, align: 'center',  visible: false },
             {binding: 'appgubun_display', header: '결재구분', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'appdate', header: '결재일자', width: '*', minWidth: 110, align: 'center'},
-            {binding: 'title', header: '제목', width: '*', align: 'center', minWidth: 100},
-            {binding: 'remark', header: '사유',width: '*' ,align: 'center', minWidth: 100},
+            {binding: 'appdate', header: '결재일자', width: '*', minWidth: 120, align: 'center'},
+            {binding: 'title', header: '제목', width: '*', align: 'center', minWidth: 150},
+            {binding: 'remark', header: '사유',width: '*' ,align: 'center', minWidth: 250},
+            {binding: 'file_A', header: '첨부파일', width: '*', align: 'center', minWidth: 120},
+            {binding: 'file_p', header: '전표파일',width: '*' ,align: 'center', minWidth: 120},
+            {binding: 'file_S', header: '지출결의서',width: '*' ,align: 'center', minWidth: 120},
             {binding:'appperid', header: '', visible: false },
             {binding:'repoperid', header: '', visible: false },
           ],
@@ -305,7 +295,8 @@
                 userName: userName, // 모든 항목에 동일한 사용자 이름 추가
                 appgubun1: (item.appgubun1 || '0') + "건",
                 appgubun2: (item.appgubun2 || '0') + "건",
-                appgubun3: (item.appgubun3 || '0') + "건"
+                appgubun3: (item.appgubun3 || '0') + "건",
+                appgubun4: (item.appgubun4 || '0') + "건"
               }));
             }
           }
@@ -321,7 +312,9 @@
           userName: '',
           appgubun1: '',
           appgubun2: '',
-          appgubun3: ''
+          appgubun3: '',
+          appgubun4: ''
+
         });
       }
 
@@ -336,6 +329,7 @@
             { binding: 'userName', header: '결재자명', width: '*', minWidth: 100, align: 'center' },
             { binding: 'appgubun1', header: '결재대기', width: '*', minWidth: 100, align: 'center' },
             { binding: 'appgubun2', header: '결재문서', width: '*', minWidth: 100, align: 'center' },
+            { binding: 'appgubun4', header: '보류문서', width: '*', minWidth: 100, align: 'center' },
             { binding: 'appgubun3', header: '반려문서', width: '*', minWidth: 100, align: 'center' },
           ],
           itemsSource: viewdata,

@@ -5,14 +5,25 @@ import mes.app.PaymentList.service.PaymentDetailService;
 import mes.domain.entity.User;
 import mes.domain.model.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Slf4j
 @RestController
@@ -116,4 +127,270 @@ public class PaymentDetailController {
       }
     }
   }
+
+  @RequestMapping(value = "/pdf", method = RequestMethod.GET)
+  public ResponseEntity<Resource> getPdf(@RequestParam("appnum") String appnum) {
+    try {
+      log.info("PDF 조회 요청: appnum={}", appnum);
+
+      // DB에서 PDF 파일명 조회
+      Optional<String> optionalPdfFileName = paymentDetailService.findPdfFilenameByRealId(appnum);
+      if (optionalPdfFileName.isEmpty()) {
+        log.warn("PDF 파일명을 찾을 수 없음: appnum={}", appnum);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // 파일명 그대로 사용
+      String pdfFileName = optionalPdfFileName.get();
+      log.info("사용 파일명: {}", pdfFileName);
+
+      // 운영체제별 저장 경로 설정
+      String osName = System.getProperty("os.name").toLowerCase();
+      String uploadDir = osName.contains("win") ? "C:\\Temp\\APP\\S_KRU\\"
+          : System.getProperty("user.home") + "/APP/S_KRU";
+
+      // PDF 파일 경로 설정 및 존재 여부 확인
+      Path pdfPath = Paths.get(uploadDir, pdfFileName);
+      log.info("PDF 파일 경로: {}", pdfPath.toString());
+
+      if (!Files.exists(pdfPath)) {
+        log.warn("파일이 존재하지 않음: {}", pdfPath.toString());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // 파일 정보 로깅
+      File file = pdfPath.toFile();
+      log.info("파일 존재 확인 완료 - 파일 크기: {} bytes", file.length());
+
+      // PDF 파일을 Resource로 변환 후 응답
+      Resource resource = new FileSystemResource(file);
+      log.info("Resource 변환 완료, 파일 응답 준비 시작");
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_PDF);
+      headers.setContentDisposition(ContentDisposition.inline().filename(pdfFileName, StandardCharsets.UTF_8).build());
+
+      // `X-Frame-Options` 제거 (필요한 경우 추가 가능)
+      headers.add("X-Frame-Options", "ALLOW-FROM http://localhost:8020");
+      headers.add("Access-Control-Allow-Origin", "*");  // 모든 도메인 허용
+      headers.add("Access-Control-Allow-Methods", "GET, OPTIONS");
+      headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+      log.info("PDF 응답 완료 - 파일명: {}, 크기: {} bytes", pdfFileName, file.length());
+
+      return ResponseEntity.ok()
+          .headers(headers)
+          .contentLength(file.length())
+          .body(resource);
+
+    } catch (Exception e) {
+      log.error("서버 내부 오류 발생: appnum={}, message={}", appnum, e.getMessage(), e);
+      return ResponseEntity.internalServerError().build();
+    }
+  }
+  /*//pdf 다운로드
+  @RequestMapping(value = "/pdfDownload", method = RequestMethod.GET)
+  public ResponseEntity<Resource> downloadPdf(@RequestParam("appnum") String appnum) {
+    try {
+      log.info("📄 PDF 다운로드 요청: appnum={}", appnum);
+
+      // DB에서 PDF 파일명 조회
+      Optional<String> optionalPdfFileName = paymentDetailService.findPdfFilenameByRealId(appnum);
+      if (optionalPdfFileName.isEmpty()) {
+        log.warn("PDF 파일명을 찾을 수 없음: appnum={}", appnum);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // 파일명 그대로 사용
+      String pdfFileName = optionalPdfFileName.get();
+       log.info("다운로드 파일명: {}", pdfFileName);
+
+      // 운영체제별 저장 경로 설정
+      String osName = System.getProperty("os.name").toLowerCase();
+      String uploadDir = osName.contains("win") ? "C:\\Temp\\APP\\S_KRU\\"
+          : System.getProperty("user.home") + "/APP/S_KRU";
+
+      // PDF 파일 경로 설정 및 존재 여부 확인
+      Path pdfPath = Paths.get(uploadDir, pdfFileName);
+      if (!Files.exists(pdfPath)) {
+         log.warn("파일이 존재하지 않음: {}", pdfPath.toString());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // PDF 파일을 Resource로 변환 후 응답
+      File file = pdfPath.toFile();
+      Resource resource = new FileSystemResource(file);
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_PDF);
+      headers.setContentDisposition(ContentDisposition.attachment().filename(pdfFileName, StandardCharsets.UTF_8).build());
+
+      return ResponseEntity.ok()
+          .headers(headers)
+          .contentLength(file.length())
+          .body(resource);
+
+    } catch (Exception e) {
+      log.error("서버 내부 오류 발생", e);
+      return ResponseEntity.internalServerError().build();
+    }
+  }
+*/
+  /*@GetMapping("/pdfDownload")
+  public ResponseEntity<StreamingResponseBody> downloadPdf(@RequestParam("appnum") String appnum) {
+    try {
+      log.info("📄 PDF 다운로드 요청: appnum={}", appnum);
+
+      String osName = System.getProperty("os.name").toLowerCase();
+      String uploadDir = osName.contains("win") ? "C:\\Temp\\APP\\S_KRU\\"
+          : System.getProperty("user.home") + "/APP/S_KRU/";
+      Path pdfPath = Paths.get(uploadDir, appnum + ".pdf");
+
+      if (!Files.exists(pdfPath)) {
+        log.warn("❌ PDF 파일이 존재하지 않음: {}", pdfPath.toString());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      String filename = appnum + ".pdf";
+      String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8)
+          .replace("+", "%20");
+      String contentDisposition = "attachment; filename=\"" + encodedFilename + "\"";
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_PDF);
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
+
+      StreamingResponseBody responseBody = outputStream -> {
+        try (InputStream inputStream = Files.newInputStream(pdfPath)) {
+          byte[] buffer = new byte[8192]; // 8KB 버퍼
+          int bytesRead;
+          while ((bytesRead = inputStream.read(buffer)) != -1) {
+            outputStream.write(buffer, 0, bytesRead);
+          }
+          outputStream.flush();  // ✅ 강제 플러시
+          outputStream.close();  // ✅ 스트림 명확히 종료
+        } catch (IOException e) {
+          log.error("🚨 PDF 스트리밍 중 오류 발생: {}", e.getMessage(), e);
+        }
+      };
+
+      log.info("✅ PDF 다운로드 스트리밍 완료: 파일명={}", filename);
+
+      return ResponseEntity.ok()
+          .headers(headers)
+          .body(responseBody);
+
+    } catch (Exception e) {
+      log.error("🚨 서버 내부 오류 발생: {}", e.getMessage(), e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+  }*/
+
+  @PostMapping("/downloader")
+  public ResponseEntity<?> downloadFile(@RequestBody List<Map<String, Object>> downloadList) throws IOException {
+
+    // 파일 목록과 파일 이름을 담을 리스트 초기화
+    List<File> filesToDownload = new ArrayList<>();
+    List<String> fileNames = new ArrayList<>();
+
+    // ZIP 파일 이름을 설정할 변수 초기화
+    String tketcrdtm = null;
+    String tketnm = null;
+
+    // 파일을 메모리에 쓰기
+    for (Map<String, Object> fileInfo : downloadList) {
+      String filePath = (String) fileInfo.get("filepath");    // 파일 경로
+      String fileName = (String) fileInfo.get("filesvnm");    // 파일 이름(uuid)
+      String originFileName = (String) fileInfo.get("fileornm");  //파일 원본이름(origin Name)
+
+      File file = new File(filePath + File.separator + fileName);
+
+      // 파일이 실제로 존재하는지 확인
+      if (file.exists()) {
+        filesToDownload.add(file);
+        fileNames.add(originFileName); // 다운로드 받을 파일 이름을 originFileName으로 설정
+      }
+    }
+
+    // 파일이 없는 경우
+    if (filesToDownload.isEmpty()) {
+      return ResponseEntity.notFound().build();
+    }
+
+    // 파일이 하나인 경우 그 파일을 바로 다운로드
+    if (filesToDownload.size() == 1) {
+      File file = filesToDownload.get(0);
+      String originFileName = fileNames.get(0); // originFileName 가져오기
+
+      HttpHeaders headers = new HttpHeaders();
+      String encodedFileName = URLEncoder.encode(originFileName, StandardCharsets.UTF_8.toString()).replaceAll("\\+", "%20");
+      headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=*''" + encodedFileName);
+      headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+      headers.setContentLength(file.length());
+
+      ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
+
+      return ResponseEntity.ok()
+          .headers(headers)
+          .body(resource);
+    }
+
+    String zipFileName = (tketcrdtm != null && tketnm != null) ? tketcrdtm + "_" + tketnm + ".zip" : "download.zip";
+
+    // 파일이 두 개 이상인 경우 ZIP 파일로 묶어서 다운로드
+    ByteArrayOutputStream zipBaos = new ByteArrayOutputStream();
+    try (ZipOutputStream zipOut = new ZipOutputStream(zipBaos)) {
+
+      Set<String> addedFileNames = new HashSet<>(); // 이미 추가된 파일 이름을 저장할 Set
+      int fileCount = 1;
+
+      for (int i = 0; i < filesToDownload.size(); i++) {
+        File file = filesToDownload.get(i);
+        String originFileName = fileNames.get(i); // originFileName 가져오기
+
+        // 파일 이름이 중복될 경우 숫자를 붙여 고유한 이름으로 만듦
+        String uniqueFileName = originFileName;
+        while (addedFileNames.contains(uniqueFileName)) {
+          uniqueFileName = originFileName.replace(".", "_" + fileCount++ + ".");
+        }
+
+        // 고유한 파일 이름을 Set에 추가
+        addedFileNames.add(uniqueFileName);
+
+        try (FileInputStream fis = new FileInputStream(file)) {
+          ZipEntry zipEntry = new ZipEntry(originFileName);
+          zipOut.putNextEntry(zipEntry);
+
+          byte[] buffer = new byte[1024];
+          int len;
+          while ((len = fis.read(buffer)) > 0) {
+            zipOut.write(buffer, 0, len);
+          }
+
+          zipOut.closeEntry();
+        } catch (IOException e) {
+          e.printStackTrace();
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+      }
+
+      zipOut.finish();
+    } catch (IOException e) {
+      e.printStackTrace();
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
+    ByteArrayResource zipResource = new ByteArrayResource(zipBaos.toByteArray());
+
+    HttpHeaders headers = new HttpHeaders();
+    String encodedZipFileName = URLEncoder.encode(zipFileName, StandardCharsets.UTF_8.toString()).replaceAll("\\+", "%20");
+    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=*''" + encodedZipFileName);
+    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+    headers.setContentLength(zipResource.contentLength());
+
+    return ResponseEntity.ok()
+        .headers(headers)
+        .body(zipResource);
+  }
+
 }

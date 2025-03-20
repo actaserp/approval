@@ -74,7 +74,15 @@ public class FileMkController {
       Files.write(Paths.get(filePath), pdfData);
       log.info("✅ PDF 파일 저장 완료: {}", filePath);
 
-      return ResponseEntity.ok("PDF 파일 생성 완료: " + filePath);
+      boolean isUpdated = pdfService.updateFilePath(key, filePath);
+      if (!isUpdated) {
+        log.warn("⚠️ 파일 경로 DB 업데이트 실패: key={}, filePath={}", key, filePath);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일은 저장되었지만 경로 업데이트에 실패했습니다.");
+      }
+      log.info("✅ 파일 경로 DB 업데이트 성공: key={}, filePath={}", key, filePath);
+
+      return ResponseEntity.ok("PDF 파일 생성 및 경로 업데이트 완료: " + filePath);
+
     } catch (Exception e) {
       log.error("🚨 파일 생성 중 오류 발생: key={}, error={}", key, e.getMessage(), e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("파일 생성 중 오류 발생: " + e.getMessage());
