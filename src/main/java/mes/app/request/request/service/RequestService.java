@@ -23,31 +23,6 @@ public class RequestService {
     @Autowired
     SqlRunner sqlRunner;
 
-
-    // 헤드정보 저장
-    @Transactional
-    public Boolean save(TB_DA006W tbDa006W){
-
-        try{
-            return true;
-        }catch (Exception e){
-            System.out.println(e + ": 에러발생");
-            return false;
-        }
-    }
-    // 세부항목 저장
-    @Transactional
-    public Boolean saveBody(TB_DA007W tbDa007W){
-
-        try{
-
-            return true;
-
-        }catch (Exception e){
-            System.out.println(e + ": 에러발생");
-            return false;
-        }
-    }
     //결재라인등록 그리드 리스트 불러오기
     public List<Map<String, Object>> getCheckPaymentList(String perid, String comcd) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
@@ -65,189 +40,8 @@ public class RequestService {
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql, dicParam);
         return items;
     }
-    //주문의뢰현황 불러오기
-    public List<Map<String, Object>> getOrderList(TB_DA006W_PK tbDa006W_pk,
-                                                  String searchStartDate, String searchEndDate, String searchRemark, String searchOrdflag, String saupnum, String cltcd) {
 
-        MapSqlParameterSource dicParam = new MapSqlParameterSource();
-        dicParam.addValue("searchStartDate", searchStartDate);
-        dicParam.addValue("searchEndDate", searchEndDate);
-        dicParam.addValue("searchRemark", "%" + searchRemark + "%");
-        dicParam.addValue("searchOrdflag",  searchOrdflag);
-        dicParam.addValue("cltcd",  cltcd);
-
-        StringBuilder sql = new StringBuilder("""
-                SELECT
-                    hd.custcd AS hd_custcd,
-                    hd.spjangcd AS hd_spjangcd,
-                    hd.reqnum,
-                    hd.reqdate,
-                    hd.indate AS hd_indate,
-                    hd.ordflag,
-                    hd.deldate,
-                    hd.telno,
-                    hd.perid,
-                    hd.cltzipcd,
-                    hd.cltaddr,
-                    hd.panel_ht,
-                    hd.panel_hw,
-                    hd.panel_hl,
-                    hd.panel_hh,
-                    hd.remark,
-                
-                    (
-                         SELECT bd.filepath, bd.filesvnm, bd.fileextns, bd.fileurl, bd.fileornm, bd.filesize, bd.fileid
-                         FROM tb_DA006WFILE bd
-                         WHERE bd.custcd = hd.custcd
-                           AND bd.spjangcd = hd.spjangcd
-                           AND bd.reqdate = hd.reqdate
-                           AND bd.reqnum = hd.reqnum
-                         ORDER BY bd.indatem DESC
-                         FOR JSON PATH
-                     ) AS hd_files,
-                
-                    bd.reqseq AS bd_reqseq,
-                    bd.panel_t AS bd_panel_t,
-                    bd.panel_w AS bd_panel_w,
-                    bd.panel_l AS bd_panel_l,
-                    bd.hgrb AS bd_hgrb,
-                    bd.qty AS bd_qty,
-                    bd.exfmtypedv AS bd_exfmtypedv,
-                    bd.infmtypedv AS bd_infmtypedv,
-                    bd.stframedv AS bd_stframedv,
-                    bd.stexplydv AS bd_stexplydv,
-                    bd.ordtext AS bd_ordtext
-                
-                FROM
-                    TB_DA006W hd
-                
-                LEFT JOIN TB_DA007W bd
-                    ON bd.custcd = hd.custcd
-                    AND bd.spjangcd = hd.spjangcd
-                    AND bd.reqdate = hd.reqdate
-                    AND bd.reqnum = hd.reqnum
-                
-                WHERE
-                    hd.custcd = :custcd
-                    AND hd.spjangcd = :spjangcd
-                    AND hd.saupnum = :saupnum
-                    AND hd.cltcd = :cltcd
-                """);
-        // 날짜 필터
-        if (searchStartDate != null && !searchStartDate.isEmpty()) {
-            sql.append(" AND hd.reqdate >= :searchStartDate");
-        }
-        //
-        if (searchEndDate != null && !searchEndDate.isEmpty()) {
-            sql.append(" AND hd.reqdate <= :searchEndDate");
-        }
-        // 제목필터
-        if (searchRemark != null && !searchRemark.isEmpty()) {
-            sql.append(" AND hd.remark LIKE :searchRemark");
-        }
-        // 진행구분 필터
-        if (searchOrdflag != null && !searchOrdflag.isEmpty()) {
-            sql.append(" AND hd.ordflag = :searchOrdflag");
-        }
-        // 정렬 조건 추가
-        sql.append(" ORDER BY hd.reqdate ASC");
-
-        dicParam.addValue("custcd", tbDa006W_pk.getCustcd());
-        dicParam.addValue("spjangcd", tbDa006W_pk.getSpjangcd());
-        dicParam.addValue("saupnum", saupnum);
-        List<Map<String, Object>> items = this.sqlRunner.getRows(sql.toString(), dicParam);
-        return items;
-    }
-    // 주문의뢰현황 head정보 불러오기
-    public List<Map<String, Object>> getHeadList(TB_DA006W_PK tbDa006W_pk) {
-        MapSqlParameterSource dicParam = new MapSqlParameterSource();
-        String sql = """
-                select 
-                *
-                from TB_DA007W
-                order by indate desc
-                """;
-        dicParam.addValue("custcd", tbDa006W_pk.getCustcd());
-        dicParam.addValue("spjangcd", tbDa006W_pk.getSpjangcd());
-        List<Map<String, Object>> items = this.sqlRunner.getRows(sql, dicParam);
-        return items;
-    }
-    // 세부항목 업데이트
-    public boolean updateBody(TB_DA007W tbDa007W) {
-
-        MapSqlParameterSource dicParam = new MapSqlParameterSource();
-        try {
-            String sql = """
-                    UPDATE ERP_SWSPANEL1.dbo.TB_DA007W
-                    SET
-                        hgrb = :hgrb,
-                        panel_t = :panel_t,
-                        panel_w = :panel_w,
-                        panel_l = :panel_l,
-                        panel_h = :panel_h,
-                        qty = :qty,
-                        exfmtypedv = :exfmtypedv,
-                        infmtypedv = :infmtypedv,
-                        stframedv = :stframedv,
-                        stexplydv = :stexplydv,
-                        indate = :indate,
-                        inperid = :inperid,
-                        ordtext = :ordtext
-                    WHERE
-                        custcd = :custcd
-                        AND spjangcd = :spjangcd
-                        AND reqnum = :reqnum
-                        AND reqseq = :reqseq
-                    """;
-            dicParam.addValue("hgrb", tbDa007W.getHgrb());
-            dicParam.addValue("panel_t", tbDa007W.getPanel_t());
-            dicParam.addValue("panel_w", tbDa007W.getPanel_w());
-            dicParam.addValue("panel_l", tbDa007W.getPanel_l());
-            dicParam.addValue("panel_h", tbDa007W.getPanel_h());
-            dicParam.addValue("qty", tbDa007W.getQty());
-            dicParam.addValue("exfmtypedv", tbDa007W.getExfmtypedv());
-            dicParam.addValue("infmtypedv", tbDa007W.getInfmtypedv());
-            dicParam.addValue("stframedv", tbDa007W.getStframedv());
-            dicParam.addValue("stexplydv", tbDa007W.getStexplydv());
-            dicParam.addValue("indate", tbDa007W.getIndate());
-            dicParam.addValue("inperid", tbDa007W.getInperid());
-            dicParam.addValue("ordtext", tbDa007W.getOrdtext());
-
-            dicParam.addValue("custcd", tbDa007W.getPk().getCustcd());
-            dicParam.addValue("spjangcd", tbDa007W.getPk().getSpjangcd());
-            dicParam.addValue("reqnum", tbDa007W.getPk().getReqnum());
-            dicParam.addValue("reqseq", tbDa007W.getPk().getReqseq());
-
-
-            this.sqlRunner.execute(sql, dicParam);
-        }catch(Exception e){
-            e.getMessage();
-            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-    // file download
-    public List<Map<String, Object>> download(Map<String, Object> reqnum) {
-        MapSqlParameterSource dicParam = new MapSqlParameterSource();
-
-        StringBuilder sql = new StringBuilder();
-        dicParam.addValue("reqnum", reqnum.get("reqnum"));
-
-        sql.append("""
-                select
-                        filepath,
-                        reqdate,
-                        filesvnm,
-                        fileornm
-                from tb_DA006WFILE
-                where
-                    reqnum = :reqnum
-                """);
-        List<Map<String, Object>> items = this.sqlRunner.getRows(sql.toString(), dicParam);
-        return items;
-    }
-    // 제품구성 리스트 불러오는 함수
+    // 문서코드 옵션 불러오기
     public List<Map<String, Object>> getComcd() {
 
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
@@ -269,34 +63,23 @@ public class RequestService {
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql, dicParam);
         return items;
     }
-    // 보강재, 마감재 리스트 불러오는 함수
-    public List<Map<String, Object>> getListCgrb() {
+    // 문서에 따른 결재자 옵션 불러오기
+    public List<Map<String, Object>> getKcperid() {
 
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
-
         String sql = """
-                SELECT Z.cgrb   cgrb,
-                       Z.cgrbnm cgrbnm,
-                       Z.sortno sortno
-                  FROM (SELECT agrb + bgrb + cgrb cgrb,
-                               cgrbnm cgrbnm,
-                               sortno sortno
-                          FROM TB_CA503_C WITH(NOLOCK)
-                         WHERE (custcd = 'SWSPANEL')
-                 and agrb = 'M'
-                         UNION ALL
-                        SELECT 'Z' + 'Z' + hgrb cgrb,
-                               hgrbnm cgrbnm,
-                               sortno sortno
-                          FROM TB_CA503_07 WITH(NOLOCK)
-                         WHERE (custcd = 'SWSPANEL')
-                           AND (grb    = '3')) Z
-                
+                SELECT Right(perid, Len(perid) - 1) cd  ,
+                 pernm           cdnm,
+                 b.divinm        arg2
+                  FROM TB_JA001 WITH(NOLOCK)
+                 join TB_JC002 b ON  b.divicd = tb_ja001.divicd and b.spjangcd = tb_ja001.spjangcd
+                 WHERE rtclafi = '001'
                 """;
 
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql, dicParam);
         return items;
     }
+
     // username으로 cltcd, cltnm, saupnum, custcd 가지고 오기
     public Map<String, Object> getUserInfo(String username) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
@@ -315,110 +98,20 @@ public class RequestService {
         Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
         return userInfo;
     }
-    // username으로 주문의뢰 필요 데이터 가져오기
+    // xusers 데이터 가져오기
     public Map<String, Object> getMyInfo(String username) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
 
         String sql = """
-                select x.prenm,
-                       x.hptelnum,
-                       x.zipcd,
-                       x.cltadres
-                FROM TB_XCLIENT x
-                WHERE saupnum = :username
+                SELECT *
+                FROM tb_xusers
+                WHERE userid = :username
                 """;
         dicParam.addValue("username", username);
         Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
         return userInfo;
     }
-    // savefile
-    public boolean saveFile(TB_DA006WFile tbDa006WFile) {
 
-        try {
-            return true;
-
-        } catch (Exception e) {
-            System.out.println(e + ": 에러발생");
-            return false;
-        }
-    }
-    // delete
-    @Transactional
-    public Boolean delete(String reqnum) {
-        // TB_DA006W 삭제
-        headDelete(reqnum);
-
-        // 007 정보 삭제
-        bodyDelete(reqnum);
-
-        // tb_DA006WFILE 찾기
-
-        // 006WFile DB정보 삭제
-        fileDelete(reqnum);
-        return true;
-    }
-    // TB_DA006W 삭제
-    public void headDelete(String reqnum){
-        MapSqlParameterSource dicParam = new MapSqlParameterSource();
-        try {
-            String sql = """
-                DELETE FROM TB_DA006W
-                WHERE reqnum = :reqnum
-            """;
-            dicParam.addValue("reqnum", reqnum);
-            this.sqlRunner.execute(sql, dicParam); // update 메서드로 변경
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // TB_DA007W 삭제
-    public void bodyDelete(String reqnum){
-        MapSqlParameterSource dicParam = new MapSqlParameterSource();
-        try {
-            String sql = """
-                DELETE FROM TB_DA007W
-                WHERE reqnum = :reqnum
-            """;
-            dicParam.addValue("reqnum", reqnum);
-            this.sqlRunner.execute(sql, dicParam); // update 메서드로 변경
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    // TB_DA006Wfile 삭제
-    public void fileDelete(String reqnum){
-        MapSqlParameterSource dicParam = new MapSqlParameterSource();
-        try {
-            String sql = """
-                DELETE FROM tb_DA006WFILE
-                WHERE reqnum = :reqnum
-            """;
-            dicParam.addValue("reqnum", reqnum);
-            this.sqlRunner.execute(sql, dicParam); // update 메서드로 변경
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Transactional
-    public boolean deleteBody(String reqseq, String reqnum) {
-        MapSqlParameterSource dicParam = new MapSqlParameterSource();
-        try {
-            String sql = """
-                DELETE FROM TB_DA007W
-                WHERE reqseq = :reqseq
-                AND reqnum = :reqnum
-            """;
-            dicParam.addValue("reqseq", reqseq);
-            dicParam.addValue("reqnum", reqnum);
-            this.sqlRunner.execute(sql, dicParam);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return true;
-    }
     // 사용자 사원코드 조회(맨앞 'p'제거 필요)
     public String getPerid(String username) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
@@ -436,4 +129,34 @@ public class RequestService {
         }
         return Perid;
     }
+    // xusers 정보 perid로 조회
+    public Map<String, Object> getuserInfoPerid(String perid) {
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+
+        String sql = """
+                SELECT *
+                FROM tb_xusers
+                WHERE perid = :perid
+                """;
+        dicParam.addValue("perid", perid);
+        Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
+        return userInfo;
+    }
+    // 삭제 메서드
+    public boolean delete(String username) {
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+
+        String sql = """
+               
+                """;
+        dicParam.addValue("username", username);
+        Map<String, Object> perid = this.sqlRunner.getRow(sql, dicParam);
+        String Perid = "";
+        if(perid != null && perid.containsKey("perid")) {
+            Perid = (String) perid.get("perid");
+        }
+
+        return true;
+    }
+
 }

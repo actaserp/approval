@@ -22,6 +22,6 @@ public class TB_E063 {
     @Column(length = 10)
     private String inperid;
 
-    @Column(length = 8)
+    @Column(length = 8, updatable = false)
     private String indate;
 }

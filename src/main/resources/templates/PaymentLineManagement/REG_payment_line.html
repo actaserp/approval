@@ -1,6 +1,5 @@
 <html layout:decorate="~{layout_page}" xmlns:layout="http://www.w3.org/1999/xhtml">
 <style>
-
 </style>
 <th:block layout:fragment="content">
 
@@ -9,7 +8,7 @@
     <!-- Page Title -->
     <div class="page-title-wrap">
       <div class="left">
-        <h2>주문 등록</h2>
+        <h2>결재라인등록</h2>
         <!--                <a href="#" title="북마크" class="bookmark toggle">-->
         <!--                    내메뉴-->
         <!--                </a>-->
@@ -43,10 +42,10 @@
               <!--                   class="zoom-img" style="margin-left: 5px"-->
               <!--                   onclick="openPopup('https://foms.atlassian.net/wiki/external/YzNmYmE3MTkyYTFlNGU2OGIwOTY5YTEyNDFiZjcwZmE')" alt="도움말">-->
             </div>
-            <div class="button-wrap">
+            <div class="button-wrap" style="justify-content: end">
               <ul>
                 <li>
-                  <a id="newdataBtn" class="btn btn-excell" title="신규등록" onclick="resetFormFields()">
+                  <a id="newdataBtn" class="btn btn-excell" title="신규등록" onclick="resetFormFields(); resetGridAndComcd();">
                     <img src="/images/icon/ico-plus.svg" alt="등록 아이콘">
                     신규등록
                   </a>
@@ -58,7 +57,7 @@
                   </a>
                 </li>
                 <li>
-                  <a class="btn btn-edit" id="btnSave" title="저장" onclick="saveOrder()">
+                  <a class="btn btn-edit" id="btnSave" title="저장" onclick="save()">
                     <img src="/images/icon/ico-save.svg" alt="저장 아이콘">
                     저장
                   </a>
@@ -77,27 +76,10 @@
                     문서코드
                   </label>
                 </th>
-                <td>
-                  <select id="comcd">
+                <td colspan="3">
+                  <select id="comcd" onchange="changeComcdSelect()">
                     <option></option>
                   </select>
-                </td>
-                <th style="text-align: center">
-                  <label for="deldate">
-
-                  </label>
-                </th>
-                <td>
-                  <input type="date" id="deldate" name="deldate" style="width: 200px" disabled>
-                  <span id="deldate_day"></span>
-                </td>
-                <th style="text-align: center">
-                  <label for="telno">
-
-                  </label>
-                </th>
-                <td>
-                  <input type="text" id="telno" name="telno">
                 </td>
               </tr>
               <tr>
@@ -109,21 +91,39 @@
                 <td>
                   <input type="text" id="perid" name="perid" style="width: 200px" readonly>
                 </td>
+                <th style="text-align: center">
+                  <label for="perid">
+                    등록사원이름
+                  </label>
+                </th>
                 <td>
                   <input type="text" id="pernm" name="perid" style="width: 200px" readonly>
                 </td>
                 <th style="text-align: center">
-                  <label for="postno">
-
+                  <label for="kcperid">
+                    결재자
                   </label>
                 </th>
-                <td colspan="4">
-                  <input type="text" id="postno" placeholder="우편번호"
-                         onclick="sample4_execDaumPostcode()"
-                         style="width: 100px; margin-bottom: 3px;">
-                  <input type="text" id="address1" placeholder="도로명주소" style="width: 48%">
-                  <input type="hidden" id="placeAddress" placeholder="지번주소">
-                  <span id="guide" style="color:#999;display:none"></span>
+                <td>
+                  <select id="kcperid" style="width: 200px;" onchange="changeKcpSelect()">
+                    <option></option>
+                  </select>
+                </td>
+                <th style="text-align: center">
+                  <label for="kcpernm">
+                    결제자코드
+                  </label>
+                </th>
+                <td>
+                  <input id="kcpernm" style="width: 120px;" readonly>
+                </td>
+                <th style="text-align: center">
+                  <label for="comseq">
+                    결재순서
+                  </label>
+                </th>
+                <td>
+                  <input type="number" id="comseq" style="width: 120px;">
                 </td>
               </tr>
               </tbody>
@@ -131,7 +131,7 @@
           </div>
           <div class="container-fluid">
             <p id=""></p>
-            <div id="theGrid2" style="max-height: 714px; height: 300px"></div>
+            <div id="theGrid2" style="max-height: 714px; height: 300px; margin-top: 40px;"></div>
           </div>
         </section>
         <!--       주문등록 탭 종료   / 주문 의뢰현황 시작       -->
@@ -174,11 +174,12 @@
     function init() {
       // 결재문서코드 불러오기 (comcd에 바인드)
       getComcd();
-      // 선택된 문서코드 결재라인 그리드
+      // 내정보 불러와 input 바인드
+      getMyInfo();
+      // 2. 결재자 코드 옵션 바인딩
+      bindApproverOptions();
+
       fetchListData2();
-
-
-
     }
 
     // DOM이 완전히 준비된 후에 특정 코드 실행
@@ -189,42 +190,8 @@
       // }
     })
 
-    // 주문현황 더블클릭 이벤트 기존탭 최신화
-    document.addEventListener("DOMContentLoaded", function () {
-      console.log("✅ order_request.html DOMContentLoaded 완료");
 
-      window.addEventListener("message", function (event) {
-        console.log("📩 메시지 수신! Origin:", event.origin);
-        console.log("📩 메시지 내용:", event.data);
-
-        if (event.data.action === "init") {
-          console.log("📩 init 실행 요청 받음");
-          init(); // `init()` 함수 실행
-        }
-      });
-
-      // index.html에서 보낸 메시지가 iframe이 로드되기 전에 도착했을 경우 대비
-      setTimeout(() => {
-        window.parent.postMessage({ action: "requestInit" }, "*");
-      }, 200);
-    });
-    // 문서코드 리스트 불러와 comcd(select)속성(option)으로 바인드
-    function getComcd() {
-      $.ajax({
-        url: '/api/request/request/getComcd',
-        type: 'GET',
-        data: {},
-        async: false,
-        success: function (data) {
-          data2 = data.data;
-          data2.forEach(item =>{
-            // 바인드
-          })
-        }
-      })
-    }
-
-    // 주문등록 세부내용 그리드
+    // 세부내용 그리드
     function fetchListData2(saupnum) {
       let data2 = [];
 
@@ -257,11 +224,11 @@
           isReadOnly: true,
           selectionMode: wijmo.grid.SelectionMode.Row,
           columns: [
-            {binding: 'index', header: 'No', width: 80, align: 'right'},
+            {binding: 'no', header: 'No', width: 80, align: 'right'},
             {binding: 'kcperid', header: '결재자코드', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'kcpernm', header: '결재자명', width: '*', minWidth: 100, align: 'right'},
-            {binding: 'papercd', header: '구분', width: '*', minWidth: 100, align: 'right'},
-            {binding: 'seq', header: '결재순서', width: '*', minWidth: 100, align: 'right'}
+            {binding: 'kcpernm', header: '결재자명', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'papercd', header: '구분', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'seq', header: '결재순서', width: '*', minWidth: 100, align: 'center'}
           ],
           itemsSource: viewdata2,
           itemFormatter: function (panel, r, c, cell) {
@@ -298,27 +265,16 @@
             let row = hitTest.row;
             let item = theGrid2.rows[row].dataItem;
 
-            document.getElementById('qty').value = item.qty;
-            document.getElementById('panel_t').value = item.panel_t;
-            document.getElementById('panel_w').value = item.panel_w;
-            document.getElementById('panel_l').value = item.panel_l;
-            document.getElementById('reqseq').value = item.reqseq;
-            document.getElementById('isnew').value = item.isnew;
-            document.getElementById('ordtext').value = item.ordtext;
+            document.getElementById('kcpernm').value = item.kcperid;
+            document.getElementById('comseq').value = item.seq;
 
-            const selectHgrb = document.getElementById('hgrb');
-            const selectExfmtypedv = document.getElementById('exfmtypedv');
-            const selectInfmtypedv = document.getElementById('infmtypedv');
-            const selectStframedv = document.getElementById('stframedv');
-            const selectStexplydv = document.getElementById('stexplydv');
+
+            const selectKcperid = document.getElementById('kcperid');
 
             const selectedItem = item;
 
-            setSelectedIndex(selectHgrb, selectedItem.hgrb);
-            setSelectedIndex(selectExfmtypedv, selectedItem.exfmtypedv);
-            setSelectedIndex(selectInfmtypedv, selectedItem.infmtypedv);
-            setSelectedIndex(selectStframedv, selectedItem.stframedv);
-            setSelectedIndex(selectStexplydv, selectedItem.stexplydv);
+            setSelectedIndex(selectKcperid, selectedItem.kcpernm);
+
           }
         })
         // FlexGrid의 최대 높이를 제한하여 스크롤바를 활성화
@@ -330,6 +286,41 @@
       } else {
         // 이미 FlexGrid이 존재하는 경우, 데이터만 업데이트
         theGrid2.itemsSource = viewdata2;
+      }
+    }
+    // 문서코드 리스트 불러와 comcd(select)속성(option)으로 바인드
+    function getComcd() {
+      $.ajax({
+        url: '/api/request/request/getComcd',
+        type: 'GET',
+        data: {},
+        async: false,
+        success: function (data) {
+          data2 = data.data;
+          let selectElement = document.getElementById('comcd');
+
+          // 기존 옵션 초기화 (중복 추가 방지)
+          selectElement.innerHTML = '<option value="">선택하세요</option>';
+          data2.forEach(item =>{
+            let option = document.createElement('option');
+            option.value = item.com_code;  // value 값
+            option.textContent = item.com_cnam; // 표시될 텍스트
+            selectElement.appendChild(option);
+          })
+        },
+        error: function (error) {
+          console.error("문서코드 목록을 불러오는 중 오류 발생:", error);
+        }
+      })
+    }
+    // 문서코드 선택시 그리드 fetch 및 결재자 코드 option 바인드
+    function changeComcdSelect(){
+      let selectedValue = document.getElementById('comcd').value;
+
+      if (selectedValue) {
+        console.log("선택된 문서코드:", selectedValue);
+        // 1. 그리드 데이터 Fetch
+        fetchListData2(selectedValue);
       }
     }
     // option값 value bind
@@ -349,6 +340,37 @@
         selectElement.selectedIndex = 0;
       }
     }
+    // 2️⃣ 결재자 코드 옵션 추가하는 함수
+    function bindApproverOptions() {
+      $.ajax({
+        url: `/api/request/request/getKcperid`,
+        type: 'GET',
+        success: function(response) {
+          let approverSelect = document.getElementById("kcperid");
+          approverSelect.innerHTML = '<option value="">결재자 선택</option>';
+
+          response.data.forEach(item => {
+            let option = document.createElement('option');
+            option.value = item.cd;
+            option.textContent = item.cdnm;
+            approverSelect.appendChild(option);
+          });
+
+          console.log("결재자 목록 업데이트 완료");
+        },
+        error: function(error) {
+          console.error("결재자 목록 불러오기 실패:", error);
+        }
+      });
+    }
+    // 결재자 코드 선택시 코드값과 이름 바인드
+    function changeKcpSelect() {
+      let selectElement = document.getElementById('kcperid');
+      let selectedText = selectElement.options[selectElement.selectedIndex].value; // 선택된 옵션의 텍스트 값 가져오기
+
+      document.getElementById('kcpernm').value = selectedText; // 입력 필드에 반영
+    }
+
 
     // 셀렉트값에 따라 id 히든으로 넘기기
     function updateSelect(selectId, hiddenInputId) {
@@ -359,21 +381,69 @@
 
     // 헤드정보 삭제(세부사항 존재시 안내 alert기능)
     $(document).ready(function () {
-      $('#deleteButton').off('click').on('click', deletehead);
+      $('#deleteButton').off('click').on('click', deleteBody);
     });
 
     let isProcessing = false;
 
+    // 그리드 정보 삭제 (모든행 삭제시 063정보도 같이 삭제)
+    function deleteBody(){
+      if(SelectItem === undefined || SelectItem.length === 0){
+        Alert.alert('', '삭제할 항목을 선택해 주세요.');
+        return;
+      }
+      Alert.confirm('', '선택된 행 내용을 삭제하시겠습니까?', function () {
+        const deletePromises = []; // 비동기 요청을 저장할 배열
+        SelectItem.forEach(selectedRow => {
+          const selectedData = selectedRow.dataItem;
+          const index = viewdata2.sourceCollection.indexOf(selectedData);
+          if (index > -1) {
+            const itemToRemove = viewdata2.sourceCollection[index]; // 삭제할 항목 가져오기
+            viewdata2.remove(itemToRemove); // CollectionView에서 항목 삭제
+            if(selectedData.reqseq !== ""){
+              const saupnumHiddenElement = document.getElementById('saupnumHidden');
+              const saupnumHidden = saupnumHiddenElement ? saupnumHiddenElement.value.trim() : "";
+
+              let deleteNum = {
+                saupnumHidden: saupnumHidden,
+                reqseq: selectedData.reqseq,
+                reqnum: document.getElementById('reqnum').value,
+                reqdate: selectedData.reqdate
+              };
+              let fnSuccess = function (res) {
+                isProcessing = false;
+                if (res.success) {
+                  fetchListData();
+                }
+              };
+              const promise = AjaxUtil.postAsyncData('/api/request/request/bodyDelete', deleteNum, fnSuccess);
+              deletePromises.push(promise);
+            }
+          }
+        });
+        viewdata2.commitEdit(); // 변경 사항 저장
+        Promise.all(deletePromises).then(() => {
+          viewdata2.commitEdit(); // 변경 사항 커밋
+          viewdata2.refresh(); // 데이터 소스 갱신
+          theGrid2.itemsSource = [...viewdata2.sourceCollection]; // 그리드 데이터 재설정
+          theGrid2.refresh(); // UI 갱신
+          // 모든 행이 빈지 검사하여 헤더 삭제 메서드 호출
+          const allRowsEmpty = viewdata2.sourceCollection.every(row => !row.hgrb || row.hgrb === '');
+          if (allRowsEmpty) {
+            deletehead();
+            fetchListData2();
+          }
+        }).catch(error => {
+          console.error('Error during deletion:', error);
+          Alert.alert('', '삭제 중 오류가 발생했습니다.');
+        });
+      })
+    }
+
     function deletehead() {
       if (isProcessing) return;
 
-      const reqnum = $('#reqnum').val();
-      if (!reqnum) {
-        Alert.alert('', '삭제할 항목을\n진행현황에서 선택해주세요.');
-        return;
-      }
-
-      Alert.confirm('', '주문 등록정보를\n삭제하시겠습니까?', function () {
+      Alert.confirm('', '결재라인정보를\n삭제하시겠습니까?', function () {
         isProcessing = true;
 
         let data = {
@@ -394,50 +464,23 @@
       });
     }
 
-    // 필드값 초기화
+    // 등록후 초기화
     function resetFormFields() {
       const fieldsToReset = [
-        'panel_ht',
-        'panel_hw', 'panel_hl', 'panel_hh', 'remark', 'hgrb',
-        'qty', 'panel_t', 'panel_w', 'panel_l',
-        'exfmtypedv', 'infmtypedv', 'stframedv', 'stexplydv', 'reqnum', 'reqseq'
+        'kcperid', 'kcpernm', 'comseq'
       ];
 
       fieldsToReset.forEach(fieldId => {
         document.getElementById(fieldId).value = '';
 
       });
-      document.getElementById('ordtext').value = ""
-      document.getElementById('reqdate').value = today;
-      document.getElementById('deldate').value = today;
-      $('.filelist2').empty(); // 파일 리스트 초기화
-      uploadedFiles2 = []; // 업로드된 파일 리스트 초기화
-      deletedFiles2 = [];
-      // 초기화된 파일 개수 업데이트
-      updateFileCount2();
-      resetFileInput($('.fileInput2'));
-      $('.text-count').text('0/100'); // 글자 수 0으로 초기화
-      // 특정 필드에 대한 btn-clear 숨김 처리
-      $('#doctitle').each(function () {
-        $(this).siblings('.btn-clear').hide();
-      });
-
-      let data2 = [];
-      // 기존 CollectionView를 초기화하기 위해 sourceCollection을 빈 배열로 설정 후 새 데이터 할당
-      if (viewdata2) {
-        viewdata2.sourceCollection = data2;
-        viewdata2 = new wijmo.collections.CollectionView(data2);
-        theGrid2.itemsSource = viewdata2;
-        viewdata2.refresh();
-      } else {
-        viewdata2 = new wijmo.collections.CollectionView(data2);
-      }
-
-      // 그리드도 갱신
-      theGrid2.itemsSource = viewdata2;
-      theGrid2.refresh();
 
       document.getElementById('btnSave').title = "저장";
+    }
+    // 화면 전체 초기화
+    function resetGridAndComcd(){
+      document.getElementById('comcd').value = '';
+      fetchListData2();
     }
 
 
@@ -446,18 +489,11 @@
       return new Promise((resolve, reject) => {
         $.ajax({
           url: '/api/request/request/getUserInfo',
-          data: {'saupnum': saupnum},
+          data: {},
           type: 'GET',
           success: function (data) {
-            document.getElementById("telno").value = data.data.hptelnum;
-            document.getElementById("perid").value = data.data.prenm;
-            document.getElementById("postno").value = data.data.zipcd;
-            document.getElementById("address1").value = data.data.cltadres.replace(/\s*\|/g, '').trim();
-            document.getElementById("cltnm").value = data.data.cltnm;
-            document.getElementById("searchComnm").value = data.data.cltnm;
-            console.log("✅ getMyInfo 완료, searchComnm 값:", data.data.cltnm);
-
-            resolve(); // ✅ 완료되면 resolve() 호출
+            document.getElementById("perid").value = data.data.perid;
+            document.getElementById("pernm").value = data.data.pernm;
           },
           error: function (error) {
             console.error("❌ getMyInfo 실패:", error);
@@ -467,20 +503,76 @@
       });
     }
 
-    // YYYYMMDD → Date 객체 변환
-    function parseDate(dateStr) {
-      let year = parseInt(dateStr.substring(0, 4), 10);
-      let month = parseInt(dateStr.substring(4, 6), 10) - 1;
-      let day = parseInt(dateStr.substring(6, 8), 10);
-      return new Date(year, month, day);
-    }
 
-    // Date 객체 → YYYYMMDD 형식 변환
-    function formatDate(date) {
-      let yyyy = date.getFullYear();
-      let mm = String(date.getMonth() + 1).padStart(2, '0');
-      let dd = String(date.getDate()).padStart(2, '0');
-      return `${yyyy}-${mm}-${dd}`;  // HTML input 필드와 호환되도록 수정
+    // 저장 메서드
+    function save(){
+      // 필수 입력 필드 검사
+      let requiredFields = [
+        {id: '#comcd', label: '문서코드를 선택해주세요'},
+        {id: '#kcperid', label: '결재자를 선택해주세요'},
+        {id: '#comseq', label: '결제순서를 지정해주세요'}
+      ];
+      for (let i = 0; i < requiredFields.length; i++) {
+        let field = requiredFields[i];
+        let $element = $(field.id);
+        let value = $element.val();
+
+        // 요소가 존재하지 않거나, 값이 빈 문자열(선택되지 않은 경우)인 경우 경고
+        if ($element.length === 0 || value === null || value.trim() === '') {
+          Alert.alert('', field.label);
+          return;
+        }
+      }
+      // title 값을 가져오기
+      const title = document.getElementById('btnSave').title;
+      // 알림 메시지를 결정하는 변수
+      let alertMessage;
+      // title 값에 따라 알림 메시지 설정
+      if (title === "저장") {
+        alertMessage = '저장하시겠습니까?';
+      } else {
+        alertMessage = '수정하시겠습니까?';
+      }
+      Alert.confirm('', alertMessage, function () {
+        // 주문번호 생성
+        let formData = new FormData();
+        // 다른 데이터를 FormData에 추가합니다.
+        formData.append('perid', $('#perid').val());
+        formData.append('papercd', $('#comcd').val());
+        formData.append('inperid', $('#perid').val());
+        formData.append('gubun', '101');
+        formData.append('seq', $('#comseq').val());
+        formData.append('kcperid', $('#kcperid').val());
+
+        function sendAjaxRequest(url) {
+          $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+              'X-CSRF-Token': $('[name=_csrf]').val() // CSRF 토큰을 헤더에 추가
+            },
+            success: handleAjaxResponse,
+            error: function () {
+              Alert.alert('', '에러가발생하였습니다.');
+            }
+          });
+        }
+
+        function handleAjaxResponse(response) {
+          if (response.success) {
+            Alert.alert('', response.message, function () {
+              fetchListData2();
+              resetFormFields();
+            });
+          } else {
+            Alert.alert('', '저장에 실패했습니다.');
+          }
+        }
+        sendAjaxRequest('/api/request/request/save');
+      })
     }
 
 
