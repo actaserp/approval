@@ -23,21 +23,12 @@ public class RequestService {
     @Autowired
     SqlRunner sqlRunner;
 
-    @Autowired
-    TB_DA006WRepository tbDa006WRepository;
-
-    @Autowired
-    TB_DA007WRepository tbDa007WRepository;
-
-    @Autowired
-    TB_DA006WFILERepository tbDa006WFILERepository;
 
     // 헤드정보 저장
     @Transactional
     public Boolean save(TB_DA006W tbDa006W){
 
         try{
-            tbDa006WRepository.save(tbDa006W);
             return true;
         }catch (Exception e){
             System.out.println(e + ": 에러발생");
@@ -49,7 +40,6 @@ public class RequestService {
     public Boolean saveBody(TB_DA007W tbDa007W){
 
         try{
-            tbDa007WRepository.save(tbDa007W);
 
             return true;
 
@@ -58,23 +48,20 @@ public class RequestService {
             return false;
         }
     }
-    //세부항목 불러오기
-    public List<Map<String, Object>> getInspecList(TB_DA006W_PK tbDa006W_pk) {
-
+    //결재라인등록 그리드 리스트 불러오기
+    public List<Map<String, Object>> getCheckPaymentList(String perid, String comcd) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
+        dicParam.addValue("perid", perid);
+        dicParam.addValue("papercd", comcd);
 
         String sql = """
-                select 
-                *
-                from TB_DA007W
-                WHERE reqnum = :reqnum
-                AND   custcd = :custcd
-                AND   spjangcd = :spjangcd
+                select
+                e.*
+                from TB_E064 e
+                WHERE e.perid = :perid
+                    AND e.papercd = :papercd
                 order by indate desc
                 """;
-        dicParam.addValue("reqnum", tbDa006W_pk.getReqnum());
-        dicParam.addValue("custcd", tbDa006W_pk.getCustcd());
-        dicParam.addValue("spjangcd", tbDa006W_pk.getSpjangcd());
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql, dicParam);
         return items;
     }
@@ -261,18 +248,22 @@ public class RequestService {
         return items;
     }
     // 제품구성 리스트 불러오는 함수
-    public List<Map<String, Object>> getListHgrb() {
+    public List<Map<String, Object>> getComcd() {
 
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
 
         String sql = """
-                select 
-                TB_CA503_07.hgrb,
-                TB_CA503_07.hgrbnm,
-                TB_CA503_07.sortno
-                from TB_CA503_07 WITH(NOLOCK)
-                WHERE TB_CA503_07.custcd = 'SWSPANEL'
-                 AND TB_CA503_07.grb = '1'
+                SELECT com_cls,
+                         com_code,
+                       com_cls + com_code as asmc,
+                         com_cnam,
+                         com_rem1,
+                         com_rem2,
+                         com_order
+                    FROM tb_ca510
+                 WHERE com_cls = '620'
+                   AND com_code <> '00'
+                
                 """;
 
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql, dicParam);
@@ -344,7 +335,6 @@ public class RequestService {
     public boolean saveFile(TB_DA006WFile tbDa006WFile) {
 
         try {
-            tbDa006WFILERepository.save(tbDa006WFile);
             return true;
 
         } catch (Exception e) {
@@ -362,16 +352,7 @@ public class RequestService {
         bodyDelete(reqnum);
 
         // tb_DA006WFILE 찾기
-        List<TB_DA006WFile> tbDa006WFiles = tbDa006WFILERepository.findAllByReqnum(reqnum);
-        // 파일 삭제
-        for (TB_DA006WFile tbDa006WFile : tbDa006WFiles) {
-            String filePath = tbDa006WFile.getFilepath();
-            String fileName = tbDa006WFile.getFilesvnm();
-            File file = new File(filePath, fileName);
-            if (file.exists()) {
-                file.delete();
-            }
-        }
+
         // 006WFile DB정보 삭제
         fileDelete(reqnum);
         return true;
@@ -437,5 +418,22 @@ public class RequestService {
             e.printStackTrace();
         }
         return true;
+    }
+    // 사용자 사원코드 조회(맨앞 'p'제거 필요)
+    public String getPerid(String username) {
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+
+        String sql = """
+                SELECT perid
+                FROM tb_xusers
+                WHERE userid = :username
+                """;
+        dicParam.addValue("username", username);
+        Map<String, Object> perid = this.sqlRunner.getRow(sql, dicParam);
+        String Perid = "";
+        if(perid != null && perid.containsKey("perid")) {
+            Perid = (String) perid.get("perid");
+        }
+        return Perid;
     }
 }

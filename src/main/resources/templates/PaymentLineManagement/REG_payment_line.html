@@ -16,33 +16,32 @@
       </div>
       <ul class="page-navi">
         <li><img src="/images/icon/ico-nav-home.svg" alt="홈아이콘"></li>
-        <li>주문 등록</li>
-        <li>주문등록</li>
+        <li>결재라인관리</li>
+        <li>결재라인등록</li>
       </ul>
     </div>
     <!-- Select -->
 
     <div class="tab-wrap">
-      <ul class="tab-links">
-        <input type="hidden" id="checkdtParam" name="checkdtParam" th:value="${checkdt}"/>
-        <li>
-          <a href="#tab1" title="주문 등록" id="listTabLink">주문 등록</a>
-        </li>
-        <li>
-          <a href="#tab2" title="등록">주문/진행현황</a>
-        </li>
-      </ul>
+<!--      <ul class="tab-links">-->
+<!--        <input type="hidden" id="checkdtParam" name="checkdtParam" th:value="${checkdt}"/>-->
+<!--        <li>-->
+<!--          <a href="#tab1" title="주문 등록" id="listTabLink">주문 등록</a>-->
+<!--        </li>-->
+<!--        <li>-->
+<!--          <a href="#tab2" title="등록">주문/진행현황</a>-->
+<!--        </li>-->
+<!--      </ul>-->
       <div class="tab-contents">
         <!--      주문등록 탭 시작       -->
         <!-- Section -->
         <section class="tab-item" id="tab1">
           <div class="section-top">
             <div class="title-wrap">
-              <h3>주문등록</h3>
+              <h3>결재라인등록</h3>
               <!--              <img src="/images/icon/exclamation/exclamation-circle.svg"-->
               <!--                   class="zoom-img" style="margin-left: 5px"-->
               <!--                   onclick="openPopup('https://foms.atlassian.net/wiki/external/YzNmYmE3MTkyYTFlNGU2OGIwOTY5YTEyNDFiZjcwZmE')" alt="도움말">-->
-              <a style="color: red;margin-top: 4px;margin-left: 5px;">(두께, 폭, 길이, 높이는 외부기준 mm단위로 입력)</a>
             </div>
             <div class="button-wrap">
               <ul>
@@ -50,12 +49,6 @@
                   <a id="newdataBtn" class="btn btn-excell" title="신규등록" onclick="resetFormFields()">
                     <img src="/images/icon/ico-plus.svg" alt="등록 아이콘">
                     신규등록
-                  </a>
-                </li>
-                <li>
-                  <a class="btn btn-file2" title="파일 첨부" data-popup="popup1"
-                     onclick="showPopup(this)">
-                    파일 첨부<span>(0)</span>
                   </a>
                 </li>
                 <li>
@@ -75,31 +68,23 @@
           </div>
           <div class="table-wrap">
             <table class="write-table">
-              <caption>주문등록 테이블</caption>
-              <input type="hidden" id="reqnum" name="reqnum" value="">
-              <input type="hidden" id="saupnumHidden" name="saupnumHidden" value="">
+              <caption>내정보 테이블</caption>
+
               <tbody>
               <tr>
                 <th style="text-align: center">
-                  <label for="cltnm">
-                    업체명
+                  <label for="comcd">
+                    문서코드
                   </label>
                 </th>
                 <td>
-                  <input type="text" id="cltnm" name="reqdate" value="" style="width: 200px" disabled>
-                </td>
-                <th style="text-align: center">
-                  <label for="reqdate">
-                    주문일자
-                  </label>
-                </th>
-                <td>
-                  <input type="date" id="reqdate" name="reqdate" value="" style="width: 200px">
-                  <span id="reqdate_day"></span>
+                  <select id="comcd">
+                    <option></option>
+                  </select>
                 </td>
                 <th style="text-align: center">
                   <label for="deldate">
-                    납품희망일
+
                   </label>
                 </th>
                 <td>
@@ -108,7 +93,7 @@
                 </td>
                 <th style="text-align: center">
                   <label for="telno">
-                    연락처
+
                   </label>
                 </th>
                 <td>
@@ -118,18 +103,21 @@
               <tr>
                 <th style="text-align: center">
                   <label for="perid">
-                    담&ensp;당&ensp;자
+                    등록사원
                   </label>
                 </th>
                 <td>
-                  <input type="text" id="perid" name="perid" style="width: 200px">
+                  <input type="text" id="perid" name="perid" style="width: 200px" readonly>
+                </td>
+                <td>
+                  <input type="text" id="pernm" name="perid" style="width: 200px" readonly>
                 </td>
                 <th style="text-align: center">
                   <label for="postno">
-                    주&ensp;&ensp;&ensp;&ensp;소
+
                   </label>
                 </th>
-                <td colspan="5">
+                <td colspan="4">
                   <input type="text" id="postno" placeholder="우편번호"
                          onclick="sample4_execDaumPostcode()"
                          style="width: 100px; margin-bottom: 3px;">
@@ -138,301 +126,16 @@
                   <span id="guide" style="color:#999;display:none"></span>
                 </td>
               </tr>
-              <tr>
-                <th style="text-align: center">
-                  <label for="panel_ht">
-                    두&ensp;&ensp;&ensp;&nbsp;께
-                  </label>
-                </th>
-                <td>
-                  <input type="number" id="panel_ht" name="panel_ht" style="width: 200px">
-                </td>
-                <th style="text-align: center">
-                  <label for="panel_hw">
-                    폭
-                  </label>
-                </th>
-                <td>
-                  <input type="number" id="panel_hw" name="panel_hw" style="width: 200px">
-                </td>
-                <th style="text-align: center">
-                  <label for="panel_hl">
-                    길&ensp;&ensp;이
-                  </label>
-                </th>
-                <td>
-                  <input type="number" id="panel_hl" name="panel_hl" style="width: 200px">
-                </td>
-                <th style="text-align: center">
-                  <label for="panel_hh">
-                    높&ensp;&ensp;이
-                  </label>
-                </th>
-                <td>
-                  <input type="number" id="panel_hh" name="panel_hh" style="width: 200px">
-                </td>
-              </tr>
-              <tr>
-                <th style="text-align: center">
-                  <label for="remark">
-                    제&ensp;&ensp;&ensp;&nbsp;목
-                    <br>
-                    <small style="font-size: 0.85em; color: #666;">(메&ensp;&ensp;&ensp;모)</small>
-                  </label>
-                </th>
-                <td colspan="7">
-                  <input type="text" id="remark" name="remark" style="width: 62%">
-                </td>
-              </tr>
               </tbody>
             </table>
           </div>
-          <div class="section-top">
-            <div class="title-wrap">
-              <h3>세부사항</h3>
-              <a style="color: red;margin-top: 4px;margin-left: 5px;">(세부사항 더블클릭시 수정가능합니다.)</a>
-            </div>
-            <div class="button-wrap" style="margin-bottom: 10px; margin-top: 10px">
-              <ul>
-                <li>
-                  <a class="btn btn-saverow" id="btn-saverow" name="saverow" title="세부사항 추가" onclick="addBody()">
-                    <img src="/images/icon/ico-plus.svg" alt="등록 아이콘">
-                    세부사항 추가
-                  </a>
-                </li>
-                <li>
-                  <a class="btn btn-saverow" id="btn-addrow" name="addrow" title="행 복사" onclick="copyLastRow()">
-                    <img src="/images/icon/ico-edit.svg" alt="등록 아이콘">
-                    행 복사
-                  </a>
-                </li>
-                <li>
-                  <a class="btn btn-deleterow" id="btn-deleterow" name="deleterow" title="행삭제" onclick="deleteBody()">
-                    <img src="/images/icon/ico-delete.svg" alt="삭제 아이콘">
-                    행 삭제
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table class="write-table">
-              <caption>세부사항 테이블</caption>
-              <input type="hidden" id="reqseq" name="reqseq">
-              <input type="hidden" id="isnew" name="isnew">
-              <tbody>
-              <tr>
-                <th style="text-align: center">
-                  <label for="hgrb">
-                    제품구성
-                  </label>
-                </th>
-                <td>
-                  <select id="hgrb" name="hgrb" style="width: 100px" onchange="changeHgrb()">
-                    <option value="" selected disabled>선택</option>
-                  </select>
-                </td>
-                <th style="text-align: center">
-                  <label for="qty">
-                    수&ensp;량
-                  </label>
-                </th>
-                <td>
-                  <input type="number" id="qty" name="qty" style="width: 100px">
-                </td>
-                <th style="text-align: center">
-                  <label for="panel_t">
-                    T (두께)
-                  </label>
-                </th>
-                <td>
-                  <input type="number" id="panel_t" name="panel_t" style="width: 100px">
-                </td>
-                <th style="text-align: center">
-                  <label for="panel_w">
-                    W/H (폭 또는 높이)
-                  </label>
-                </th>
-                <td>
-                  <input type="number" id="panel_w" name="panel_w" style="width: 100px">
-                </td>
-
-                <th style="text-align: center">
-                  <label for="panel_l">
-                    L (길이)
-                  </label>
-                </th>
-                <td>
-                  <input type="number" id="panel_l" name="panel_l" style="width: 100px">
-                </td>
-              </tr>
-              <tr>
-                <th style="text-align: center">
-                  <label for="exfmtypedv">
-                    외부마감재
-                  </label>
-                </th>
-                <td>
-                  <select id="exfmtypedv" name="exfmtypedv" style="width: 100px">
-                    <option value="" selected>없음</option>
-                    <option value="MAC">GRP</option>
-                    <option value="MAA">AL</option>
-                    <option value="MAB">GI</option>
-                    <option value="MAI">SUS</option>
-                    <option value="MAZ">기타</option>
-                  </select>
-                </td>
-                <th style="text-align: center">
-                  <label for="infmtypedv">
-                    외부보강재
-                  </label>
-                </th>
-                <td>
-                  <select id="infmtypedv" name="infmtypedv" style="width: 100px">
-                    <option value="" selected>없음</option>
-                    <option value="MCA">합판</option>
-                    <option value="MCD">LTP</option>
-                    <option value="MCE">기타</option>
-                  </select>
-                </td>
-                <th style="text-align: center">
-                  <label for="stframedv">
-                    내부보강재
-                  </label>
-                </th>
-                <td>
-                  <select id="stframedv" name="stframedv" style="width: 100px">
-                    <option value="" selected>없음</option>
-                    <option value="MCA">합판</option>
-                    <option value="MCD">LTP</option>
-                    <option value="MCE">기타</option>
-                  </select>
-                </td>
-                <th style="text-align: center">
-                  <label for="stexplydv">
-                    내부마감재
-                  </label>
-                </th>
-                <td>
-                  <select id="stexplydv" name="stexplydv" style="width: 100px">
-                    <option value="" selected>없음</option>
-                    <option value="MAC">GRP</option>
-                    <option value="MAA">AL</option>
-                    <option value="MAB">GI</option>
-                    <option value="MAI">SUS</option>
-                    <option value="MAZ">기타</option>
-                  </select>
-                </td>
-                <th style="text-align: center">
-                  <label for="ordtext">
-                    옵션 및 요청사항
-                  </label>
-                </th>
-                <td>
-                  <a class="btn btn-request" title="요청사항" data-popup="popup2"
-                     onclick="validateFieldsAndShowPopup(this)">
-                    요청사항 작성
-                  </a>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-            <div class="container-fluid">
-              <p id=""></p>
-              <div id="theGrid2" style="max-height: 714px; height: 300px"></div>
-            </div>
+          <div class="container-fluid">
+            <p id=""></p>
+            <div id="theGrid2" style="max-height: 714px; height: 300px"></div>
           </div>
         </section>
         <!--       주문등록 탭 종료   / 주문 의뢰현황 시작       -->
         <!-- Section -->
-        <section class="tab-item" id="tab2" style="height: 832px;">
-          <div class="section-top">
-            <div class="search-wrap">
-              <dl>
-                <dt>
-                  주문일자<span class="eq">*</span>
-                  <a style="color: red;margin-top: 4px;margin-left: 5px;">(더블클릭하면 수정이 가능합니다.)</a>
-                </dt>
-                <dd>
-                  <ul class="date-box">
-                    <li>
-                      <input type="date" id="startDate" name="startDate">
-                      <label for="startDate" class="hide">시작일</label>
-                    </li>
-                    <li>
-                      <input type="date" id="endDate" name="endDate">
-                      <label for="endDate" class="hide">종료일</label>
-                    </li>
-                  </ul>
-                </dd>
-              </dl>
-              <dl>
-                <dt>
-                  <label for="searchComnm">
-                    업체명<span class="eq">*</span>
-                  </label>
-                </dt>
-                <dd>
-                  <div class="srch-box">
-                    <input type="text" id="searchComnm" name="searchComnm" class="input-srch"
-                           placeholder="업체명" style="border-radius: 5px;" readonly>
-                    <!--                                        <a href="#a" class="btn-srch" title="검색" onclick="searchData()"></a>-->
-                  </div>
-                </dd>
-              </dl>
-              <dl>
-                <dt>
-                  <label for="searchRemark">
-                    제목<span class="eq">*</span>
-                  </label>
-                </dt>
-                <dd>
-                  <div class="srch-box">
-                    <input type="text" id="searchRemark" name="searchRemark" class="input-srch"
-                           placeholder="제목" style="border-radius: 5px;">
-                  </div>
-                </dd>
-              </dl>
-              <dl>
-                <dt>
-                  <label for="searchOrdflag">
-                    진행구분<span class="eq">*</span>
-                  </label>
-                </dt>
-                <dd>
-                  <div class="srch-box">
-                    <select id="searchOrdflag" name="searchOrdflag">
-                      <option value="">전체</option>
-                      <option value="0">주문등록</option>
-                      <option value="1">주문확인</option>
-                      <option value="2">주문확정</option>
-                      <option value="3">제작진행</option>
-                      <option value="4">출고</option>
-                      <option value="5">주문취소</option>
-                    </select>
-                    <!--                                        <a href="#a" class="btn-srch" title="검색" onclick="searchData()"></a>-->
-                  </div>
-                </dd>
-              </dl>
-              <dl>
-                <dt>&nbsp;</dt>
-                <dd>
-                  <li>
-                    <a class="btn btn-delete" title="검색" id="searchButton1" onclick="fetchListData()">
-                      <!--                                        class 쓰이는 곳 찾고 없으면 클래스명 수정하기-->
-                      <img src="/images/icon/btn-srch.svg" alt="검색 아이콘">
-                      검색
-                    </a>
-                  </li>
-                </dd>
-              </dl>
-            </div>
-          </div>
-          <div class="container-fluid">
-            <p id="selectedItem"></p>
-            <div id="theGrid" style="max-height: 714px"></div>
-          </div>
-        </section>
         <!--      주문 의뢰 현황 종료          -->
       </div> <!--//tab-contens end-->
     </div> <!--//tab-wrap end-->
@@ -441,212 +144,14 @@
     <p>Copyrightⓒ 0000 corp. All rights reserved.</p>
   </footer>
   <div style="height: 10px"></div>
-
-  <div class="modal">
-    <div class="popup-wrapper w700" id="popup1">
-      <div class="popup-title">
-        <h3>파일 업로드</h3>
-        <a title="팝업닫기" onclick="closePopup('popup1')" class="btn-popup-close">
-          <img src="/images/icon/btn-popup-close.svg" alt="닫기">
-        </a>
-      </div>
-      <div class="popup-contents">
-        <div class="table-wrap">
-          <table class="write-table">
-            <caption>전기안전 점검 첨부파일</caption>
-            <colgroup>
-              <col class="wp20">
-              <col class="wp80">
-            </colgroup>
-            <tbody>
-            <tr>
-              <th>
-                첨부파일
-              </th>
-              <td>
-                <div id="uploadComponent2" class="upload-component2">
-                  <div class="upload-filebox2">
-                    <img src="/images/icon/ico-fileupload.svg" alt="업로드아이콘">
-                    <a class="btn" title="파일업로드">파일 업로드</a>
-                    <input type="file" id="fileInput2" class="fileInput2" multiple>
-                    <p>Maximun upload file size <span>1GiB</span></p>
-                  </div>
-
-                  <div class="upload-filelist2">
-                    <div class="title">
-                      <h5>Files (0)</h5>
-                      <a title="Delete all" class="btn-file-deleteall2">Delete all</a>
-                    </div>
-                    <ul class="filelist2" id="filelist2">
-                    </ul>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="popup-button">
-          <button type="button" onclick="closePopup('popup1')" class="btn-navy">확인</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!--요청사항 popup -->
-  <div class="modal">
-    <div class="popup-wrapper w700" id="popup2" style="min-width: 1050px">
-      <div class="popup-title">
-        <h3>옵션 및 요청사항</h3>
-        <a title="팝업닫기" onclick="closePopup('popup2')" class="btn-popup-close">
-          <img src="/images/icon/btn-popup-close.svg" alt="닫기">
-        </a>
-      </div>
-      <div class="popup-contents">
-        <div class="table-wrap">
-          <colgroup>
-            <col class="wp20">
-            <col class="wp80">
-          </colgroup>
-          <div class="table-wrap">
-            <table class="write-table">
-              <caption>요청사항</caption>
-              <tbody>
-              <tr style="align-items: center">
-                <th>
-                  <label for="ordtext">
-                    내&nbsp;&nbsp;용
-                  </label>
-                </th>
-                <td colspan="3">
-                  <div class="textarea-box">
-                    <textarea id="ordtext" style="height: 300px"></textarea>
-                    <!--<p class="text-count" id="text-count">0/100</p>-->
-                  </div>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-            <a style="color: red;margin-top: 4px;margin-left: 5px;">&nbsp;&nbsp;(첨부파일 및 이미지는 파일첨부를 이용하여 주세요)</a>
-          </div>
-        </div>
-        <div class="popup-button">
-          <button type="button" onclick="endtext('popup2')" class="btn-navy">작성완료</button>
-        </div>
-      </div>
-    </div>
-  </div>
 </th:block>
 
 <th:block layout:fragment="scripts">
   <th:block th:replace="/common/columns_setting :: columns_setting"></th:block>
-  <!--  <script>-->
-  <!--    tinymce.init({-->
-  <!--      language: "ko_KR",-->
-  <!--      selector: "#ordtext",-->
-  <!--      plugins: "image",-->
-  <!--      height: 500,-->
-  <!--      width: 900,-->
-  <!--      toolbar: "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | image",-->
-  <!--      paste_data_images: false,-->
-  <!--      file_picker_types: 'image',-->
-  <!--      automatic_uploads: false, // 자동 업로드 비활성화-->
 
-  <!--      // 파일 선택기 콜백-->
-  <!--      file_picker_callback: function (callback, value, meta) {-->
-  <!--        if (meta.filetype === 'image') {-->
-  <!--          const input = document.createElement('input');-->
-  <!--          input.setAttribute('type', 'file');-->
-  <!--          input.setAttribute('accept', 'image/*');-->
-
-  <!--          input.onchange = function () {-->
-  <!--            const file = input.files[0];-->
-  <!--            if (file) {-->
-  <!--              const formData = new FormData();-->
-  <!--              formData.append('file', file);-->
-
-  <!--              // 업로드 요청-->
-  <!--              fetch('/api/request/request/uploadEditor', {-->
-  <!--                method: 'POST',-->
-  <!--                body: formData,-->
-  <!--                headers: {-->
-  <!--                  'X-CSRF-Token': csrfToken // CSRF 토큰 추가-->
-  <!--                }-->
-  <!--              })-->
-  <!--                      .then(response => response.json())-->
-  <!--                      .then(data => {-->
-  <!--                        if (data.location) {-->
-  <!--                          // 업로드된 URL을 에디터에 삽입-->
-  <!--                          callback(data.location, { alt: file.name });-->
-  <!--                        }-->
-  <!--                      })-->
-  <!--                      .catch(error => {-->
-  <!--                        console.error('Image upload failed:', error);-->
-  <!--                        alert('이미지 업로드에 실패했습니다.');-->
-  <!--                      });-->
-  <!--            }-->
-  <!--          };-->
-
-  <!--          input.click(); // 파일 탐색기 열기-->
-  <!--        }-->
-  <!--      }-->
-  <!--    });-->
-  <!--  </script>-->
-  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-  <script>
-    //본 예제에서는 도로명 주소 표기 방식에 대한 법령에 따라, 내려오는 데이터를 조합하여 올바른 주소를 구성하는 방법을 설명합니다.
-    function sample4_execDaumPostcode() {
-      new daum.Postcode({
-        oncomplete: function (data) {
-          // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
-
-          // 도로명 주소의 노출 규칙에 따라 주소를 표시한다.
-          // 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
-          var roadAddr = data.roadAddress; // 도로명 주소 변수
-          var extraRoadAddr = ''; // 참고 항목 변수
-
-          // 법정동명이 있을 경우 추가한다. (법정리는 제외)
-          // 법정동의 경우 마지막 문자가 "동/로/가"로 끝난다.
-          if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-            extraRoadAddr += data.bname;
-          }
-          // 건물명이 있고, 공동주택일 경우 추가한다.
-          if (data.buildingName !== '' && data.apartment === 'Y') {
-            extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
-          }
-          // 표시할 참고항목이 있을 경우, 괄호까지 추가한 최종 문자열을 만든다.
-          if (extraRoadAddr !== '') {
-            extraRoadAddr = ' (' + extraRoadAddr + ')';
-          }
-
-          // 우편번호와 주소 정보를 해당 필드에 넣는다.
-          document.getElementById('postno').value = data.zonecode;
-          document.getElementById("address1").value = roadAddr;
-          document.getElementById("placeAddress").value = data.jibunAddress;
-
-          var guideTextBox = document.getElementById("guide");
-          // 사용자가 '선택 안함'을 클릭한 경우, 예상 주소라는 표시를 해준다.
-          if (data.autoRoadAddress) {
-            var expRoadAddr = data.autoRoadAddress + extraRoadAddr;
-            guideTextBox.innerHTML = '(예상 도로명 주소 : ' + expRoadAddr + ')';
-            guideTextBox.style.display = 'block';
-
-          } else if (data.autoJibunAddress) {
-            var expJibunAddr = data.autoJibunAddress;
-            guideTextBox.innerHTML = '(예상 지번 주소 : ' + expJibunAddr + ')';
-            guideTextBox.style.display = 'block';
-          } else {
-            guideTextBox.innerHTML = '';
-            guideTextBox.style.display = 'none';
-          }
-        }
-      }).open();
-    }
-  </script>
   <script type="text/javascript">
 
-    var theGrid;
     var theGrid2;
-    var viewdata1;
     var viewdata2;
     let SelectItem;
     let csrfToken = $("[name=_csrf]").val();
@@ -665,98 +170,24 @@
     // 이번 달 1일을 설정
     const firstDayOfMonth = `${currentYear}-${currentMonth}-01`;
 
-    // input 값 설정
-    document.getElementById('startDate').value = firstDayOfMonth;
-    document.getElementById('endDate').value = today;
-    document.getElementById('reqdate').value = today;
-
     <!-- 초반 페이지 진입시 그리드 바인딩 끝-->
     function init() {
-      // 🔹 sessionStorage에서 데이터 가져오기
-      const rowData = sessionStorage.getItem("selectedRowData");
-      const tabAction = sessionStorage.getItem("tabAction"); // ✅ 추가: tabAction 값 가져오기
-      const sessionDate = sessionStorage.getItem("sessionDate");
+      // 결재문서코드 불러오기 (comcd에 바인드)
+      getComcd();
+      // 선택된 문서코드 결재라인 그리드
+      fetchListData2();
 
-      if (rowData) {
-        // 🔹 JSON 파싱하여 데이터 추출
-        const parsedData = JSON.parse(rowData);
-        console.log("✅ sessionStorage 데이터 있음:", parsedData);
 
-        // 필요한 값들 추출
-        const { saupnum, reqnum, reqdate, cltnm } = parsedData;
 
-        console.log("사업자번호 (saupnum):", saupnum);
-        document.getElementById("saupnumHidden").value = saupnum;
-        document.getElementById("reqnum").value = reqnum;
-        document.getElementById("reqdate").value = reqdate;
-        document.getElementById("searchComnm").value = cltnm;
-        document.getElementById("startDate").value = reqdate;
-        document.getElementById("endDate").value = reqdate;
-        // `saupnum`을 포함해서 데이터 요청
-        // 업체명 readonly 제거
-        document.getElementById("searchComnm").removeAttribute("readonly");
-        // 신규등록버튼 제거
-        document.getElementById("newdataBtn").style.display = "none";
-        //`saupnum`을 포함해서 데이터 요청
-        fetchListData(saupnum);
-        fetchListData2(saupnum);
-        getMyInfo(saupnum);
-        activateSection();
-
-        // 2초 후에 sessionStorage 데이터 삭제
-        setTimeout(() => {
-          sessionStorage.removeItem("selectedRowData");
-          console.log("🗑️ sessionStorage 데이터 삭제 완료");
-        }, 2000);
-      } else {
-        if(sessionDate != null){
-          document.getElementById("startDate").value = sessionDate;
-          document.getElementById("endDate").value = sessionDate;
-        }
-        console.warn("⚠️ sessionStorage에 저장된 데이터 없음. 기본 요청 실행");
-
-        // 🔹 기존 방식대로 실행 (인자 없이)
-        async function fetchData() {
-          try {
-            await getMyInfo();   // ✅ getMyInfo()가 완료될 때까지 기다림
-            fetchListData();  // ✅ getMyInfo 완료 후 실행
-            fetchListData2(); // ✅ fetchListData 완료 후 실행
-          } catch (error) {
-            console.error("❌ 오류 발생:", error);
-          }
-        }
-        // 실행
-        fetchData();
-      }
-
-      // ✅ tabAction 값이 있으면 실행 후 삭제
-      if (tabAction) {
-        setTimeout(() => {
-          console.log("🔄 tabAction 값 존재, init 실행!");
-          sessionStorage.removeItem("tabAction"); // 실행 후 제거
-          sessionStorage.removeItem("selectedRowData");
-          sessionStorage.removeItem("sessionDate")
-          console.log("🗑️ sessionStorage.tabAction 데이터 삭제 완료");
-        }, 2000);
-      }
     }
 
-    // ✅ 탭이 활성화될 때 `tabAction` 값을 확인하고 `init()` 실행
-    window.addEventListener("storage", function (event) {
-      if (event.key === "tabAction" && event.newValue) {
-        console.log("📢 tabAction 감지됨! init 실행");
-        init();
-      }
-    });
-
-    function activateSection() {
-      $(".tab-item").hide(); // 모든 섹션 숨기기
-      $("#tab1").show(); // 해당 섹션 표시
-      $(".tab-links li").removeClass("active"); // 모든 탭에서 active 제거
-
-      // 특정 title을 가진 <a> 태그를 찾아 해당 <li>에 active 추가
-      $(".tab-links a[title='주문 등록']").parent("li").addClass("active");
-    }
+    // DOM이 완전히 준비된 후에 특정 코드 실행
+    $(document).ready(function (e) {
+      // const selectElementId2 = ['exfmtypedv','infmtypedv','stframedv','stexplydv'];
+      // for (const items of selectElementId2){
+      //   getListCgrb(items);
+      // }
+    })
 
     // 주문현황 더블클릭 이벤트 기존탭 최신화
     document.addEventListener("DOMContentLoaded", function () {
@@ -777,223 +208,20 @@
         window.parent.postMessage({ action: "requestInit" }, "*");
       }, 200);
     });
-
-
-    // 주문/진행현황 그리드
-    function fetchListData(saupnum) {
-      let data2 = [];
-      const transformedData = []; // 변환된 데이터를 저장할 배열
+    // 문서코드 리스트 불러와 comcd(select)속성(option)으로 바인드
+    function getComcd() {
       $.ajax({
-        url: '/api/request/request/order_read',
+        url: '/api/request/request/getComcd',
         type: 'GET',
-        data: {
-          'saupnum':saupnum,
-          'saupnumHidden': $('#saupnumHidden').val(),
-          'search_startDate': $('#startDate').val(),
-          'search_endDate': $('#endDate').val(),
-          'search_remark': $('#searchRemark').val(),
-          'search_ordflag': $('#searchOrdflag').val(),
-          'search_comnm': $('#searchComnm').val()
-        },
+        data: {},
         async: false,
         success: function (data) {
           data2 = data.data;
+          data2.forEach(item =>{
+            // 바인드
+          })
         }
       })
-      // bd_details를 파싱하여 배열로 변환
-      // bd_details가 유효한 JSON 문자열일 때만 파싱
-
-      const seenReqnum = new Set(); // reqnum을 기준으로 중복을 확인
-      data2.forEach(item => {
-        item.bd_hgrb = getHgrb((item.bd_hgrb));
-        item.bd_exfmtypedv = getListCgrb2(item.bd_exfmtypedv);
-        item.bd_infmtypedv = getListCgrb2(item.bd_infmtypedv);
-        item.bd_stframedv = getListCgrb2(item.bd_stframedv);
-        item.bd_stexplydv = getListCgrb2(item.bd_stexplydv);
-        item.originOrdtext = item.bd_ordtext;
-      });
-      viewdata1 = new wijmo.collections.CollectionView(data2); // 변환된 데이터를 CollectionView로 변환
-      const minRows = 12; // 최소 행 수
-      const rowTemplate = {
-        ordflag: null,
-        reqdate: null,
-        deldate: null,
-        panel_ht: null,
-        panel_hw: null,
-        panel_hl: null,
-        panel_hh: null,
-        remark: null,
-        downloads: null,
-        bd_hgrb: null,
-        bd_qty: null,
-        bd_panel_t: null,
-        bd_panel_w: null,
-        bd_panel_l: null,
-        bd_exfmtypedv: null,
-        bd_infmtypedv: null,
-        bd_stframedv: null,
-        bd_stexplydv: null,
-        bd_ordtext: null,
-        telno: null,
-        perid: null,
-        cltaddr: null,
-        reqnum: null,
-        isdownload: null,
-        hd_files: null,
-        saupnum:null,
-        originOrdtext: null
-      }; // 필요한 데이터 구조
-
-// 빈 행 추가
-      while (viewdata1.sourceCollection.length < minRows) {
-        viewdata1.sourceCollection.push({ ...rowTemplate });
-      }
-
-      if (!theGrid) {
-        // 데이터 그리드에 바인딩
-        theGrid = new wijmo.grid.FlexGrid('#theGrid', {
-          autoGenerateColumns: false,
-          showMarquee: true,
-          isReadOnly: true,
-          selectionMode: wijmo.grid.SelectionMode.Row,
-          columns: [
-            {binding: 'ordflag', header: '진행구분', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'cltnm', header: '업체명', width: '*', minWidth: 105, align: 'center'},
-            {binding: 'reqdate', header: '주문일자', width: '*', minWidth: 120, align: 'center'},
-            {binding: 'deldate', header: '납품희망일', width: '*', minWidth: 120, align: 'center'},
-            {binding: 'panel_ht', header: '두께', width: '*', minWidth: 70, align: 'right'},
-            {binding: 'panel_hw', header: '폭', width: '*', minWidth: 70, align: 'right'},
-            {binding: 'panel_hl', header: '길이', width: '*', minWidth: 70, align: 'right'},
-            {binding: 'panel_hh', header: '높이', width: '*', minWidth: 70, align: 'right'},
-            {binding: 'remark', header: '제목', width: '*', minWidth: 250, align: 'left'},
-            {binding: 'downloads', header: '첨부파일', width: '*', minWidth: 105, align: 'center'},
-
-            {binding: 'reqnum', visible: false},  // 숨길 컬럼
-            {binding: 'isdownload', visible: false},
-            {binding: 'hd_files', visible: false},
-            {binding: 'originOrdtext', visible: false},
-            {binding: 'saupnum', visible: false},
-          ],
-          itemsSource: viewdata1,
-          itemFormatter: function (panel, r, c, cell) {
-            if (panel.cellType === wijmo.grid.CellType.Cell) {
-              var item = panel.rows[r].dataItem; // 현재 행의 데이터 항목
-              if (panel.columns[c].binding === 'downloads') {
-                cell.innerHTML = ''; // 셀 내용 초기화
-                if (item.isdownload) {
-                  cell.innerHTML = '<a title="다운로드" class="btn-filedown" onclick="downloadFile_order()">다운로드</a>';
-                }
-              }
-              if (panel.columns[c].binding === 'bd_ordtext') {
-                if (item.bd_ordtext) {
-                  cell.innerHTML = '<a title="수정팝업" class="" onclick="showPopup2(\'popup2\')" style="color: #03428E">요청사항 확인</a>';
-                }
-              }
-            }
-          }
-        });
-        // 헤더를 중앙 정렬하는 이벤트 핸들러
-        theGrid.formatItem.addHandler(function (s, e) {
-          if (e.panel === s.columnHeaders) {
-            e.cell.style.textAlign = 'center';
-          }
-        });
-        // 더블클릭 이벤트
-        theGrid.hostElement.addEventListener('dblclick', function (e) {
-          // 그리드의 셀 정보 가져오기
-          let hitTest = theGrid.hitTest(e);
-          if (hitTest.cellType === wijmo.grid.CellType.Cell) {
-            // 행(row), 행의 데이터(item) 정보 가져오기
-            let row = hitTest.row;
-            let item = theGrid.rows[row].dataItem;
-            if (!item.ordflag && item.reqnum) {
-              let hdRow = viewdata1.items.find(data => data.reqnum === item.reqnum && data.ordflag);
-              if (hdRow) {
-                document.getElementById('reqdate').value = hdRow.reqdate;
-                document.getElementById('deldate').value = hdRow.deldate;
-                document.getElementById('telno').value = hdRow.telno;
-                document.getElementById('perid').value = hdRow.perid;
-                document.getElementById('postno').value = hdRow.cltzipcd;
-                document.getElementById('address1').value = hdRow.cltaddr;
-                document.getElementById('panel_ht').value = hdRow.panel_ht;
-                document.getElementById('panel_hw').value = hdRow.panel_hw;
-                document.getElementById('panel_hl').value = hdRow.panel_hl;
-                document.getElementById('panel_hh').value = hdRow.panel_hh;
-                document.getElementById('remark').value = hdRow.remark;
-              }
-            }else {
-              document.getElementById('reqdate').value = item.reqdate;
-              document.getElementById('deldate').value = item.deldate;
-              document.getElementById('telno').value = item.telno;
-              document.getElementById('perid').value = item.perid;
-              document.getElementById('postno').value = item.cltzipcd;
-              document.getElementById('address1').value = item.cltaddr;
-              document.getElementById('panel_ht').value = item.panel_ht;
-              document.getElementById('panel_hw').value = item.panel_hw;
-              document.getElementById('panel_hl').value = item.panel_hl;
-              document.getElementById('panel_hh').value = item.panel_hh;
-              document.getElementById('remark').value = item.remark;
-            }
-            let fileList = Array.isArray(item.hd_files) ? item.hd_files : [];
-
-            deletedFiles2 = [];
-            uploadedFiles2 = [];
-
-            fileList.forEach(file => {
-              let newFile = {
-                name: file.fileornm,
-                type: file.fileextns,
-                size: file.filesize,
-                fileid: file.fileid,
-                reqseq: item.reqseq,
-                lastModified: new Date().getTime(),
-              };
-              uploadedFiles2.push(newFile); // 파일 리스트에 추가
-            });
-
-
-            $('.filelist2').empty(); // 파일 리스트 초기화
-            updateFileCount2();
-            updateFileListUI2();
-
-            // document.getElementById('qty').value = item.bd_details.qty;
-            // document.getElementById('panel_t').value = item.bd_details.panel_t;
-            // document.getElementById('panel_w').value = item.bd_details.panel_w;
-            // document.getElementById('panel_l').value = item.bd_details.panel_l;
-            // document.getElementById('ordtext').value = item.bd_details.ordtext;
-            //
-            // const selectHgrb = document.getElementById('hgrb');
-            // const selectExfmtypedv = document.getElementById('exfmtypedv');
-            // const selectInfmtypedv = document.getElementById('infmtypedv');
-            // const selectStframedv = document.getElementById('stframedv');
-            // const selectStexplydv = document.getElementById('stexplydv');
-            //
-            // const selectedItem = item;
-            //
-            // setSelectedIndex(selectHgrb, selectedItem.bd_details.hgrb);
-            // setSelectedIndex(selectExfmtypedv, selectedItem.bd_details.exfmtypedv);
-            // setSelectedIndex(selectInfmtypedv, selectedItem.bd_details.infmtypedv);
-            // setSelectedIndex(selectStframedv, selectedItem.bd_details.stframedv);
-            // setSelectedIndex(selectStexplydv, selectedItem.bd_details.stexplydv);
-            document.getElementById('btnSave').title = "수정";
-            document.getElementById('reqnum').value = item.reqnum;
-            resetBodyField();
-            const tab1Link = document.getElementById('listTabLink');
-            tab1Link.click();
-            fetchListData2();
-          }
-        })
-        // FlexGrid의 최대 높이를 제한하여 스크롤바를 활성화
-        theGrid.hostElement.style.maxHeight = '650px'; // 약 12개의 행 높이에 맞게 설정
-        theGrid.hostElement.style.overflowY = 'auto';
-        // 선택이 변경될 때, 현재 항목 업데이트
-        theGrid.rowHeaders.columns.splice(0, 1);  //맨 앞에 헤더부분 없애기
-        new FlexGridContextMenu(theGrid);
-        window.downloadFileName = '주문등록 첨부파일';
-      } else {
-        // 이미 FlexGrid이 존재하는 경우, 데이터만 업데이트
-        theGrid.itemsSource = viewdata1;
-      }
     }
 
     // 주문등록 세부내용 그리드
@@ -1004,22 +232,17 @@
         url: '/api/request/request/read',
         type: 'GET',
         data: {
-          'saupnumHidden': $('#saupnumHidden').val(),
-          'saupnum':saupnum,
-          'reqnum': $('#reqnum').val(),
-          'reqdate': $('#reqdate').val()
+          'comcd': $('#comcd').val()
         },
         async: false,
         success: function (data) {
           data2 = data.data;
           data2.forEach(item =>{
-            item.hgrb = getHgrb((item.hgrb));
-            item.exfmtypedv = getListCgrb2(item.exfmtypedv);
-            item.infmtypedv = getListCgrb2(item.infmtypedv);
-            item.stframedv = getListCgrb2(item.stframedv);
-            item.stexplydv = getListCgrb2(item.stexplydv);
-            item.originOrdtext = item.ordtext;
           })
+          // data2의 개수가 5개 미만인 경우 빈 객체 추가
+          while (data2.length < 5) {
+            data2.push({});
+          }
         }
       })
 
@@ -1034,20 +257,11 @@
           isReadOnly: true,
           selectionMode: wijmo.grid.SelectionMode.Row,
           columns: [
-            {binding: 'hgrb', header: '제품구성', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'qty', header: '수량', width: 80, align: 'right'},
-            {binding: 'panel_t', header: 'T', width: 80, align: 'right'},
-            {binding: 'panel_w', header: 'W/H', width: 80, align: 'right'},
-            {binding: 'panel_l', header: 'L', width: 80, align: 'right'},
-            {binding: 'exfmtypedv', header: '외부마감재', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'infmtypedv', header: '외부보강재', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'stframedv', header: '내부보강재', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'stexplydv', header: '내부마감재', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'ordtext', header: '옵션 및 요청사항', width: '*', minWidth: 100, align: 'left'},
-            {binding: 'originOrdtext', visible: false},
-            {binding: 'reqseq', visible: false},
-            {binding: 'isnew', visible: false},
-            {binding: 'saupnum',visible: false}
+            {binding: 'index', header: 'No', width: 80, align: 'right'},
+            {binding: 'kcperid', header: '결재자코드', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'kcpernm', header: '결재자명', width: '*', minWidth: 100, align: 'right'},
+            {binding: 'papercd', header: '구분', width: '*', minWidth: 100, align: 'right'},
+            {binding: 'seq', header: '결재순서', width: '*', minWidth: 100, align: 'right'}
           ],
           itemsSource: viewdata2,
           itemFormatter: function (panel, r, c, cell) {
@@ -1136,398 +350,12 @@
       }
     }
 
-    // 주문등록
-    function saveOrder(){
-      // 필수 입력 필드 검사
-      let requiredFields = [
-        {id: '#reqdate', label: '주문일자를 작성해주세요'},
-        {id: '#deldate', label: '납품희망일을 선택해주세요'},
-        {id: '#telno', label: '연락처를 작성해주세요'},
-        {id: '#perid', label: '담당자명을 작성해주세요'},
-        {id: '#address1', label: '주소를 작성해주세요'},
-        {id: '#remark', label: '제목을 작성해주세요'}
-      ];
-      // 세부사항이 작성중인지 여부를 판단하여 저장시 작성중인 세부사항은 저장되지 않는다 알림
-      let writeFields = [
-        {id: '#qty', label: '작성중인 세부사항은 저장되지 않습니다.\n세부사항 추가 버튼을 클릭하여 등록해주세요'},
-        {id: '#panel_t', label: '작성중인 세부사항은 저장되지 않습니다.\n세부사항 추가 버튼을 클릭하여 등록해주세요'},
-        {id: '#panel_w', label: '작성중인 세부사항은 저장되지 않습니다.\n세부사항 추가 버튼을 클릭하여 등록해주세요'},
-        {id: '#panel_l', label: '작성중인 세부사항은 저장되지 않습니다.\n세부사항 추가 버튼을 클릭하여 등록해주세요'},
-      ]
-      // 세부항목 행 추가 여부 검사
-      const allRowsEmpty = viewdata2.sourceCollection.every(row => !row.hgrb || row.hgrb === '');
-      if (allRowsEmpty) {
-        Alert.alert('', '세부항목에 추가된 항목이 없습니다.');
-        return;
-      }
-
-      for (let i = 0; i < requiredFields.length; i++) {
-        let field = requiredFields[i];
-        let $element = $(field.id);
-        let value = $element.val();
-
-        // 요소가 존재하지 않거나, 값이 빈 문자열(선택되지 않은 경우)인 경우 경고
-        if ($element.length === 0 || value === null || value.trim() === '') {
-          Alert.alert('', field.label);
-          return;
-        }
-      }
-
-      for (let i = 0; i < writeFields.length; i++) {
-        let field = writeFields[i];
-        let $element = $(field.id);
-        let value = $element.val();
-
-        // 요소가 존재하는 경우 경고
-        if (value !== null && value.trim() !== '') {
-          Alert.alert('', field.label);
-          return;
-        }
-      }
-      // title 값을 가져오기
-      const title = document.getElementById('btnSave').title;
-
-      // 알림 메시지를 결정하는 변수
-      let alertMessage;
-      // title 값에 따라 알림 메시지 설정
-      if (title === "저장") {
-        alertMessage = '저장하시겠습니까?';
-      } else {
-        alertMessage = '수정하시겠습니까?';
-      }
-      Alert.confirm('', alertMessage, function () {
-        // 주문번호 생성
-        let formData = new FormData();
-        // 다른 데이터를 FormData에 추가합니다.
-        formData.append('saupnumHidden', $('#saupnumHidden').val());
-        formData.append('reqdate', $('#reqdate').val());
-        formData.append('deldate', $('#deldate').val());
-        formData.append('telno', $('#telno').val());
-        formData.append('perid', $('#perid').val());
-        formData.append('postno', $('#postno').val());
-        formData.append('address1', $('#address1').val());
-        formData.append('panel_ht', $('#panel_ht').val());
-        formData.append('panel_hw', $('#panel_hw').val());
-        formData.append('panel_hl', $('#panel_hl').val());
-        formData.append('panel_hh', $('#panel_hh').val());
-        formData.append('remark', $('#remark').val());
-        formData.append('reqnum', $('#reqnum').val());
-
-        let bodyForms = [];
-        // 그리드 행의 데이터를 detailForm 객체에 저장하는 함수
-        function extractGridData() {
-          // 그리드가 초기화된 상태인지 확인
-          if (!theGrid2) {
-            console.error("세부항목 데이터가 존재하진 않습니다.");
-            return;
-          }
-          // 모든 그리드 행 데이터를 순회하여 detailForms에 추가
-          for (let i = 0; i < theGrid2.rows.length; i++) {
-            // 각 행의 데이터를 객체로 생성
-            let rowData = theGrid2.rows[i].dataItem;
-            // rowData가 null인지 확인
-            if (rowData && rowData.hgrb !== undefined) {
-              let bodyForm = {
-                hgrb: getHgrb2(rowData.hgrb),
-                qty: rowData.qty,
-                panel_t: rowData.panel_t,
-                panel_w: rowData.panel_w,
-                panel_l: rowData.panel_l,
-                exfmtypedv: getListCgrb3(rowData.exfmtypedv),
-                infmtypedv:getListCgrb3(rowData.infmtypedv),
-                stframedv: getListCgrb3(rowData.stframedv),
-                stexplydv: getListCgrb3(rowData.stexplydv),
-                ordtext: rowData.ordtext,
-                reqseq: rowData.reqseq
-              };
-              // bodyForms 배열에 detailForm 객체 추가
-              bodyForms.push(bodyForm);
-            }
-          }
-        }
-        extractGridData();
-        formData.append('bodyData', JSON.stringify(bodyForms));
-        // 새로 추가된 파일만 폼 데이터에 추가
-        uploadedFiles2.forEach((file, index) => {
-          formData.append('filelist', file);
-        });
-
-        // 삭제된 파일 목록 추가
-        deletedFiles2.forEach((file, index) => {
-          formData.append('deletedFiles2', new Blob([JSON.stringify(file)], {type: 'application/json'}));
-        });
-        function sendAjaxRequest(url) {
-          $.ajax({
-            url: url,
-            type: 'POST',
-            data: formData,
-            processData: false,
-            contentType: false,
-            headers: {
-              'X-CSRF-Token': $('[name=_csrf]').val() // CSRF 토큰을 헤더에 추가
-            },
-            success: handleAjaxResponse,
-            error: function () {
-              Alert.alert('', '에러가발생하였습니다.');
-            }
-          });
-        }
-
-        function handleAjaxResponse(response) {
-          if (response.success) {
-            Alert.alert('', response.message, function () {
-              fetchListData();
-              resetFormFields();
-            });
-          } else {
-            Alert.alert('', '저장에 실패했습니다.');
-          }
-        }
-        sendAjaxRequest('/api/request/request/save');
-      })
-    }
-    // DOM이 완전히 준비된 후에 특정 코드 실행
-    $(document).ready(function (e) {
-      const selectElementId = 'hgrb';
-      getListHgrb(selectElementId);
-      // const selectElementId2 = ['exfmtypedv','infmtypedv','stframedv','stexplydv'];
-      // for (const items of selectElementId2){
-      //   getListCgrb(items);
-      // }
-    })
-    // 제품구성 리스트 불러오는 function
-    function getListHgrb(selectElementId){
-      fetch(`/api/request/request/getListHgrb`)
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-              })
-              .then(data => {
-                const selectElement = document.getElementById(selectElementId);
-                // "전체" 옵션이 있는지 확인
-                const allOption = selectElement.querySelector('option[value=""]:not([disabled]):not([hidden])');
-                // "선택" 옵션이 있는지 확인
-                const defaultOption = selectElement.querySelector('option[value=""][disabled][hidden]');
-                // 기존 옵션 제거 (특정 옵션 제외)
-                selectElement.innerHTML = ''; // 모든 옵션 제거
-                // "전체" 옵션이 있으면 다시 추가 (선택 가능하게 설정)
-                if (allOption) {
-                  allOption.selected = true; // 전체를 기본 선택으로 유지
-                  selectElement.appendChild(allOption);
-                }
-                // "선택" 옵션이 있으면 다시 추가 (선택 불가능하게 설정)
-                if (defaultOption) {
-                  selectElement.appendChild(defaultOption);
-                }
-                data.data.forEach(item => {
-                  const option = document.createElement('option');
-                  option.value = item.hgrb;
-                  option.textContent = item.hgrbnm; // item.value를 데이터베이스의 "Value" 필드로 변경
-                  selectElement.appendChild(option);
-                });
-              })
-              .catch(error => {
-                console.error('Error fetching options:', error);
-              });
-    }
-    // `getListCgrb` 함수에서 `cgrb` 코드에 따라 이름을 반환
-    function getListCgrb2(cgrb) {
-      return cgrbMapping[cgrb] || " "; // 매칭되지 않는 경우 기본값 반환
-    }
-    // 등록시 재 매핑
-    function getListCgrb3(cgrb) {
-      return cgrbMapping2[cgrb] || " "; // 매칭되지 않는 경우 기본값 반환
-    }
-    // 보강재,마감재 리스트 불러오는 function
-    function getListCgrb(selectElementId){
-      fetch(`/api/request/request/getListCgrb`)
-              .then(response => {
-                if (!response.ok) {
-                  throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.json();
-              })
-              .then(data => {
-                const selectElement = document.getElementById(selectElementId);
-                // "전체" 옵션이 있는지 확인
-                const allOption = selectElement.querySelector('option[value=""]:not([disabled]):not([hidden])');
-                // "선택" 옵션이 있는지 확인
-                const defaultOption = selectElement.querySelector('option[value=""][disabled]:not([hidden])');
-                // 기존 옵션 제거 (특정 옵션 제외)
-                selectElement.innerHTML = ''; // 모든 옵션 제거
-                // "전체" 옵션이 있으면 다시 추가 (선택 가능하게 설정)
-                if (allOption) {
-                  allOption.selected = true; // 전체를 기본 선택으로 유지
-                  selectElement.appendChild(allOption);
-                }
-                // "선택" 옵션이 있으면 다시 추가
-                if (defaultOption) {
-                  selectElement.appendChild(defaultOption);
-                }
-                data.data.forEach(item => {
-                  const option = document.createElement('option');
-                  option.value = item.cgrb;
-                  option.textContent = item.cgrbnm; // item.value를 데이터베이스의 "Value" 필드로 변경
-                  selectElement.appendChild(option);
-                });
-              })
-              .catch(error => {
-                console.error('Error fetching options:', error);
-              });
-    }
     // 셀렉트값에 따라 id 히든으로 넘기기
     function updateSelect(selectId, hiddenInputId) {
       var selectElement = document.getElementById(selectId);
       var selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
       document.getElementById(hiddenInputId).value = selectedOptionText;
     }
-    // 세부사항 추가
-    function addBody() {
-      const isnewValue = Number(document.getElementById('isnew').value);
-
-      const newRowData = {
-        hgrb: getHgrb(document.getElementById("hgrb").value),
-        qty: Number(document.getElementById("qty").value),
-        panel_t: document.getElementById("panel_t").value,
-        panel_w: document.getElementById("panel_w").value,
-        panel_l: document.getElementById("panel_l").value,
-        exfmtypedv: getListCgrb2(document.getElementById("exfmtypedv").value),
-        infmtypedv: getListCgrb2(document.getElementById("infmtypedv").value),
-        stframedv: getListCgrb2(document.getElementById("stframedv").value),
-        stexplydv: getListCgrb2(document.getElementById("stexplydv").value),
-        reqseq: document.getElementById("reqseq").value,
-        ordtext: document.getElementById('ordtext').value,
-        originOrdtext: document.getElementById('ordtext').value,
-        isnew: isnewValue // isnewValue를 직접 사용
-      };
-
-      const sourceCollection = viewdata2.sourceCollection;
-      let isUpdated = false;  // 업데이트 여부 플래그
-
-      for (let i = 0; i < sourceCollection.length; i++) {
-
-        // reqseq가 없을 경우 isnew로 비교
-        if (newRowData.reqseq === sourceCollection[i].reqseq && newRowData.reqseq !== "") {
-          sourceCollection[i] = { ...sourceCollection[i], ...newRowData };  // Update existing row
-          isUpdated = true;  // 업데이트 플래그 설정
-          break;  // 업데이트 후 루프 종료
-        } else if (Number(newRowData.isnew) === Number(sourceCollection[i].isnew) && newRowData.isnew !== "") {
-          sourceCollection[i] = { ...sourceCollection[i], ...newRowData };  // Update existing row based on isnew
-          isUpdated = true;  // 업데이트 플래그 설정
-          break;  // 업데이트 후 루프 종료
-        }
-      }
-      // 업데이트가 이루어지지 않은 경우 새로운 행 추가
-      if (!isUpdated) {
-        const existingIsNewValues = sourceCollection.map(row => Number(row.isnew)).filter(value => !isNaN(value));
-        let newIsNewValue = 1; // 기본값
-
-        // 기존 isnew 값 중 가장 큰 값을 찾아서 1을 더함
-        if (existingIsNewValues.length > 0) {
-          newIsNewValue = Math.max(...existingIsNewValues) + 1;
-        }
-        newRowData.isnew = newIsNewValue; // 새로운 isnew 값을 설정
-        viewdata2.addNew(newRowData);  // Add new row
-      }
-      viewdata2.sourceCollection = [...sourceCollection]; // 참조 갱신
-      viewdata2.commitEdit(); // 변경 사항 커밋
-      viewdata2.refresh(); // 데이터 소스 갱신
-      theGrid2.itemsSource = [...viewdata2.sourceCollection]; // 그리드 데이터 재설정
-      theGrid2.refresh(); // UI 갱신
-      resetBodyField();  // Reset input fields
-    }
-    // 행 복사
-    function copyLastRow() {
-      if (!theGrid2 || !theGrid2.itemsSource) {
-        alert("그리드가 초기화되지 않았습니다.");
-        return;
-      }
-
-      // 데이터 소스 확인
-      const sourceCollection = theGrid2.itemsSource || [];
-      if (sourceCollection.length === 0) {
-        alert("복사할 데이터가 없습니다.");
-        return;
-      }
-
-      // 마지막 행 데이터 가져오기
-      const lastRowData = sourceCollection[sourceCollection.length - 1];
-
-      // 새로운 데이터 생성
-      const newRowData = { ...lastRowData };
-      newRowData.reqseq = ""; // 고유값 초기화
-      newRowData.isnew = (Math.max(...sourceCollection.map(row => Number(row.isnew) || 0)) + 1); // 새로운 isnew 값
-
-      // 새로운 데이터 추가
-      sourceCollection.push(newRowData);
-
-      // 데이터 갱신 및 UI 업데이트
-      viewdata2.sourceCollection = [...sourceCollection]; // 참조 갱신
-      viewdata2.commitEdit(); // 변경 사항 커밋
-      viewdata2.refresh(); // 데이터 소스 갱신
-      theGrid2.itemsSource = [...viewdata2.sourceCollection]; // 그리드 데이터 재설정
-      theGrid2.refresh(); // UI 갱신
-
-      Alert.alert('',"행이 복사되었습니다.");
-    }
-
-
-    // 행(세부사항) 삭제(마지막 세부사항 삭제시 헤드정보도 같이 삭제)
-    function deleteBody(){
-      if(SelectItem === undefined || SelectItem.length === 0){
-        Alert.alert('', '삭제할 항목을 선택해 주세요.');
-        return;
-      }
-      Alert.confirm('', '선택된 행 내용을 삭제하시겠습니까?', function () {
-        const deletePromises = []; // 비동기 요청을 저장할 배열
-        SelectItem.forEach(selectedRow => {
-          const selectedData = selectedRow.dataItem;
-          const index = viewdata2.sourceCollection.indexOf(selectedData);
-          if (index > -1) {
-            const itemToRemove = viewdata2.sourceCollection[index]; // 삭제할 항목 가져오기
-            viewdata2.remove(itemToRemove); // CollectionView에서 항목 삭제
-            if(selectedData.reqseq !== ""){
-              const saupnumHiddenElement = document.getElementById('saupnumHidden');
-              const saupnumHidden = saupnumHiddenElement ? saupnumHiddenElement.value.trim() : "";
-
-              let deleteNum = {
-                saupnumHidden: saupnumHidden,
-                reqseq: selectedData.reqseq,
-                reqnum: document.getElementById('reqnum').value,
-                reqdate: selectedData.reqdate
-              };
-              let fnSuccess = function (res) {
-                isProcessing = false;
-                if (res.success) {
-                  fetchListData();
-                }
-              };
-              const promise = AjaxUtil.postAsyncData('/api/request/request/bodyDelete', deleteNum, fnSuccess);
-              deletePromises.push(promise);
-            }
-          }
-        });
-        viewdata2.commitEdit(); // 변경 사항 저장
-        Promise.all(deletePromises).then(() => {
-          viewdata2.commitEdit(); // 변경 사항 커밋
-          viewdata2.refresh(); // 데이터 소스 갱신
-          theGrid2.itemsSource = [...viewdata2.sourceCollection]; // 그리드 데이터 재설정
-          theGrid2.refresh(); // UI 갱신
-          // 모든 행이 빈지 검사하여 헤더 삭제 메서드 호출
-          const allRowsEmpty = viewdata2.sourceCollection.every(row => !row.hgrb || row.hgrb === '');
-          if (allRowsEmpty) {
-            deletehead();
-            fetchListData2();
-          }
-        }).catch(error => {
-          console.error('Error during deletion:', error);
-          Alert.alert('', '삭제 중 오류가 발생했습니다.');
-        });
-      })
-    }
-
 
     // 헤드정보 삭제(세부사항 존재시 안내 alert기능)
     $(document).ready(function () {
@@ -1611,51 +439,8 @@
 
       document.getElementById('btnSave').title = "저장";
     }
-    // 세부사항 제품구성 onchange 메서드
-    function changeHgrb() {
-      const reqseqElement = document.getElementById("reqseq");
-      if (reqseqElement && reqseqElement.value !== "") { // reqseq가 존재하고 값이 비어있지 않다면
-        Alert.confirm('', '새로 세부사항을 추가하시겠습니까?\n\'취소\'선택시 선택된 구성을 수정합니다.', function () {
-          resetBodyField();
-        });
-      }
-    }
-    // body 필드값 초기화
-    function resetBodyField() {
-      const fieldsToReset = [
-        'qty', 'panel_t', 'panel_w', 'panel_l', 'reqseq',
-        'exfmtypedv', 'infmtypedv', 'stframedv', 'stexplydv', 'isnew'
-      ];
-      fieldsToReset.forEach(fieldId => {
-        document.getElementById(fieldId).value = '';
-      });
-      document.getElementById('ordtext').value = '';
-    }
-    // 파일 개수 업데이트 함수
-    function updateFileCount() {
-      const fileCount = uploadedFiles2.length;
-      $('.upload-filelist2 .title h5').text(`Files (${fileCount})`);
-      $('.btn-file span').text(`(${fileCount})`);
-    }
 
-    // 다운로드
-    function downloadFile_order() {
-      let selectedItems = theGrid.selectedItems; // 선택된 항목 가져오기
-      let downloadList = [];
 
-      // 선택된 항목에서 다운로드할 파일 목록 생성
-      selectedItems.forEach(function (item) {
-        downloadList.push({
-          reqnum: item.reqnum
-        });
-      });
-
-      // 다운로드 URL 지정
-      let downloadUrl = '/api/request/request/downloader';
-
-      // Jung.js에서 정의한 downloadFiles 함수 호출
-      downloadFiles(downloadList, downloadUrl);
-    }
     // 내정보 불러오는 함수
     function getMyInfo(saupnum) {
       return new Promise((resolve, reject) => {
@@ -1682,130 +467,6 @@
       });
     }
 
-    function showPopup2(documnetId) {
-      let selectedItems = theGrid.selectedItems;
-      // 해당 ID의 팝업 요소를 찾음
-      const popup = document.getElementById(documnetId);
-
-      if (popup) {
-        // 팝업을 포함한 모달을 표시
-        const modal = popup.closest('.modal');
-        if (modal) {
-          modal.style.display = 'block';
-        }
-
-        // 요청사항에 ordtext 값을 그대로 사용하여 넣기
-        const ordtext = selectedItems[0].originOrdtext;
-
-        // 요청사항 에디터에 HTML로 content 설정
-        document.getElementById('ordtext').value = ordtext;  // 'ordtext'는
-
-        // 팝업 버튼 숨기기
-        const button = popup.querySelector('.popup-button');
-        if (button) {
-          button.style.display = 'none'; // 버튼 숨기기
-        }
-        const closebutton = popup.querySelector('.btn-popup-close');
-        if (closebutton) {
-          closebutton.onclick = function() {
-            closePopup2('popup2'); // closePopup2로 호출 메서드 변경
-          };
-        }
-
-        // 팝업을 표시
-        popup.style.display = 'block';
-
-        // 애니메이션을 위한 클래스 추가
-        requestAnimationFrame(() => {
-          popup.classList.add('show');
-          if (modal) {
-            modal.classList.add('show');
-          }
-        });
-      }
-    }
-    function showPopup3(documnetId) {
-      let selectedItems = theGrid2.selectedItems;
-      // 해당 ID의 팝업 요소를 찾음
-      const popup = document.getElementById(documnetId);
-
-      if (popup) {
-        // 팝업을 포함한 모달을 표시
-        const modal = popup.closest('.modal');
-        if (modal) {
-          modal.style.display = 'block';
-        }
-
-        // 요청사항에 ordtext 값을 그대로 사용하여 넣기
-        const ordtext = selectedItems[0].originOrdtext;
-
-        // 요청사항 HTML로 content 설정
-        document.getElementById('ordtext').value = ordtext;
-
-        // 팝업 버튼 숨기기
-        const button = popup.querySelector('.popup-button');
-        if (button) {
-          button.style.display = 'none'; // 버튼 숨기기
-        }
-        const closebutton = popup.querySelector('.btn-popup-close');
-        if (closebutton) {
-          closebutton.onclick = function() {
-            closePopup2('popup2'); // closePopup2로 호출 메서드 변경
-          };
-        }
-        // 팝업을 표시
-        popup.style.display = 'block';
-
-        // 애니메이션을 위한 클래스 추가
-        requestAnimationFrame(() => {
-          popup.classList.add('show');
-          if (modal) {
-            modal.classList.add('show');
-          }
-        });
-      }
-    }
-
-    // 접수날 onchange 휴일 미포함 +3일 납품일자 표시
-    function getHoliday() {
-      $.ajax({
-        url: '/api/request/request/getHoliday',
-        type: 'GET',
-        success: function (data) {
-          let reqDateField = document.getElementById("reqdate");
-          let deldateField = document.getElementById("deldate");
-
-          let reqDateStr = reqDateField.value;
-          if (!reqDateStr) {
-            console.error("접수날짜가 입력되지 않았습니다.");
-            return;
-          }
-
-          // YYYY-MM-DD → YYYYMMDD 변환
-          reqDateStr = reqDateStr.replace(/-/g, "");
-
-          // 📌 휴일 데이터 배열화 (YYYYMMDD 형식)
-          let holidays = [];
-          for (let i = 0; i < data.data.length; i++) {
-            if (data.data[i].holiday) {
-              holidays.push(data.data[i].holiday.toString());
-            }
-          }
-
-          let reqDate = parseDate(reqDateStr);
-          let deliveryDate = addBusinessDays(reqDate, 3, holidays);
-
-          deldateField.value = formatDate(deliveryDate);
-
-          updateDayDisplay("deldate", "deldate_day");
-        },
-        error: function (error) {
-          console.error('휴일정보를 불러오는데 실패했습니다.', error);
-        }
-      });
-    }
-
-
     // YYYYMMDD → Date 객체 변환
     function parseDate(dateStr) {
       let year = parseInt(dateStr.substring(0, 4), 10);
@@ -1822,482 +483,37 @@
       return `${yyyy}-${mm}-${dd}`;  // HTML input 필드와 호환되도록 수정
     }
 
-    // 주말 및 휴일 제외한 영업일 기준 +days 날짜 계산
-    function addBusinessDays(date, days, holidays) {
-      let count = 0;
-      let newDate = new Date(date);
 
-      while (count < days) {
-        newDate.setDate(newDate.getDate() + 1);
-        let formattedDate = formatDate(newDate).replace(/-/g, ""); // 📌 YYYYMMDD 변환
-
-        // 📌 주말(토:6, 일:0) 및 휴일 체크 수정
-        if (newDate.getDay() !== 0 && newDate.getDay() !== 6 && !holidays.includes(formattedDate)) {
-          count++;
-        }
-      }
-      return newDate;
-    }
-
-    // 요일 변환 함수
-    function getDayName(dateString) {
-      const days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
-
-      let date = new Date(dateString);
-
-      return isNaN(date.getDay()) ? "" : days[date.getDay()];
-    }
-
-
-    // 날짜 변경 시 요일 업데이트
-    function updateDayDisplay(inputId, outputId) {
-      const input = document.getElementById(inputId);
-      const output = document.getElementById(outputId);
-
-      function setDay() {
-        if (input.value) {
-          output.textContent = `(${getDayName(input.value)})`; // 선택된 날짜의 요일 표시
-        } else {
-          output.textContent = "";
-        }
-      }
-
-      input.addEventListener("change", setDay);
-      setDay();  // 초기 실행
-    }
-
-    // 페이지 로드 후 실행 (초기값 반영 및 이벤트 연결)
-    document.addEventListener("DOMContentLoaded", function () {
-      let reqdateField = document.getElementById("reqdate");
-      let deldateField = document.getElementById("deldate");
-
-      // 오늘 날짜를 가져와 설정
-      const date = new Date();
-      date.setHours(date.getHours() + 9); // UTC+9 (한국 시간)
-      const today = date.toISOString().split('T')[0]; // YYYY-MM-DD 형식
-
-      reqdateField.value = today; // reqdate 자동 설정
-
-      // reqdate 변경 시 getHoliday 자동 실행
-      reqdateField.addEventListener("change", getHoliday);
-
-      // 요일 업데이트
-      updateDayDisplay("reqdate", "reqdate_day");
-
-      // 📌 페이지 로드 시 getHoliday 실행하여 deldate 자동 설정 및 요일 업데이트
-      getHoliday();
-    });
-    // 필드값 확인후 요청사항 작성할 수 있도록 유도 메서드
-    function validateFieldsAndShowPopup(element) {
-      let writeFields = [
-        {id: '#hgrb', label: '요청사항 작성을 위해\n제품구성과 수량을 입력해주세요'},
-        {id: '#qty', label: '요청사항 작성을 위해\n제품구성과 수량을 입력해주세요'}
-      ];
-
-      for (let i = 0; i < writeFields.length; i++) {
-        let field = writeFields[i];
-        let $element = $(field.id);
-        let value = $element.val();
-
-        // ✅ 필드에 값이 존재하면 알림 띄우고 중단
-        if ($element.length === 0 || value === null || value.trim() === '') {
-          Alert.alert('', field.label);  // 경고창 띄우기
-          return;  // ✅ 문제 발생 → `showPopup()` 호출하지 않고 종료
-        }
-      }
-
-      // ✅ 모든 필드가 비어있으면 `showPopup()` 실행
-      showPopup(element);
-    }
-
-
-
-
-    function getHgrb(hgrb) {
-      switch (hgrb) {
-        case 'A0': return "지붕";
-        case 'AA': return "지붕1";
-        case 'AB': return "지붕2";
-        case 'AC': return "지붕3";
-        case 'AD': return "지붕4";
-        case 'AE': return "지붕5";
-        case 'AF': return "지붕6";
-        case 'B0': return "바닥";
-        case 'BA': return "바닥1";
-        case 'BB': return "바닥2";
-        case 'BC': return "바닥3";
-        case 'BD': return "바닥4";
-        case 'BE': return "바닥5";
-        case 'BF': return "바닥6";
-        case 'C0': return "옆장";
-        case 'C1': return "옆장1";
-        case 'C2': return "옆장2";
-        case 'C3': return "옆장3";
-        case 'C4': return "옆장4";
-        case 'C5': return "옆장5";
-        case 'C6': return "옆장6";
-        case 'CA': return "운전석";
-        case 'CB': return "운전석1";
-        case 'CC': return "운전석2";
-        case 'CD': return "운전석3";
-        case 'CE': return "운전석4";
-        case 'CF': return "운전석5";
-        case 'CG': return "운전석6";
-        case 'CN': return "조수석";
-        case 'CO': return "조수석1";
-        case 'CP': return "조수석2";
-        case 'CQ': return "조수석3";
-        case 'CR': return "조수석4";
-        case 'CS': return "조수석5";
-        case 'CT': return "조수석6";
-        case 'D0': return "앞장";
-        case 'DA': return "앞장1";
-        case 'DB': return "앞장2";
-        case 'DC': return "앞장3";
-        case 'DD': return "앞장4";
-        case 'DE': return "앞장5";
-        case 'DF': return "앞장6";
-        case 'E0': return "뒷장";
-        case 'EA': return "뒷장1";
-        case 'EB': return "뒷장2";
-        case 'EC': return "뒷장3";
-        case 'ED': return "뒷장4";
-        case 'EE': return "뒷장5";
-        case 'EF': return "뒷장6";
-        case 'F0': return "칸막이";
-        case 'FA': return "칸막이1";
-        case 'FB': return "칸막이2";
-        case 'FC': return "칸막이3";
-        case 'FD': return "칸막이4";
-        case 'FE': return "칸막이5";
-        case 'FF': return "칸막이6";
-        case 'G0': return "도어";
-        case 'GA': return "도어1";
-        case 'GB': return "도어2";
-        case 'GC': return "도어3";
-        case 'GD': return "도어4";
-        case 'GE': return "도어5";
-        case 'GF': return "도어6";
-        case 'H0': return "미닫이";
-        case 'HA': return "미닫이1";
-        case 'HB': return "미닫이2";
-        case 'HC': return "미닫이3";
-        case 'HD': return "미닫이4";
-        case 'HE': return "미닫이5";
-        case 'HF': return "미닫이6";
-        case 'I0': return "벙커";
-        case 'IA': return "벙커1";
-        case 'IB': return "벙커2";
-        case 'IC': return "벙커3";
-        case 'ID': return "벙커4";
-        case 'IE': return "벙커5";
-        case 'IF': return "벙커6";
-        case 'Z0': return "기타";
-        case 'Z1': return "기타1";
-        case 'Z2': return "기타2";
-        case 'Z3': return "기타3";
-        case 'Z4': return "기타4";
-        case 'Z5': return "기타5";
-        case 'Z6': return "기타6";
-        default: return "알 수 없음"; // 매칭되지 않는 경우 기본값
-      }
-    }
-
-    //`cgrb` 코드별로 이름만 매핑한 객체
-    const cgrbMapping = {
-      "MAA": "AL",
-      "MAB": "GI",
-      "MAC": "GRP",
-      "MAD": "GFGW",
-      "MAE": "GFGW(B)",
-      "MAF": "H-GRO",
-      "MAG": "Anti-Bac",
-      "MAH": "Anti-Slip",
-      "MAI": "SUS",
-      "MAZ": "기타",
-      "MBA": "골드폼",
-      "MCA": "합판",
-      "MCB": "코어매트",
-      "MDA": "주제",
-      "MDB": "경화제",
-      "MAK": "Super Plus",
-      "MCF": "WPC",
-      "MBB": "PU보드",
-      "MAJ": "GI(B)",
-      "MAS": "Super Lite",
-      "MCG": "허니컴",
-      "MCC": "아마셀",
-      "MCD": "LTP",
-      "MCE": "기타",
-      "MBI": "아이소핑크",
-      "MAM": "CFRT",
-      "MAL": "WR-Impact",
-      "ZZ01": "샷시",
-      "ZZ02": "캐스팅",
-      "ZZ03": "앵글",
-      "ZZ04": "원자재",
-      "ZZ05": "CKD",
-      "ZZ06": "기타",
-      "ZZ07": "코일"
-    };
-
-    function getHgrb2(hgrb) {
-      switch (hgrb) {
-        case '지붕': return "A0";
-        case '지붕1': return "AA";
-        case '지붕2': return "AB";
-        case '지붕3': return "AC";
-        case '지붕4': return "AD";
-        case '지붕5': return "AE";
-        case '지붕6': return "AF";
-        case '바닥': return "B0";
-        case '바닥1': return "BA";
-        case '바닥2': return "BB";
-        case '바닥3': return "BC";
-        case '바닥4': return "BD";
-        case '바닥5': return "BE";
-        case '바닥6': return "BF";
-        case '옆장': return "C0";
-        case '옆장1': return "C1";
-        case '옆장2': return "C2";
-        case '옆장3': return "C3";
-        case '옆장4': return "C4";
-        case '옆장5': return "C5";
-        case '옆장6': return "C6";
-        case '운전석': return "CA";
-        case '운전석1': return "CB";
-        case '운전석2': return "CC";
-        case '운전석3': return "CD";
-        case '운전석4': return "CE";
-        case '운전석5': return "CF";
-        case '운전석6': return "CG";
-        case '조수석': return "CN";
-        case '조수석1': return "CO";
-        case '조수석2': return "CP";
-        case '조수석3': return "CQ";
-        case '조수석4': return "CR";
-        case '조수석5': return "CS";
-        case '조수석6': return "CT";
-        case '앞장': return "D0";
-        case '앞장1': return "DA";
-        case '앞장2': return "DB";
-        case '앞장3': return "DC";
-        case '앞장4': return "DD";
-        case '앞장5': return "DE";
-        case '앞장6': return "DF";
-        case '뒷장': return "E0";
-        case '뒷장1': return "EA";
-        case '뒷장2': return "EB";
-        case '뒷장3': return "EC";
-        case '뒷장4': return "ED";
-        case '뒷장5': return "EE";
-        case '뒷장6': return "EF";
-        case '칸막이': return "F0";
-        case '칸막이1': return "FA";
-        case '칸막이2': return "FB";
-        case '칸막이3': return "FC";
-        case '칸막이4': return "FD";
-        case '칸막이5': return "FE";
-        case '칸막이6': return "FF";
-        case '도어': return "G0";
-        case '도어1': return "GA";
-        case '도어2': return "GB";
-        case '도어3': return "GC";
-        case '도어4': return "GD";
-        case '도어5': return "GE";
-        case '도어6': return "GF";
-        case '미닫이': return "H0";
-        case '미닫이1': return "HA";
-        case '미닫이2': return "HB";
-        case '미닫이3': return "HC";
-        case '미닫이4': return "HD";
-        case '미닫이5': return "HE";
-        case '미닫이6': return "HF";
-        case '벙커': return "I0";
-        case '벙커1': return "IA";
-        case '벙커2': return "IB";
-        case '벙커3': return "IC";
-        case '벙커4': return "ID";
-        case '벙커5': return "IE";
-        case '벙커6': return "IF";
-        case '기타': return "Z0";
-        case '기타1': return "Z1";
-        case '기타2': return "Z2";
-        case '기타3': return "Z3";
-        case '기타4': return "Z4";
-        case '기타5': return "Z5";
-        case '기타6': return "Z6";
-        default: return "알 수 없음"; // 매칭되지 않는 경우 기본값
-      }
-    }
-
-    //`cgrb` 코드별로 이름만 매핑한 객체
-    const cgrbMapping2 = {
-      "AL": "MAA",
-      "GI": "MAB",
-      "GRP": "MAC",
-      "GFGW": "MAD",
-      "GFGW(B)": "MAE",
-      "H-GRO": "MAF",
-      "Anti-Bac": "MAG",
-      "Anti-Slip": "MAH",
-      "SUS": "MAI",
-      "기타": "MAZ",
-      "골드폼": "MBA",
-      "합판": "MCA",
-      "코어매트": "MCB",
-      "주제": "MDA",
-      "경화제": "MDB",
-      "Super Plus": "MAK",
-      "WPC": "MCF",
-      "PU보드": "MBB",
-      "GI(B)": "MAJ",
-      "Super Lite": "MAS",
-      "허니컴": "MCG",
-      "아마셀": "MCC",
-      "LTP": "MCD",
-      "기타": "MCE",
-      "아이소핑크": "MBI",
-      "CFRT": "MAM",
-      "WR-Impact": "MAL",
-      "샷시": "ZZ01",
-      "캐스팅": "ZZ02",
-      "앵글": "ZZ03",
-      "원자재": "ZZ04",
-      "CKD": "ZZ05",
-      "기타": "ZZ06",
-      "코일": "ZZ07"
-    };
-
-    function closePopup2(documentId) {
-      // 해당 ID의 팝업 요소를 찾음
-      const popup = document.getElementById(documentId);
-
-      if (popup) {
-        // 팝업을 포함한 모달을 숨김
-        const modal = popup.closest('.modal');
-        if (modal) {
-          modal.style.display = 'none';
-          modal.classList.remove('show'); // 애니메이션 제거
-        }
-
-        // 팝업 자체 숨김
-        popup.style.display = 'none';
-        popup.classList.remove('show'); // 애니메이션 제거
-
-        // 팝업 버튼 복구
-        const button = popup.querySelector('.popup-button');
-        // closepopup으로 메서드 변경
-        const closebutton = popup.querySelector('.btn-popup-close');
-        if (closebutton) {
-          closebutton.onclick = function() {
-            closePopup('popup2'); // closePopup로 호출 메서드 변경
-          };
-        }
-        document.getElementById('ordtext').value = '';
-        if (button) {
-          button.style.display = ''; // 기본 스타일로 복구
-        }
-      }
-    }
-
-    function endtext(documentId) {
-      // 해당 ID의 팝업 요소를 찾음
-      const popup = document.getElementById(documentId);
-
-      if (popup) {
-        // 팝업을 포함한 모달을 숨김
-        const modal = popup.closest('.modal');
-        if (modal) {
-          modal.style.display = 'none';
-          modal.classList.remove('show'); // 애니메이션 제거
-        }
-
-        // 팝업 자체 숨김
-        popup.style.display = 'none';
-        popup.classList.remove('show'); // 애니메이션 제거
-
-        // 팝업 버튼 복구
-        const button = popup.querySelector('.popup-button');
-        if (button) {
-          button.style.display = ''; // 기본 스타일로 복구
-          // 또는 button.classList.remove('hidden'); // 클래스 방식으로 복구
-        }
-      }
-      const isnewValue = Number(document.getElementById('isnew').value);
-      const newRowData = {
-        hgrb: getHgrb(document.getElementById("hgrb").value),
-        qty: Number(document.getElementById("qty").value),
-        panel_t: document.getElementById("panel_t").value,
-        panel_w: document.getElementById("panel_w").value,
-        panel_l: document.getElementById("panel_l").value,
-        exfmtypedv: getListCgrb2(document.getElementById("exfmtypedv").value),
-        infmtypedv: getListCgrb2(document.getElementById("infmtypedv").value),
-        stframedv: getListCgrb2(document.getElementById("stframedv").value),
-        stexplydv: getListCgrb2(document.getElementById("stexplydv").value),
-        reqseq: document.getElementById("reqseq").value,
-        ordtext: document.getElementById('ordtext').value,
-        originOrdtext: document.getElementById('ordtext').value,
-        isnew: isnewValue // isnewValue를 직접 사용
-      };
-
-      const sourceCollection = viewdata2.sourceCollection;
-      let isUpdated = false;
-
-      for (let i = 0; i < sourceCollection.length; i++) {
-        if (newRowData.reqseq === sourceCollection[i].reqseq && newRowData.reqseq !== "") {
-          sourceCollection[i] = newRowData;  // Update existing row
-          isUpdated = true;
-          break;
-        } else if (Number(newRowData.isnew) === Number(sourceCollection[i].isnew) && newRowData.isnew !== "") {
-          sourceCollection[i] = { ...sourceCollection[i], ...newRowData };  // Update existing row based on isnew
-          isUpdated = true;  // 업데이트 플래그 설정
-          break;  // 업데이트 후 루프 종료
-        }
-      }
-
-      viewdata2.sourceCollection = [...sourceCollection]; // 참조 갱신
-      viewdata2.commitEdit(); // 변경 사항 커밋
-      viewdata2.refresh(); // 데이터 소스 갱신
-      theGrid2.itemsSource = [...viewdata2.sourceCollection]; // 그리드 데이터 재설정
-      theGrid2.refresh(); // UI 갱신
-    }
-    // 가이드 web 팝업창 열기
-    function openPopup(url) {
-      // 새 창 열기
-      window.open(url, '_blank',
-              'width=1040,height=1000,toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes');
-    }
-    // enter입력시 다음 input으로 cursor이동
-    function moveFocusOnEnter(currentId, nextId) {
-      const currentElement = document.getElementById(currentId);
-      currentElement.addEventListener("keydown", function(event) {
-        if (event.key === "Enter") {
-          event.preventDefault(); // 기본 Enter 동작 방지
-          const nextElement = document.getElementById(nextId);
-          if (nextElement) {
-            nextElement.focus(); // 포커스 이동
-          }
-        }
-      });
-    }
-    moveFocusOnEnter("reqdate", "deldate");
-    moveFocusOnEnter("deldate", "telno");
-    moveFocusOnEnter("telno", "perid");
-    moveFocusOnEnter("perid", "panel_ht");
-    moveFocusOnEnter("panel_ht", "panel_hw");
-    moveFocusOnEnter("panel_hw", "panel_hl");
-    moveFocusOnEnter("panel_hl", "panel_hh");
-    moveFocusOnEnter("panel_hh", "remark");
-    moveFocusOnEnter("remark", "hgrb");
-    moveFocusOnEnter("hgrb", "qty");
-    moveFocusOnEnter("qty", "panel_t");
-    moveFocusOnEnter("panel_t", "panel_w");
-    moveFocusOnEnter("panel_w", "panel_l");
-    moveFocusOnEnter("panel_l", "exfmtypedv");
-    moveFocusOnEnter("exfmtypedv", "infmtypedv");
-    moveFocusOnEnter("infmtypedv", "stframedv");
-    moveFocusOnEnter("stframedv", "stexplydv");
+    // // enter입력시 다음 input으로 cursor이동
+    // function moveFocusOnEnter(currentId, nextId) {
+    //   const currentElement = document.getElementById(currentId);
+    //   currentElement.addEventListener("keydown", function(event) {
+    //     if (event.key === "Enter") {
+    //       event.preventDefault(); // 기본 Enter 동작 방지
+    //       const nextElement = document.getElementById(nextId);
+    //       if (nextElement) {
+    //         nextElement.focus(); // 포커스 이동
+    //       }
+    //     }
+    //   });
+    // }
+    // moveFocusOnEnter("reqdate", "deldate");
+    // moveFocusOnEnter("deldate", "telno");
+    // moveFocusOnEnter("telno", "perid");
+    // moveFocusOnEnter("perid", "panel_ht");
+    // moveFocusOnEnter("panel_ht", "panel_hw");
+    // moveFocusOnEnter("panel_hw", "panel_hl");
+    // moveFocusOnEnter("panel_hl", "panel_hh");
+    // moveFocusOnEnter("panel_hh", "remark");
+    // moveFocusOnEnter("remark", "hgrb");
+    // moveFocusOnEnter("hgrb", "qty");
+    // moveFocusOnEnter("qty", "panel_t");
+    // moveFocusOnEnter("panel_t", "panel_w");
+    // moveFocusOnEnter("panel_w", "panel_l");
+    // moveFocusOnEnter("panel_l", "exfmtypedv");
+    // moveFocusOnEnter("exfmtypedv", "infmtypedv");
+    // moveFocusOnEnter("infmtypedv", "stframedv");
+    // moveFocusOnEnter("stframedv", "stexplydv");
   </script>
 
 </th:block>
