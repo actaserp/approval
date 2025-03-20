@@ -106,7 +106,7 @@
               </dd>
             </dl>
           </div>
-          <!--<div class="button-wrap" style="border-top:none;">
+         <!-- <div class="button-wrap" style="border-top:none;">
             <ul>
               <li>
                 <a class="btn btn-excell" title="신규등록" id="Newbtn" onclick="NewSave()">
@@ -140,7 +140,7 @@
     <div class="popup-overlay" id="popup1"></div>
     <div class="popup-wrapper" id="wrapper1">
       <div class="popup-title">
-        <h3>신규 등록</h3>
+        <h3>결재 승인</h3>
         <a onclick="NewClose()" title="팝업닫기" class="btn-popup-close">
           <img src="/images/icon/btn-popup-close.svg" alt="닫기">
         </a>
@@ -150,61 +150,35 @@
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
           <div class="table-wrap">
             <table class="view-table" id="selectedData" style="max-height: 740px;">
-              <caption>마케팅관리 신규 등록 테이블</caption>
+              <caption>결재승인 테이블</caption>
               <colgroup>
                 <col class="wp20">
                 <col class="wauto">
               </colgroup>
               <tbody>
               <tr>
-                <th><label for="makcltnm"> 기관명</label></th>
-                <td colspan="3">
-                  <input id="makcltnm" name="makcltnm" class="wp100" placeholder="기관명"/>
-                  <input id="makseq" type="hidden">
-                </td>
+                <th colspan="2">PDF 보기</th>
               </tr>
               <tr>
-                <th><label for="title">제목</label></th>
-                <td colspan="3">
-                  <input id="title" name="title" class="wp100" placeholder="제 목"/>
-                </td>
-              </tr>
-              <tr>
-                <th>
-                  <label for="makcondyul">추출조건</label>
-                </th>
-                <td colspan="3">
-                  <input type="text" id="makcondyul" name="makcondyul" class="wp100" placeholder=" 추출조건 (숫자만 입력)"
-                         oninput="addPercentageSign(this)"/>
-                </td>
-              </tr>
-              <tr>
-                <th><label for="makuseyul">활용수지</label></th>
-                <td colspan="3">
-                  <input type="text" id="makuseyul" name="makuseyul" class="wp100" placeholder="활용 수치 (숫자만 입력)"
-                         oninput="addPercentageSign(this)"/>
-                </td>
-              </tr>
-              <tr>
-                <th><label for="fileInput2">첨부파일</label></th>
-                <td colspan="3">
-                  <div id="uploadComponent2" class="upload-component2">
-                    <div class="upload-filebox2">
-                      <img src="/images/icon/ico-fileupload.svg" alt="업로드아이콘">
-                      <a class="btn" title="파일업로드">파일 업로드</a>
-                      <input type="file" id="fileInput2" class="fileInput2" multiple>
-                      <p>Maximun upload file size <span>1GiB</span></p>
-                    </div>
-
-                    <div class="upload-filelist2">
-                      <div class="title">
-                        <h5>Files (0)</h5>
-                        <a title="Delete all" class="btn-file-deleteall2">Delete all</a>
-                      </div>
-                      <ul class="filelist2" id="filelist2">
-                      </ul>
+                <td colspan="2">
+                  <div id="pdfView" class="tab-item" style="display: block;">
+                    <div id="pdfContainer" style="
+                              width: 100%;
+                              height: auto;
+                              padding: 10px;
+                              background: #f8f9fa;
+                              overflow-y: auto;
+                              max-height: 600px;">
+                      <!-- PDF 페이지가 동적으로 추가됩니다. -->
                     </div>
                   </div>
+                </td>
+              </tr>
+              <tr>
+                <th><label for="remark"> 사유</label></th>
+                <td colspan="3">
+                  <input id="remark" name="remark" class="wp100" placeholder="사유"/>
+                  <input id="appnum" type="hidden">
                 </td>
               </tr>
               </tbody>
@@ -213,8 +187,10 @@
         </form>
       </div>
       <div class="popup-button">
-        <button class="btn-popup-close" onclick="NewClose()">취소</button>
-        <button class="btn-navy" id="btnSaveAuth" onclick="SaveForm()"> 저장</button>
+        <button class="btn-navy" id="" onclick=""> 반려</button>
+        <button class="btn-navy" id="" onclick="">보류</button>
+        <button class="btn-navy" id="" onclick=""> 승인</button>
+        <button class="btn-popup-close" onclick="NewClose()">종료</button>
       </div>
     </div>
   </div>
@@ -381,21 +357,124 @@
     }
     function modifyData(rowData) {
       console.log("✔️ 더블클릭한 행의 데이터:", rowData);
-      console.log("✔️ 파일 목록 데이터:", rowData.fileList || "🚨 fileList가 없습니다!");
+      let container = document.getElementById("pdfContainer");
 
-      document.getElementById('makseq').value = rowData.makseq || "";
-      document.getElementById('makcltnm').value = rowData.makcltnm || "";
-      document.getElementById('title').value = rowData.maksubject || "";
-      document.getElementById('makcondyul').value = rowData.makcondyul || "";
-      document.getElementById('makuseyul').value = rowData.makuseyul || "";
+      document.getElementById('appnum').value = rowData.appnum || "";
 
-      let fileList = document.getElementById('filelist2');
-      fileList.innerHTML = "";
-      uploadedFiles2 = [];
-      deletedFiles2 = [];
+      params={
+        appnum:$('#appnum').val()
+      }
 
+      $.ajax({
+        url: '/api/IssueInquiry/pdf',
+        type: 'GET',
+        data: params,
+        async: false,
+        success: function (response) {
+          console.log("서버에서 받은 데이터 :", response);
+          // 응답이 올바르게 도착했고, data 속성이 배열인지 확인
+          if (response && Array.isArray(response.data)) {
+            console.log("서버에서 받은 데이터 목록:", response.data); //실제 데이터 확인
+          }
+          if (response && Array.isArray(response.data)) {
+            data = response.data.map((item, index) => ({
+              rownum: index + 1,
+              appdate: item.appdate ||'',
+              appgubun : item.appgubun || '',
+              appgubun_display: item.appgubun_display ||'',
+              appnum: item.appnum || '',
+              appperid: item.appperid||'',
+              papercd: item.papercd || '',
+              remark :item.remark ||'',
+              repodate: item.repodate || '' ,
+              repoperid: item.repoperid || '' ,
+              repopernm : item.repopernm||'',
+              title: item.title ||''
+            }));
+          }
+        },
+        error: function () {
+          console.error("데이터를 가져오는 중 오류가 발생했습니다.");
+        }
+      });
+
+      // PDF 파일이 존재하는지 확인 후 PDF.js로 렌더링
+      if (pdfUrl) {
+        console.log(" PDF URL 확인:", pdfUrl);
+
+        fetch(pdfUrl, {method: 'GET', mode: 'cors'})
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(' PDF 파일을 찾을 수 없습니다.');
+            }
+            // console.log(" PDF 파일 확인 완료:", pdfUrl);
+
+            // 기존 내용 초기화 후 PDF 렌더링
+            container.innerHTML = "";
+            showPdf(pdfUrl);
+          })
+          .catch(error => {
+            console.error(error.message);
+            Alert.alert('', "PDF 파일이 존재하지 않습니다.");
+            container.innerHTML = "<p style='color:red;'>PDF를 불러올 수 없습니다.</p>";
+          });
+      }
 
     }
+
+    function showPdf(pdfUrl) {
+      console.log(" PDF.js를 사용하여 PDF 렌더링:", pdfUrl);
+
+      let container = document.getElementById("pdfContainer");
+      container.innerHTML = ""; // 기존 내용 초기화
+
+      // 🛠 스크롤 단일화 (이중 스크롤 제거)
+      container.style.overflowX = "hidden"; // 가로 스크롤 제거
+      container.style.overflowY = "hidden"; // 이중 스크롤 방지
+      container.style.maxHeight = "100vh";  // 전체 화면 높이 사용
+
+      // PDF 파일 불러오기
+      pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+        console.log(" PDF 로드 완료. 총 페이지 수:", pdf.numPages);
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          pdf.getPage(pageNum).then(page => {
+            let viewport = page.getViewport({scale: 1.5}); // 기본 스케일
+
+            // 🛠 컨테이너 너비에 맞춰 PDF를 자동 확대 (여백 없이 꽉 차게)
+            let scale = container.clientWidth / viewport.width;
+            let scaledViewport = page.getViewport({scale: scale});
+
+            // 페이지별 <canvas> 생성
+            let canvas = document.createElement("canvas");
+            canvas.classList.add("pdf-page");
+            container.appendChild(canvas);
+
+            let context = canvas.getContext("2d");
+
+            // 🛠 PDF 크기를 컨테이너에 맞게 설정 (여백 제거)
+            let scaleFactor = 3; // 3배 확대
+            canvas.width = scaledViewport.width * scaleFactor;
+            canvas.height = scaledViewport.height * scaleFactor;
+            canvas.style.width = "100%"; // 컨테이너에 맞게 꽉 채우기
+            canvas.style.height = "auto"; // 세로 비율 유지
+
+            // 고해상도 렌더링 (텍스트 선명하게)
+            let renderContext = {
+              canvasContext: context,
+              viewport: scaledViewport,
+              transform: [scaleFactor, 0, 0, scaleFactor, 0, 0]
+            };
+
+            page.render(renderContext);
+          });
+        }
+      }).catch(error => {
+        console.error(" PDF 렌더링 오류:", error);
+        alert(" PDF를 불러올 수 없습니다.");
+      });
+    }
+
     function NewSave2() {
       let popup = document.getElementById('popup1');
       let wrapper = document.getElementById('wrapper1');
@@ -428,24 +507,6 @@
         fileInput.value = "";
       }
 
-      // 파일 목록 UI 초기화
-      let fileList = document.getElementById('filelist2');
-      if (fileList) {
-        fileList.innerHTML = "";
-      }
-
-      // 파일 리스트 배열 초기화
-      uploadedFiles2 = [];
-
-      // 파일 개수 텍스트 업데이트 (실시간 반영 확인)
-      let fileCountText = document.querySelector(".upload-filelist2 h5");
-      if (fileCountText) {
-        fileCountText.textContent = `Files (${uploadedFiles2.length})`;
-      }
-      let clearButton = document.querySelector(".btn-clear");
-      if (clearButton) {
-        clearButton.remove();  // 요소 자체를 삭제
-      }
     }
 
     function fetchListData1() {
@@ -465,17 +526,22 @@
         data: params,
         async: false,
         success: function (response) {
-          console.log("서버에서 받은 데이터 :", response);
-          // 응답이 올바르게 도착했고, data 속성이 배열인지 확인
-          if (response && Array.isArray(response.data)) {
-            console.log("서버에서 받은 데이터 목록:", response.data); //실제 데이터 확인
-          }
-          if (response && Array.isArray(response.data)) {
-            data = response.data.map((item, index) => ({
-              appgubun1: (item.appgubun1 || '0') + "건",
-              appgubun2: (item.appgubun2 || '0') + "건",
-              appgubun3: (item.appgubun3 || '0') + "건"
-            }));
+          console.log("서버에서 받은 데이터:", response);
+
+          if (response && response.data) {
+            const userName = response.data.userName || ''; // 사용자 이름 가져오기
+            const paymentList = response.data.paymentList || []; // 결재 목록 가져오기
+
+            if (Array.isArray(paymentList)) {
+              console.log("서버에서 받은 데이터 목록:", paymentList);
+
+              data = paymentList.map((item) => ({
+                userName: userName, // 모든 항목에 동일한 사용자 이름 추가
+                appgubun1: (item.appgubun1 || '0') + "건",
+                appgubun2: (item.appgubun2 || '0') + "건",
+                appgubun3: (item.appgubun3 || '0') + "건"
+              }));
+            }
           }
         },
         error: function () {
@@ -483,8 +549,10 @@
         }
       });
 
-      while (data.length < 1) {
+      // 데이터가 비어 있으면 기본값 추가 (그리드가 깨지지 않도록)
+      if (data.length < 1) {
         data.push({
+          userName: '',
           appgubun1: '',
           appgubun2: '',
           appgubun3: ''
@@ -499,9 +567,10 @@
           showMarquee: true,
           isReadOnly: true,
           columns: [
-            {binding: 'appgubun1', header: '결재대기', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'appgubun2', header: '결재문서', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'appgubun3', header: '반려문서', width: '*', minWidth: 100, align: 'center'},
+            { binding: 'userName', header: '결재자명', width: '*', minWidth: 100, align: 'center' },
+            { binding: 'appgubun1', header: '결재대기', width: '*', minWidth: 100, align: 'center' },
+            { binding: 'appgubun2', header: '결재문서', width: '*', minWidth: 100, align: 'center' },
+            { binding: 'appgubun3', header: '반려문서', width: '*', minWidth: 100, align: 'center' },
           ],
           itemsSource: viewdata,
         });

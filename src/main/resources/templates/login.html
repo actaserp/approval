@@ -193,7 +193,7 @@
     <div class="dashboard-login-wrap">
         <div class="login-wrap">
             <div class="left">
-                <img src="/images/sample/login.png" alt="로그인 이미지" style="height: 626px">
+                <img src="/img/approval/approval_login.png" alt="로그인 이미지" style="height: 630px; width: 600px;">
             </div>
             <div class="right">
                 <form method="post" class="form" role="form" id="loginFrm" action="/postLogin">
@@ -236,11 +236,7 @@
                             <label for="login_chk">아이디 저장</label>
                         </div>
                         <button type="submit" class="btn-login" id="login">로그인</button>
-                        <ul class="btn-login-etc">
-                            <li>
-                                <a class="btn btn-popup-open" data-popup="popup1" title="사용자등록" onclick="RegisterUser()">사용자등록</a>
-                            </li>
-                            <li>
+                        <ul class="btn-login-etc" style="justify-content: space-around;">
                             <li>
                                 <a href="#" class="btn btn-popup-open" data-popup="popup2" title="등록확인" onclick="openModal()">등록 확인</a>
                             </li>
@@ -422,7 +418,7 @@
             <h2 style="text-align: center;">비밀번호 변경</h2>
             <form id="pwFindForm">
                 <div style="margin-top: 10px;">
-                    <label style="width: 15%;">사업자 번호: </label>
+                    <label style="width: 15%;">아이디: </label>
                     <input type="text" id="userid" name="userid" required="" maxlength="20" autocomplete="off" style="width: 80%;">
                 </div>
                 <div style="margin-top: 10px;">
@@ -431,7 +427,7 @@
                     <button type="button" style="margin: 0px;width: 17%;background: white;color: #03428E;border: 1px solid #03428E;" id="BtnAuthentication">코드발급</button>
                 </div>
                 <div class="hint-red" style="margin: 5px auto 0;">
-                    <img src="/images/icon/ico-info-red.svg" alt="힌트메세지">등록시 등록한 이메일을 입력해주세요.
+                    <img src="/images/icon/ico-info-red.svg" alt="힌트메세지">인증번호를 받을 이메일을 입력해 주세요.
                 </div>
                 <div style="margin-top: 10px;">
                     <label style="width: 15%;">인증코드: </label>
@@ -924,7 +920,7 @@
 
         })
 
-        //아이디 찾기
+        //등록여부 확인
         $('#btnSearch').click(function (e){
 
             const errMsgDiv = document.getElementById('ErrMsg');
@@ -944,25 +940,19 @@
             }
             let data = { usernm, findUserid, _CsrfValue }
 
-            let fnSuccess = function (res){
-                if(res.success){
-                    if (Array.isArray(res.data)) {
-                        errMsgSpan.textContent = res.data.join(', ') + '입니다.'; // 각 배열 요소를 쉼표로 구분하여 표시
-                    } else {
-                        errMsgSpan.textContent = res.data + '입니다.'; // 배열이 아니면 그대로 표시
-                    }
+            let fnSuccess = function (res) {
+                if (res.success) {
+                    errMsgSpan.textContent = '등록된 사원입니다.'; // 성공 시 메시지 변경
                     errMsgDiv.style.display = 'block';
                     errMsgDiv.style.color = 'black';
                     errMsgDiv.classList.add('show');
-                } else if (!res.success){
-
+                } else if (!res.success) {
                     errMsgDiv.style.display = 'block';
                     errMsgDiv.classList.add('show');
 
-                    errMsgDiv.addEventListener('animationend', function() {
+                    errMsgDiv.addEventListener('animationend', function () {
                         errMsgDiv.classList.remove('show');
                     });
-
                 }
             };
             AjaxUtil.postAsyncData("/user-auth/searchAccount", data, fnSuccess, function(){ Alert.alert('', '서버통신 실패') });
@@ -1008,8 +998,6 @@
                 Alert.alert('', '서버통신 실패');
             });
         });
-
-
 
         //비밀번호 찾기 > 이메일 인증
         $('#BtnAuthentication').click(function (e){

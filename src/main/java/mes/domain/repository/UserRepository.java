@@ -21,7 +21,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 	User getUserById(int id);
 
 	void deleteByUsername(String username);
-
+	@Query(value = "SELECT * FROM auth_user WHERE username = :usernm", nativeQuery = true)
+	User findUserByUsername(@Param("usernm") String usernm);
 
 	@Query(value = "SELECT username FROM auth_user WHERE first_name = :firstName AND email = :email", nativeQuery = true)
 	List<String> findByFirstNameAndEmailNative(@Param("firstName") String firstName, @Param("email") String email);

@@ -7,7 +7,7 @@
 .dashboard-login-wrap {display: flex; flex-flow: column wrap; justify-content: center; align-items: center; height: 100%;}
 .dashboard-login-wrap .copyright {position: absolute; left: 50%; bottom: 20px; transform: translate(-50%, 0%); color: #868FAE;}
 .login-wrap {display: flex; flex-flow: row wrap; box-shadow: 0px 0px 30px rgba(0,0,0,0.15); border-radius: 30px; overflow: hidden;}
-.login-wrap .left {background-color: #03428E; display: flex; justify-content: center; align-items: center;}
+.login-wrap .left {background-color: #fff; display: flex; justify-content: center; align-items: center;}
 .login-wrap .left img {height: 100%; }
 .login-wrap .right {background-color: #fff; padding: 100px;}
 .login-wrap .right .login-logo {width: 100%; text-align: center; margin-bottom: 36px;}

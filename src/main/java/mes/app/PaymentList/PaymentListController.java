@@ -78,6 +78,7 @@ public class PaymentListController { //결재목록
 
       User user = (User) auth.getPrincipal();
       String agencycd = user.getAgencycd().replaceFirst("^p", "");
+      String userName = user.getFirst_name();
       // 데이터 조회
       List<Map<String, Object>> getPaymentList = paymentListService.getPaymentList1(spjangcd, startDate, endDate,agencycd);
 
@@ -85,7 +86,10 @@ public class PaymentListController { //결재목록
       // 데이터가 있을 경우 성공 메시지
       result.success = true;
       result.message = "데이터 조회 성공";
-      result.data = getPaymentList;
+      result.data = Map.of(
+          "userName", userName,  // 사용자 이름
+          "paymentList", getPaymentList // 결재 목록 리스트
+      );
 
     } catch (Exception e) {
       // 예외 처리

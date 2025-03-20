@@ -560,15 +560,13 @@ public class AccountController {
 			return result;
 		}
 
-		int exists = userRepository.existsByUsernameAndEmail(usernm, mail);
-		boolean flag = exists > 0;
+		User user = userRepository.findUserByUsername(usernm);
 
-		if(flag) {
+		if (user != null) {
 			sendEmailLogic(mail, usernm);
-
 			result.success = true;
 			result.message = "인증 메일이 발송되었습니다.";
-		}else {
+		} else {
 			result.success = false;
 			result.message = "해당 사용자가 존재하지 않습니다.";
 		}

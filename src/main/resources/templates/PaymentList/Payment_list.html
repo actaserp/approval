@@ -292,17 +292,22 @@
         data: params,
         async: false,
         success: function (response) {
-          console.log("서버에서 받은 데이터 :", response);
-          // 응답이 올바르게 도착했고, data 속성이 배열인지 확인
-          if (response && Array.isArray(response.data)) {
-            console.log("서버에서 받은 데이터 목록:", response.data); //실제 데이터 확인
-          }
-          if (response && Array.isArray(response.data)) {
-            data = response.data.map((item, index) => ({
-              appgubun1: (item.appgubun1 || '0') + "건",
-              appgubun2: (item.appgubun2 || '0') + "건",
-              appgubun3: (item.appgubun3 || '0') + "건"
-            }));
+          console.log("서버에서 받은 데이터:", response);
+
+          if (response && response.data) {
+            const userName = response.data.userName || ''; // 사용자 이름 가져오기
+            const paymentList = response.data.paymentList || []; // 결재 목록 가져오기
+
+            if (Array.isArray(paymentList)) {
+              console.log("서버에서 받은 데이터 목록:", paymentList);
+
+              data = paymentList.map((item) => ({
+                userName: userName, // 모든 항목에 동일한 사용자 이름 추가
+                appgubun1: (item.appgubun1 || '0') + "건",
+                appgubun2: (item.appgubun2 || '0') + "건",
+                appgubun3: (item.appgubun3 || '0') + "건"
+              }));
+            }
           }
         },
         error: function () {
@@ -310,11 +315,13 @@
         }
       });
 
-      while (data.length < 1) {
+      // 데이터가 비어 있으면 기본값 추가 (그리드가 깨지지 않도록)
+      if (data.length < 1) {
         data.push({
-          appgubun1:'',
-          appgubun2:'',
-          appgubun3:''
+          userName: '',
+          appgubun1: '',
+          appgubun2: '',
+          appgubun3: ''
         });
       }
 
@@ -326,9 +333,10 @@
           showMarquee: true,
           isReadOnly: true,
           columns: [
-            {binding: 'appgubun1', header: '결재대기',  width: '*', minWidth: 100, align: 'center'},
-            {binding: 'appgubun2', header: '결재문서', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'appgubun3', header: '반려문서', width: '*', minWidth: 100, align: 'center'},
+            { binding: 'userName', header: '결재자명', width: '*', minWidth: 100, align: 'center' },
+            { binding: 'appgubun1', header: '결재대기', width: '*', minWidth: 100, align: 'center' },
+            { binding: 'appgubun2', header: '결재문서', width: '*', minWidth: 100, align: 'center' },
+            { binding: 'appgubun3', header: '반려문서', width: '*', minWidth: 100, align: 'center' },
           ],
           itemsSource: viewdata,
         });
@@ -339,6 +347,7 @@
         theGrid1.itemsSource = viewdata;
       }
     }
+
 
     //공통코드
     const selectConfigs = [

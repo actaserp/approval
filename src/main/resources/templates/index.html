@@ -58,7 +58,7 @@
         <header>
             <div class="left" style="display: flex; align-items: center; margin-left: 20px;">
                 <div class="logo" style="display: flex; align-items: center;">
-                    <img src="/img/approval/대한럭비협회_CI.png" alt="로고" style="max-width: 95%; height: auto; margin-right: 10px;">
+                    <img class="index" src="/img/approval/대한럭비협회_CI.png" alt="로고" style="max-width: 95%; height: auto; margin-right: 10px;">
                 </div>
             </div>
             <div class="right"> 
@@ -525,6 +525,11 @@
 
 
     $(document).ready(function () {
+
+        //로그 클릭 탭 지우기
+        $(".index").click(function () {
+            nthTabs.delAllTab();
+        });
 
         // 메뉴 매핑(FrontFolder_id)
         const dep2Mappings = {
