@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import mes.app.account.service.TB_XClientService;
+import mes.app.account.service.TB_xusersService;
 import mes.domain.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +45,7 @@ public class WeatherService {
 	}
 
 	@Autowired
-	private TB_XClientService tbXClientService;
+	private TB_xusersService xusersService;
 
     @Value("${Geocoder.Key}")
     private String geocoderKey;
@@ -84,7 +85,7 @@ public class WeatherService {
 	public ResponseEntity<?> getWeatherData(String userId){
 
 		// 사용자 주소를 가져오기
-		String address = tbXClientService.getUserAddress(userId);
+		String address = xusersService.getUserAddress(userId);
 		if (address == null || address.isEmpty()) {
 			return ResponseEntity.badRequest().body("주소가 유효하지 않습니다.");
 		}
@@ -256,7 +257,7 @@ public class WeatherService {
 		});
 		// 주소 추가
 		weatherResult.put("address", address);
-		System.out.println("최종 응답 데이터: " + weatherResult);
+		//System.out.println("최종 응답 데이터: " + weatherResult);
 		return ResponseEntity.ok(weatherResult);
 	}
 
