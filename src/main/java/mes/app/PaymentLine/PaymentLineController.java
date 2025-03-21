@@ -81,6 +81,9 @@ public class PaymentLineController {
             String kcperid = "p" + paperInfo.get("kcperid");
             Map<String, Object> kcInfo = paymentLineService.getuserInfoPerid(kcperid);
             paperInfo.put("kcpernm", kcInfo.get("pernm"));
+
+            String gubunnm = paymentLineService.getGubuncd((String)paperInfo.get("gubun"));
+            paperInfo.put("gubunnm", gubunnm);
         }
         AjaxResult result = new AjaxResult();
         result.data = items;

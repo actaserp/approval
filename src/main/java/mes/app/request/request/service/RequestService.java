@@ -79,6 +79,21 @@ public class RequestService {
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql, dicParam);
         return items;
     }
+    // 공통코드 구분 옵션 조회
+    public String getGubuncd(String gubuncd) {
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+
+        String sql = """
+                SELECT Value
+                FROM user_code
+                WHERE Parent_id = 333
+                AND Code = :gubuncd
+                """;
+        dicParam.addValue("gubuncd", gubuncd);
+        Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
+        String gubunnm = (String) userInfo.get("Value");
+        return gubunnm;
+    }
 
     // username으로 cltcd, cltnm, saupnum, custcd 가지고 오기
     public Map<String, Object> getUserInfo(String username) {
@@ -110,6 +125,18 @@ public class RequestService {
         dicParam.addValue("username", username);
         Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
         return userInfo;
+    }
+    // 공통코드 데이터 불러오기
+    @Transactional
+    public List<Map<String, Object>> findByParentId(Integer Parent_id){
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+        dicParam.addValue("Parent_id", Parent_id);
+
+        String sql = """
+				select Code, "Value" from user_code where "Parent_id" = :Parent_id order by id;
+				""";
+        List<Map<String, Object>> items = this.sqlRunner.getRows(sql, dicParam);
+        return items;
     }
 
     // 사용자 사원코드 조회(맨앞 'p'제거 필요)

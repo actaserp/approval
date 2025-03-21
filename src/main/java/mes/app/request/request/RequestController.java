@@ -54,6 +54,9 @@ public class RequestController {
             String kcperid = "p" + paperInfo.get("kcperid");
             Map<String, Object> kcInfo = requestService.getuserInfoPerid(kcperid);
             paperInfo.put("kcpernm", kcInfo.get("pernm"));
+
+            String gubunnm = requestService.getGubuncd((String)paperInfo.get("gubun"));
+            paperInfo.put("gubunnm", gubunnm);
         }
         AjaxResult result = new AjaxResult();
         result.data = items;
@@ -70,7 +73,7 @@ public class RequestController {
         result.data = items;
         return result;
     }
-    // 문서에 따른 결재자 옵션 불러오기
+    // 결재자 옵션 불러오기
     @GetMapping("/getKcperid")
     public AjaxResult getKcperid(){
         List<Map<String, Object>> items = this.requestService.getKcperid();
@@ -78,6 +81,11 @@ public class RequestController {
         AjaxResult result = new AjaxResult();
         result.data = items;
         return result;
+    }
+    // 공통코드 리스트 가져오기
+    @GetMapping("/find_parent_id")
+    public List<Map<String, Object>> getCommonCodeList(@RequestParam("id") Integer id) {
+        return requestService.findByParentId(id);
     }
 
     // 유저정보 불러와 input태그 value

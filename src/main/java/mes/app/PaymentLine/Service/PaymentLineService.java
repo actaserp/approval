@@ -148,6 +148,21 @@ public class PaymentLineService {
         Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
         return userInfo;
     }
+    // 공통코드 구분 옵션 조회
+    public String getGubuncd(String gubuncd) {
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+
+        String sql = """
+                SELECT Value
+                FROM user_code
+                WHERE Parent_id = 333
+                AND Code = :gubuncd
+                """;
+        dicParam.addValue("gubuncd", gubuncd);
+        Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
+        String gubunnm = (String) userInfo.get("Value");
+        return gubunnm;
+    }
     // 삭제 메서드
     public boolean delete(String username) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
