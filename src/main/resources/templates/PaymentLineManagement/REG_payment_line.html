@@ -68,7 +68,7 @@
           <div class="table-wrap">
             <table class="write-table">
               <caption>내정보 테이블</caption>
-
+              <input type="hidden" id="064no">
               <tbody>
               <tr>
                 <th style="text-align: center">
@@ -267,6 +267,7 @@
 
             document.getElementById('kcpernm').value = item.kcperid;
             document.getElementById('comseq').value = item.seq;
+            document.getElementById('064no').value = item.no;
 
 
             const selectKcperid = document.getElementById('kcperid');
@@ -318,7 +319,6 @@
       let selectedValue = document.getElementById('comcd').value;
 
       if (selectedValue) {
-        console.log("선택된 문서코드:", selectedValue);
         // 1. 그리드 데이터 Fetch
         fetchListData2(selectedValue);
       }
@@ -379,12 +379,10 @@
       document.getElementById(hiddenInputId).value = selectedOptionText;
     }
 
-    // 헤드정보 삭제(세부사항 존재시 안내 alert기능)
+    // 결재라인정보 삭제()
     $(document).ready(function () {
       $('#deleteButton').off('click').on('click', deleteBody);
     });
-
-    let isProcessing = false;
 
     // 그리드 정보 삭제 (모든행 삭제시 063정보도 같이 삭제)
     function deleteBody(){
@@ -393,81 +391,32 @@
         return;
       }
       Alert.confirm('', '선택된 행 내용을 삭제하시겠습니까?', function () {
-        const deletePromises = []; // 비동기 요청을 저장할 배열
         SelectItem.forEach(selectedRow => {
+          // 선택된 데이터들 삭제
           const selectedData = selectedRow.dataItem;
-          const index = viewdata2.sourceCollection.indexOf(selectedData);
-          if (index > -1) {
-            const itemToRemove = viewdata2.sourceCollection[index]; // 삭제할 항목 가져오기
-            viewdata2.remove(itemToRemove); // CollectionView에서 항목 삭제
-            if(selectedData.reqseq !== ""){
-              const saupnumHiddenElement = document.getElementById('saupnumHidden');
-              const saupnumHidden = saupnumHiddenElement ? saupnumHiddenElement.value.trim() : "";
-
-              let deleteNum = {
-                saupnumHidden: saupnumHidden,
-                reqseq: selectedData.reqseq,
-                reqnum: document.getElementById('reqnum').value,
-                reqdate: selectedData.reqdate
-              };
-              let fnSuccess = function (res) {
-                isProcessing = false;
-                if (res.success) {
-                  fetchListData();
-                }
-              };
-              const promise = AjaxUtil.postAsyncData('/api/request/request/bodyDelete', deleteNum, fnSuccess);
-              deletePromises.push(promise);
-            }
+          if(selectedData.kcperid !== ""){
+            let deleteNum = {
+              kcperid: selectedData.kcperid,
+              papercd: selectedData.papercd,
+              perid: selectedData.perid,
+              no: selectedData.no
+            };
+            let fnSuccess = function (res) {
+              if (res.success) {
+                fetchListData2();
+              }
+            };
+            AjaxUtil.postAsyncData('/api/request/request/delete', deleteNum, fnSuccess);
           }
         });
-        viewdata2.commitEdit(); // 변경 사항 저장
-        Promise.all(deletePromises).then(() => {
-          viewdata2.commitEdit(); // 변경 사항 커밋
-          viewdata2.refresh(); // 데이터 소스 갱신
-          theGrid2.itemsSource = [...viewdata2.sourceCollection]; // 그리드 데이터 재설정
-          theGrid2.refresh(); // UI 갱신
-          // 모든 행이 빈지 검사하여 헤더 삭제 메서드 호출
-          const allRowsEmpty = viewdata2.sourceCollection.every(row => !row.hgrb || row.hgrb === '');
-          if (allRowsEmpty) {
-            deletehead();
-            fetchListData2();
-          }
-        }).catch(error => {
-          console.error('Error during deletion:', error);
-          Alert.alert('', '삭제 중 오류가 발생했습니다.');
-        });
+        Alert.alert("", "삭제되었습니다.");
       })
-    }
-
-    function deletehead() {
-      if (isProcessing) return;
-
-      Alert.confirm('', '결재라인정보를\n삭제하시겠습니까?', function () {
-        isProcessing = true;
-
-        let data = {
-          'reqnum': reqnum,
-          '_csrf': csrfToken
-        };
-
-        let fnSuccess = function (res) {
-          isProcessing = false;
-          if (res.success) {
-            Alert.alert('', '삭제되었습니다.');
-            fetchListData();
-            resetFormFields();
-          }
-        };
-
-        AjaxUtil.postAsyncData('/api/request/request/delete', data, fnSuccess);
-      });
     }
 
     // 등록후 초기화
     function resetFormFields() {
       const fieldsToReset = [
-        'kcperid', 'kcpernm', 'comseq'
+        'kcperid', 'kcpernm', 'comseq', '064no'
       ];
 
       fieldsToReset.forEach(fieldId => {
@@ -543,6 +492,7 @@
         formData.append('gubun', '101');
         formData.append('seq', $('#comseq').val());
         formData.append('kcperid', $('#kcperid').val());
+        formData.append('no', $('#064no').val());
 
         function sendAjaxRequest(url) {
           $.ajax({

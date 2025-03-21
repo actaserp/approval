@@ -1,29 +1,35 @@
-package mes.app.request.request.service;
+package mes.app.PaymentLine.Service;
 
-import mes.domain.entity.actasEntity.TB_DA006W;
-import mes.domain.entity.actasEntity.TB_DA006WFile;
-import mes.domain.entity.actasEntity.TB_DA006W_PK;
-import mes.domain.entity.actasEntity.TB_DA007W;
-import mes.domain.repository.actasRepository.TB_DA006WFILERepository;
-import mes.domain.repository.actasRepository.TB_DA006WRepository;
-import mes.domain.repository.actasRepository.TB_DA007WRepository;
 import mes.domain.services.SqlRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.io.File;
 import java.util.List;
 import java.util.Map;
 
 @Service
-public class RequestService {
-
+public class PaymentLineService {
     @Autowired
     SqlRunner sqlRunner;
 
-    //결재라인등록 그리드 리스트 불러오기
+    //문서코드 그리드 리스트 불러오기
+    public List<Map<String, Object>> getPaymentList(String perid, String comcd) {
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+        dicParam.addValue("perid", perid);
+        dicParam.addValue("papercd", comcd);
+
+        String sql = """
+                select
+                e.*
+                from TB_E063 e
+                WHERE e.papercd = :papercd
+                order by e.indate DESC
+                """;
+        List<Map<String, Object>> items = this.sqlRunner.getRows(sql, dicParam);
+        return items;
+    }
+    // 사원별 결재라인 그리드 리스트 불러오기
     public List<Map<String, Object>> getCheckPaymentList(String perid, String comcd) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
         dicParam.addValue("perid", perid);
@@ -158,5 +164,4 @@ public class RequestService {
 
         return true;
     }
-
 }

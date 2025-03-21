@@ -1,51 +1,25 @@
 package mes.app.request.request;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mes.app.request.request.service.RequestService;
 import mes.config.Settings;
 import mes.domain.entity.User;
-import mes.domain.entity.actasEntity.*;
 import mes.domain.entity.sportsEntity.TB_E063;
 import mes.domain.entity.sportsEntity.TB_E063_PK;
 import mes.domain.entity.sportsEntity.TB_E064;
 import mes.domain.entity.sportsEntity.TB_E064_PK;
 import mes.domain.model.AjaxResult;
-import mes.domain.repository.actasRepository.TB_DA006WFILERepository;
-import mes.domain.repository.actasRepository.TB_DA006WRepository;
-import mes.domain.repository.actasRepository.TB_DA007WRepository;
 import mes.domain.repository.sportsRepository.E063Repository;
 import mes.domain.repository.sportsRepository.E064Repository;
 import mes.domain.repository.sportsRepository.E080Repository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @RestController
 @RequestMapping("/api/request/request")
@@ -123,18 +97,29 @@ public class RequestController {
 
     // 삭제 메서드
     @PostMapping("/delete")
-    public AjaxResult deleteHead(@RequestParam String reqnum) {
+    public AjaxResult deleteHead(@RequestParam Map<String, String> params,
+                                 Authentication auth) {
         AjaxResult result = new AjaxResult();
+        User user = (User)auth.getPrincipal();
+        String username = user.getUsername();
+        Map<String, Object> userInfo = requestService.getMyInfo(username);
+        // 064table PK - custcd,spjangcd,perid,papercd,no
+        TB_E064_PK e064PK = new TB_E064_PK();
+        e064PK.setPapercd(params.get("papercd"));
+        e064PK.setCustcd((String) userInfo.get("custcd"));
+        e064PK.setPerid(params.get("perid"));
+        e064PK.setNo(params.get("no"));
+        e064PK.setSpjangcd((String) userInfo.get("spjangcd"));
 
-            boolean success = requestService.delete(reqnum);
-
-            if (success) {
-                result.success = true;
-                result.message = "삭제하였습니다.";
-            } else {
-                result.success = false;
-                result.message = "삭제에 실패하였습니다.";
-            }
+        try {
+            e064Repository.deleteById(e064PK);
+            result.success = true;
+            result.message = "삭제하였습니다.";
+        }
+        catch (Exception e){
+            result.success = false;
+            result.message = "삭제에 실패하였습니다.";
+        }
         return result;
     }
     // 결재라인 등록
@@ -170,7 +155,14 @@ public class RequestController {
         bodypk.setCustcd((String) userInfo.get("custcd"));
         bodypk.setPerid(params.get("perid"));
         bodypk.setSpjangcd((String) userInfo.get("spjangcd"));
-        bodypk.setNo(params.get("seq"));
+        if (params.get("no") == null || Objects.equals(params.get("no"), "")) {
+            bodypk.setNo(getNextNoForKey((String) userInfo.get("custcd"),
+                    (String) userInfo.get("spjangcd"),
+                    params.get("perid"),
+                    params.get("papercd")));
+        }else{
+            bodypk.setNo(params.get("no"));
+        }
         bodypk.setPapercd(params.get("papercd"));
 
         body.setId(bodypk);
@@ -192,6 +184,13 @@ public class RequestController {
             result.message = "결재라인정보 저장 실패(" + e.getMessage() + ")";
         }
         return result;
+    }
+    // 064 테이블 no 컬럼 Max값 +1
+    public String getNextNoForKey(String custcd, String spjangcd, String perid, String papercd) {
+        // 현재 max(no) 조회
+        String maxNo = e064Repository.findMaxNo(custcd, spjangcd, perid, papercd);
+        int next = maxNo != null ? Integer.parseInt(maxNo) + 1 : 1;
+        return String.valueOf(next); // 예: 001, 002
     }
 
 }
