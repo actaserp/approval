@@ -97,7 +97,7 @@
                 </a>
             </div>
             <div class="center" style="margin-left:35px;">
-                <h2>당일 생산 진행현황</h2>
+                <h2>결재목록</h2>
             </div>
             <div class="right">
                 <a href="#" title="전체메뉴" class="btn-menu">
@@ -140,24 +140,23 @@
                         </dd>
                     </dl>
                     <dl>
-                        <dt>거래처</dt>
+                        <dt>진행구분</dt>
                         <dd>
                             <div style="display: flex; gap: 10px">
-                                <div style="width: 100%">
-                                    <input type="text" id="searchcltnm" placeholder="거래처를 입력해주세요">
-                                    <input type="hidden" id="searchcltcd">
-                                </div>
-                                <div>
-                                    <a href="#" class="btn" title="검색" onclick="searchCltcd($('#searchcltnm').val())"
-                                       style="background-color: #022D60; color: #fff; text-decoration: none; border-radius: 4px; width: 80px;">
-                                        검색
-                                    </a>
+<!--                                <div style="width: 100%">-->
+<!--                                    <input type="text" id="searchcltnm" placeholder="거래처를 입력해주세요">-->
+<!--                                    <input type="hidden" id="searchcltcd">-->
+<!--                                </div>-->
+                                <div class="input-clear" style="width: 100%">
+                                    <select id="selectproduct" name="searchOrdflag" onchange="selectText('popup2', 'searchproductnm', 'searchproductcd')">
+                                        <option value="" disabled selected>전체</option>
+                                    </select>
                                 </div>
                             </div>
                         </dd>
                     </dl>
                     <dl>
-                        <dt>품목</dt>
+                        <dt>제목</dt>
                         <dd>
                             <div style="display: flex; gap: 10px">
                                 <div style="width: 100%">
@@ -306,11 +305,11 @@
                                     </div>
                                 </dt>
                                 <dd>
-                                    <div class="input-clear">
-                                        <select id="selectproduct" name="searchOrdflag" onchange="selectText('popup2', 'searchproductnm', 'searchproductcd')">
-                                            <option value="" disabled selected>전체</option>
-                                        </select>
-                                    </div>
+<!--                                    <div class="input-clear">-->
+<!--                                        <select id="selectproduct" name="searchOrdflag" onchange="selectText('popup2', 'searchproductnm', 'searchproductcd')">-->
+<!--                                            <option value="" disabled selected>전체</option>-->
+<!--                                        </select>-->
+<!--                                    </div>-->
                                 </dd>
                             </dl>
                         </div>
@@ -386,9 +385,9 @@
             const cardColor = availableColors[colorIndex];
             colorIndex = (colorIndex + 1) % availableColors.length;
             // 버튼 처리
-            let buttonsHtml = `<button class="btn btn-popup-open" data-popup="popup-history" title="작업이력">
-                    작업이력
-                </button>`;
+            let buttonsHtml = `<button class="btn btn-popup-open" data-popup="popup-history" title="작업이력">반려</button>
+                               <button class="btn btn-popup-open" data-popup="popup-history" title="작업이력">승인</button>
+                               <button class="btn btn-popup-open" data-popup="popup-history" title="작업이력">전표보기</button>`;
 
             const cardHtml = `
                         <div class="card-box ${cardColor}" data-wono="${item.WONO}">
@@ -397,48 +396,20 @@
                             </div>
                             <div class="card-cont">
                                 <dl>
-                                    <dt>계획일자</dt>
+                                    <dt>일자</dt>
                                     <dd>${item.PRODDATE}</dd>
                                 </dl>
                                 <dl>
-                                    <dt>품목명</dt>
+                                    <dt>구분</dt>
                                     <dd>${item.PNAME}</dd>
                                 </dl>
                                 <dl>
-                                    <dt>수주량</dt>
+                                    <dt>제목</dt>
                                     <dd>${item.ORDQTY}</dd>
                                 </dl>
                                 <dl>
-                                    <dt>계획량</dt>
+                                    <dt>금액</dt>
                                     <dd>${item.PRODQTY}</dd>
-                                </dl>
-                                <dl>
-                                    <dt>작업공정</dt>
-                                    <dd>${item.WFLAG01}</dd>
-                                </dl>
-                                <dl>
-                                    <dt>작업일자</dt>
-                                    <dd>${item.WORDT01}</dd>
-                                </dl>
-                                <dl>
-                                    <dt>작업공정</dt>
-                                    <dd>${item.WFLAG02}</dd>
-                                </dl>
-                                <dl>
-                                    <dt>작업일자</dt>
-                                    <dd>${item.WORDT02}</dd>
-                                </dl>
-                                <dl>
-                                    <dt>작업공정</dt>
-                                    <dd>${item.WFLAG03}</dd>
-                                </dl>
-                                <dl>
-                                    <dt>작업일자</dt>
-                                    <dd>${item.WORDT03}</dd>
-                                </dl>
-                                <dl>
-                                    <dt>작업량</dt>
-                                    <dd>${item.WORQT01}</dd>
                                 </dl>
                             </div>
                             <div class="card-btn">
