@@ -12,6 +12,33 @@
         z-index: 10;
         overflow: auto;
     }
+/*    .popup-button button:not(:disabled):hover,
+    .popup-button .btn:not(:disabled):hover,
+    .popup-button .btn-navy:not(:disabled):hover {
+        background-color: #F5F6FA;
+        border: 1px solid #03428E;
+        color: #03428E;
+    }*/
+    /* ✅ 가장 먼저: disabled 상태에선 hover 무시 */
+    .popup-button button:disabled:hover,
+    .popup-button .btn:disabled:hover,
+    .popup-button .btn-navy:disabled:hover {
+        background-color: #ccc !important;
+        color: #999 !important;
+        border: 1px solid #ccc !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+    }
+
+    /* ✅ 기존 hover는 disabled가 아닐 때만 적용 */
+    .popup-button button:not(:disabled):hover,
+    .popup-button .btn:not(:disabled):hover,
+    .popup-button .btn-navy:not(:disabled):hover {
+        background-color: #F5F6FA;
+        border: 1px solid #03428E;
+        color: #03428E;
+    }
+
 
 </style>
 <th:block layout:fragment="content">
@@ -19,7 +46,8 @@
     <!-- Page Title -->
     <div class="page-title-wrap">
       <div class="left">
-        <h2>결재 내역</h2><a id="toggleButton" onclick="toggleSearchWrap()"><img src="/images/icon/ico-down.png" alt="알람 아이콘"></a>
+        <h2>결재 내역</h2><a id="toggleButton" onclick="toggleSearchWrap()"><img src="/images/icon/ico-down.png"
+                                                                             alt="알람 아이콘"></a>
         <!--<a title="북마크" class="bookmark toggle">
             내메뉴
         </a>-->
@@ -106,22 +134,6 @@
               </dd>
             </dl>
           </div>
-         <!-- <div class="button-wrap" style="border-top:none;">
-            <ul>
-              <li>
-                <a class="btn btn-excell" title="신규등록" id="Newbtn" onclick="NewSave()">
-                  <img src="/images/icon/ico-plus.svg" alt="등록 아이콘">
-                  신규등록
-                </a>
-              </li>
-              <li>
-                <a class="btn btn-delete" title="삭제" id="btnDelete" onclick="deleteData()">
-                  <img src="/images/icon/ico-delete.svg" alt="엑셀 아이콘">
-                  삭제
-                </a>
-              </li>
-            </ul>
-          </div>-->
         </div>
 
         <div class="container-fluid">
@@ -156,13 +168,25 @@
                 <col class="wauto">
               </colgroup>
               <tbody>
-              <tr>
-                <th colspan="2">PDF 보기</th>
+              <tr >
+                <th>전표 보기</th>
+                <th>첨부파일 보기</th>
               </tr>
               <tr>
                 <td colspan="2">
-                  <div id="pdfView" class="tab-item" style="display: block;">
+                  <div id="pdfView" class="tab-item wp60" style="display: block;">
                     <div id="pdfContainer" style="
+                              width: 100%;
+                              height: auto;
+                              padding: 10px;
+                              background: #f8f9fa;
+                              overflow-y: auto;
+                              max-height: 500px;">
+                      <!-- PDF 페이지가 동적으로 추가됩니다. -->
+                    </div>
+                  </div>
+                  <div id="pdfView2" class="tab-item wp40" style="display: block;">
+                    <div id="pdfContainer2" style="
                               width: 100%;
                               height: auto;
                               padding: 10px;
@@ -188,10 +212,10 @@
         </form>
       </div>
       <div class="popup-button">
-        <button class="btn-navy" onclick="Statechange('reject')">반려</button>
-        <button class="btn-navy" onclick="Statechange('hold')">보류</button>
-        <button class="btn-navy" onclick="Statechange('approve')">승인</button>
-        <button class="btn-navy" onclick="Statechange('cancel')">승인취소</button>
+        <button class="btn-navy btn-reject" onclick="Statechange('reject')">반려</button>
+        <button class="btn-navy btn-hold" onclick="Statechange('hold')">보류</button>
+        <button class="btn-navy btn-approve" onclick="Statechange('approve')">승인</button>
+        <button class="btn-navy btn-cancel" onclick="Statechange('cancel')">승인취소</button>
         <button class="btn-popup-close" onclick="NewClose()">종료</button>
       </div>
     </div>
@@ -222,6 +246,9 @@
       const endMonthFormatted = `${endOfMonth.getFullYear()}-${String(endOfMonth.getMonth() + 1).padStart(2, '0')}-${String(endOfMonth.getDate()).padStart(2, '0')}`;
       $('#endDate').val(endMonthFormatted);
       init();
+
+      const appgubun = $('#appgubun').val();
+      setButtonStateByAppgubun(appgubun);
     });
 
     document.getElementById('searchUserNm').addEventListener('keydown', function (event) {
@@ -246,11 +273,11 @@
         search_spjangcd: $('#search_spjangcd').val(),
         startDate: $('#startDate').val(),
         endDate: $('#endDate').val(),
-        SearchPayment:$('#SearchPayment').val(),
+        SearchPayment: $('#SearchPayment').val(),
         searchUserNm: $('#searchUserNm').val()
       };
 
-      console.log("수집 데이터(결재 목록)",params);
+      console.log("수집 데이터(결재 목록)", params);
 
       // 서버에서 데이터 가져오기
       $.ajax({
@@ -267,17 +294,18 @@
           if (response && Array.isArray(response.data)) {
             data = response.data.map((item, index) => ({
               rownum: index + 1,
-              appdate: item.appdate ||'',
-              appgubun : item.appgubun || '',
-              appgubun_display: item.appgubun_display ||'',
+              appdate: item.appdate || '',
+              appgubun: item.appgubun || '',
+              appgubun_display: item.appgubun_display || '',
               appnum: item.appnum || '',
-              appperid: item.appperid||'',
+              appperid: item.appperid || '',
               papercd: item.papercd || '',
-              remark :item.remark ||'',
-              repodate: item.repodate || '' ,
-              repoperid: item.repoperid || '' ,
-              repopernm : item.repopernm||'',
-              title: item.title ||'',
+              papercd_name : item.papercd_name || '',
+              remark: item.remark || '',
+              repodate: item.repodate || '',
+              repoperid: item.repoperid || '',
+              repopernm: item.repopernm || '',
+              title: item.title || '',
               fileList: item.fileList || [],
               isdownload: item.isdownload || false
             }));
@@ -292,17 +320,18 @@
         data.push({
           rownum: data.length + 1,
           appdate: '',
-          appgubun:'',
-          appgubun_display:'',
-          appnum:'',
-          appperid:'',
-          papercd:'',
-          remark:'',
-          repodate:'',
-          repoperid:'',
-          repopernm:'',
-          title:'',
-          fileList:'',
+          appgubun: '',
+          appgubun_display: '',
+          appnum: '',
+          appperid: '',
+          papercd: '',
+          papercd_name:'',
+          remark: '',
+          repodate: '',
+          repoperid: '',
+          repopernm: '',
+          title: '',
+          fileList: '',
           isdownload: ''
         });
       }
@@ -321,13 +350,14 @@
             {binding: 'appnum', header: '문서번호', width: '*', minWidth: 100, align: 'center'},
             {binding: 'repodate', header: '상신일자', width: '*', minWidth: 110, align: 'center'},
             {binding: 'repopernm', header: '작성자명', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'papercd', header: '문서명', width: '*', minWidth: 120, align: 'center'},
+            {binding: 'papercd', header: '문서명', width: '*', minWidth: 250, align: 'center', visible: false},
+            {binding: 'papercd_name', header: '문서명', width: '*', minWidth: 250, align: 'center'},
             {binding: 'appgubun', header: '결재구분', width: '*', minWidth: 100, align: 'center', visible: false},
             {binding: 'appgubun_display', header: '결재구분', width: '*', minWidth: 100, align: 'center'},
             {binding: 'appdate', header: '결재일자', width: '*', minWidth: 110, align: 'center'},
             {binding: 'title', header: '제목', width: '*', align: 'center', minWidth: 100},
             {binding: 'remark', header: '사유', width: '*', align: 'center', minWidth: 100},
-            {binding: 'fileList', header: '다운로드', width: '*', minWidth: 120, align: 'center'},
+            {binding: 'fileList', header: '다운로드', width: '*', minWidth: 120, align: 'center', visible: false},
             {binding: 'isdownload', visible: false},
             {binding: 'appperid', header: '', visible: false},
             {binding: 'repoperid', header: '', visible: false},
@@ -367,6 +397,7 @@
         theGrid.itemsSource = viewdata;
       }
     }
+
     function attachDoubleClickEvent(grid) {
       let lastClickTime = 0;
       grid.hostElement.addEventListener('click', function (e) {
@@ -381,6 +412,7 @@
 
             if (rowData) {
               modifyData(rowData);
+              modifyData2(rowData);
               NewSave2(); // 팝업 열기
             }
           }
@@ -397,13 +429,13 @@
       currentRealId = rowData.appnum || "";
       appgubun = rowData.appgubun || '';
       appnum = rowData.appnum || '';
-
-      setButtonStateByAppgubun(appgubun);
+      remark = rowData.remark || '';
 
       document.getElementById('appnum').value = currentRealId;
       document.getElementById('appgubun').value = appgubun;
+      document.getElementById('remark').value = remark;
 
-      let params = { appnum: rowData.appnum };
+      let params = {appnum: rowData.appnum};
 
       console.log("📂 요청할 데이터:", params);
 
@@ -411,7 +443,7 @@
         url: '/api/PaymentDetail/pdf',  // ✅ PDF 파일을 요청하는 API
         type: 'GET',
         data: params,
-        xhrFields: { responseType: 'blob' },  // ✅ 응답을 Blob 형식으로 받음
+        xhrFields: {responseType: 'blob'},  // ✅ 응답을 Blob 형식으로 받음
         success: function (response) {
           console.log("📂 PDF 데이터 수신 완료");
 
@@ -427,7 +459,6 @@
         }
       });
     }
-
     function showPdf(filepath) {
       console.log(" PDF.js를 사용하여 PDF 렌더링:", filepath);
 
@@ -435,16 +466,16 @@
       container.innerHTML = ""; // 기존 내용 초기화
 
       // 🛠 PDF.js를 이용하여 PDF 불러오기
-      pdfjsLib.getDocument({ url: filepath }).promise.then(pdf => {  // ✅ PDF.js는 Blob URL을 객체 형태로 받아야 함.
+      pdfjsLib.getDocument({url: filepath}).promise.then(pdf => {  // ✅ PDF.js는 Blob URL을 객체 형태로 받아야 함.
         console.log(" PDF 로드 완료. 총 페이지 수:", pdf.numPages);
 
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
           pdf.getPage(pageNum).then(page => {
-            let viewport = page.getViewport({ scale: 1.5 }); // 기본 스케일
+            let viewport = page.getViewport({scale: 1.5}); // 기본 스케일
 
             // 🛠 컨테이너 너비에 맞춰 PDF를 자동 확대
             let scale = container.clientWidth / viewport.width;
-            let scaledViewport = page.getViewport({ scale: scale });
+            let scaledViewport = page.getViewport({scale: scale});
 
             // 페이지별 <canvas> 생성
             let canvas = document.createElement("canvas");
@@ -472,7 +503,94 @@
         }
       }).catch(error => {
         console.error("❌ PDF 렌더링 오류:", error);
-        Alert.alert(''," PDF를 불러올 수 없습니다.");
+        Alert.alert('', " PDF를 불러올 수 없습니다.");
+      });
+    }
+
+    function modifyData2(rowData) {
+      console.log("✔️ 더블클릭한 행의 데이터:", rowData);
+      let container = document.getElementById("pdfContainer2");
+
+      // ✅ appnum 값을 currentRealId로 설정
+      currentRealId = rowData.appnum || "";
+      appgubun = rowData.appgubun || '';
+      appnum = rowData.appnum || '';
+      remark = rowData.remark || '';
+
+      document.getElementById('appnum').value = currentRealId;
+      document.getElementById('appgubun').value = appgubun;
+      document.getElementById('remark').value = remark;
+
+      let params = {appnum: rowData.appnum};
+
+      console.log("📂 요청할 데이터:", params);
+
+      $.ajax({
+        url: '/api/PaymentDetail/pdf2',  // ✅ PDF 파일을 요청하는 API
+        type: 'GET',
+        data: params,
+        xhrFields: {responseType: 'blob'},  // ✅ 응답을 Blob 형식으로 받음
+        success: function (response) {
+          console.log("📂 PDF 데이터 수신 완료");
+
+          let filepath = URL.createObjectURL(response); // ✅ Blob 데이터를 URL로 변환
+          console.log("📂 PDF URL 생성됨:", filepath);
+
+          container.innerHTML = ""; // 기존 내용 초기화
+          showPdf2(filepath);  // ✅ PDF 렌더링 함수 호출
+        },
+        error: function () {
+          console.error("🚨 데이터 요청 중 오류 발생");
+          container.innerHTML = "<p style='color:red;'>PDF 파일을 불러올 수 없습니다.</p>";
+        }
+      });
+    }
+
+    function showPdf2(filepath) {
+      console.log(" PDF.js를 사용하여 PDF 렌더링:", filepath);
+
+      let container = document.getElementById("pdfContainer2");
+      container.innerHTML = ""; // 기존 내용 초기화
+
+      // 🛠 PDF.js를 이용하여 PDF 불러오기
+      pdfjsLib.getDocument({url: filepath}).promise.then(pdf => {  // ✅ PDF.js는 Blob URL을 객체 형태로 받아야 함.
+        console.log(" PDF 로드 완료. 총 페이지 수:", pdf.numPages);
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          pdf.getPage(pageNum).then(page => {
+            let viewport = page.getViewport({scale: 1.5}); // 기본 스케일
+
+            // 🛠 컨테이너 너비에 맞춰 PDF를 자동 확대
+            let scale = container.clientWidth / viewport.width;
+            let scaledViewport = page.getViewport({scale: scale});
+
+            // 페이지별 <canvas> 생성
+            let canvas = document.createElement("canvas");
+            canvas.classList.add("pdf-page");
+            container.appendChild(canvas);
+
+            let context = canvas.getContext("2d");
+
+            // 🛠 PDF 크기를 컨테이너에 맞게 설정
+            let scaleFactor = 3; // 3배 확대
+            canvas.width = scaledViewport.width * scaleFactor;
+            canvas.height = scaledViewport.height * scaleFactor;
+            canvas.style.width = "100%"; // 컨테이너에 맞게 꽉 채우기
+            canvas.style.height = "auto"; // 세로 비율 유지
+
+            // 고해상도 렌더링 (텍스트 선명하게)
+            let renderContext = {
+              canvasContext: context,
+              viewport: scaledViewport,
+              transform: [scaleFactor, 0, 0, scaleFactor, 0, 0]
+            };
+
+            page.render(renderContext);
+          });
+        }
+      }).catch(error => {
+        console.error("❌ PDF 렌더링 오류:", error);
+        Alert.alert('', " PDF를 불러올 수 없습니다.");
       });
     }
 
@@ -483,11 +601,11 @@
       const remark = document.getElementById("remark").value; //사유
 
       if (!appnum || !appgubun) {
-        Alert.alert('',"문서번호와 결재구분이 없습니다.");
+        Alert.alert('', "문서번호와 결재구분이 없습니다.");
         return;
       }
 
-      console.log("상태 변경 요청:", { action, appnum, appgubun, remark });
+      console.log("상태 변경 요청:", {action, appnum, appgubun, remark});
 
       // 예시: Ajax 호출
       $.ajax({
@@ -500,57 +618,69 @@
           action: action,
           remark: remark
         }),
-        success: function(response) {
-          Alert.alert('',"상태가 변경되었습니다.");
+        success: function (response) {
+          Alert.alert('', "상태가 변경되었습니다.");
           NewClose(); // 팝업 닫기
         },
-        error: function() {
-          Alert.alert('',"상태 변경 중 오류 발생");
+        error: function () {
+          Alert.alert('', "상태 변경 중 오류 발생");
         }
       });
     }
 
     function setButtonStateByAppgubun(appgubun) {
-      const $btnReject = $('#Statechange');   // 반려
-      const $btnHold = $('#Statechange2');    // 보류
-      const $btnApprove = $('#Statechange3'); // 승인
-      const $btnCancel = $('#Statechange4');  // 승인취소
+
+      const $btnReject = $('.btn-reject');// 반려
+      const $btnHold = $('.btn-hold');// 보류
+      const $btnApprove = $('.btn-approve');// 승인
+      const $btnCancel = $('.btn-cancel');// 승인취소
+
+      console.log("▶️ appgubun 값:", appgubun); // 현재 상태 로그
 
       // 모든 버튼 초기화 (활성화)
       [$btnReject, $btnHold, $btnApprove, $btnCancel].forEach(btn => btn.prop("disabled", false));
 
       switch (appgubun) {
         case "001": // 대기
+          console.log("🟢 상태: 대기 → 모든 버튼 활성화");
+          // 아무것도 안 막음
+          break;
+
         case "101": // 결재
-          // 모든 버튼 허용
+          [$btnReject, $btnHold, $btnApprove, $btnCancel].forEach(btn => btn.prop("disabled", true));
+          console.log("⛔ 상태: 결재 → 모든 버튼 비활성화");
           break;
 
         case "201": // 보류
-          $btnHold.prop("disabled", true); // 보류 버튼 비활성화
+          $btnHold.prop("disabled", true);
+          console.log("🟡 상태: 보류 → '보류' 버튼 비활성화");
           break;
 
         case "131": // 반려
           $btnReject.prop("disabled", true);
+          console.log("🔴 상태: 반려 → '반려' 버튼 비활성화");
           break;
 
         case "301": // 전결
         case "311": // 전결중
           $btnApprove.prop("disabled", true);
+          console.log("🟣 상태: 전결/전결중 → '승인' 버튼 비활성화");
           break;
 
         case "111": // 결재중
-          // 예: 승인취소만 허용
           $btnReject.prop("disabled", true);
           $btnHold.prop("disabled", true);
           $btnApprove.prop("disabled", true);
+          console.log("🟠 상태: 결재중 → '반려, 보류, 승인' 비활성화");
           break;
 
         default:
-          // 예외 상태 처리
           [$btnReject, $btnHold, $btnApprove, $btnCancel].forEach(btn => btn.prop("disabled", true));
+          console.log("⚠️ 예외 상태 → 모든 버튼 비활성화");
           break;
       }
     }
+
 
     function downloadFile(fileList) {
       if (!fileList || fileList.length === 0) {
@@ -575,6 +705,11 @@
     function NewSave2() {
       let popup = document.getElementById('popup1');
       let wrapper = document.getElementById('wrapper1');
+
+      const appgubun = $('#appgubun').val();
+      console.log("📌 팝업 열기 - appgubun:", appgubun);  // 로그로 확인
+
+      setButtonStateByAppgubun(appgubun);
 
       popup.style.display = 'block';
       wrapper.style.display = 'block';
@@ -666,11 +801,11 @@
           showMarquee: true,
           isReadOnly: true,
           columns: [
-            { binding: 'userName', header: '결재자명', width: '*', minWidth: 100, align: 'center' },
-            { binding: 'appgubun1', header: '결재대기', width: '*', minWidth: 100, align: 'center' },
-            { binding: 'appgubun2', header: '결재문서', width: '*', minWidth: 100, align: 'center' },
-            { binding: 'appgubun4', header: '보류문서', width: '*', minWidth: 100, align: 'center' },
-            { binding: 'appgubun3', header: '반려문서', width: '*', minWidth: 100, align: 'center' },
+            {binding: 'userName', header: '결재자명', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appgubun1', header: '결재대기', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appgubun2', header: '결재문서', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appgubun4', header: '보류문서', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appgubun3', header: '반려문서', width: '*', minWidth: 100, align: 'center'},
           ],
           itemsSource: viewdata,
         });

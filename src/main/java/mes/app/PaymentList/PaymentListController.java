@@ -63,7 +63,7 @@ public class PaymentListController { //결재목록
       String agencycd = user.getAgencycd().replaceFirst("^p", "");
       // 데이터 조회
       List<Map<String, Object>> getPaymentList = paymentListService.getPaymentList(spjangcd, startDate, endDate, SearchPayment,searchUserNm, agencycd);
-
+      log.info("📦 [조회결과] 결재 목록 건수: {}", getPaymentList.size());
       for (Map<String, Object> item : getPaymentList) {
         //날짜 포맷 변환 (repodate)
         formatDateField(item, "repodate");
@@ -71,33 +71,51 @@ public class PaymentListController { //결재목록
         formatDateField(item, "appdate");
 
         String appnum = (String) item.get("appnum");
-        if (appnum != null) {
-          List<Map<String, Object>> fileList = new ArrayList<>();
+        List<Map<String, Object>> fileList = new ArrayList<>();
 
+        if (appnum != null) {
           if (appnum.startsWith("AS")) {
             if (fileExistsInAtchTable(appnum)) {
-              fileList.add(createFileMapFromAtch(appnum, "첨부파일"));
+              Map<String, Object> atch = new HashMap<>(createFileMapFromAtch(appnum, "첨부파일"));
+              atch.put("fileType", "첨부");
+              fileList.add(atch);
+              log.debug("📎 AS 첨부파일 추가: {}", atch);
             }
             if (fileExistsInPdfTable(appnum)) {
-              fileList.add(createFileMapFromPdf(appnum, "지출결의서"));
+              Map<String, Object> pdf = new HashMap<>(createFileMapFromPdf(appnum, "지출결의서"));
+              pdf.put("fileType", "전표");
+              fileList.add(pdf);
+              log.debug("📄 AS 전표파일 추가: {}", pdf);
             }
+
           } else if (appnum.startsWith("A")) {
             if (fileExistsInAtchTable(appnum)) {
-              fileList.add(createFileMapFromAtch(appnum, "첨부파일"));
+              Map<String, Object> atch = new HashMap<>(createFileMapFromAtch(appnum, "첨부파일"));
+              atch.put("fileType", "첨부");
+              fileList.add(atch);
+              log.debug("📎 A 첨부파일 추가: {}", atch);
             }
+
           } else if (appnum.startsWith("S")) {
             if (fileExistsInPdfTable(appnum)) {
-              fileList.add(createFileMapFromPdf(appnum, "지출결의서"));
+              Map<String, Object> pdf = new HashMap<>(createFileMapFromPdf(appnum, "지출결의서"));
+              pdf.put("fileType", "전표");
+              fileList.add(pdf);
+              log.debug("📄 S 전표파일 추가: {}", pdf);
             }
+
           } else {
             if (fileExistsInPdfTable(appnum)) {
-              fileList.add(createFileMapFromPdf(appnum, "전표파일"));
+              Map<String, Object> pdf = new HashMap<>(createFileMapFromPdf(appnum, "전표파일"));
+              pdf.put("fileType", "전표");
+              fileList.add(pdf);
+              log.debug("📄 기타 전표파일 추가: {}", pdf);
             }
           }
-
-          item.put("fileList", fileList);
-          item.put("isdownload", !fileList.isEmpty());
         }
+
+        item.put("fileList", fileList);                  // ✅ 항상 넣고
+        item.put("isdownload", !fileList.isEmpty());     // ✅ 상태 표시
 
       }
 
@@ -108,6 +126,7 @@ public class PaymentListController { //결재목록
 
     } catch (Exception e) {
       // 예외 처리
+      log.error("❌ [에러] 결재 목록 조회 중 예외 발생", e);
       result.success = false;
       result.message = "데이터 조회 중 오류 발생: " + e.getMessage();
     }
@@ -255,7 +274,7 @@ public class PaymentListController { //결재목록
       // 파일이 실제로 존재하는지 확인
       if (file.exists()) {
         filesToDownload.add(file);
-        fileNames.add(originFileName); // 다운로드 받을 파일 이름을 originFileName으로 설정
+        fileNames.add(fileName); // 다운로드 받을 파일 이름을 originFileName으로 설정
       }
     }
 

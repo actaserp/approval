@@ -36,12 +36,12 @@ public class PaymentListService {//결재목록
          e080.remark,
          CASE     -- 파일 정보: appnum 시작 글자에 따라 분기
              WHEN LEFT(e080.appnum, 1) = 'A' OR LEFT(e080.appnum, 2) = 'AS' THEN
-                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)\s
-                  FROM TB_AA010ATCH\s
+                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath) 
+                  FROM TB_AA010ATCH 
                   WHERE spdate = e080.appnum)
              ELSE
-                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)\s
-                  FROM TB_AA010PDF\s
+                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath) 
+                  FROM TB_AA010PDF 
                   WHERE spdate = e080.appnum)
          END AS file_info
      FROM tb_e080 e080 WITH(NOLOCK)

@@ -22,32 +22,34 @@ public class PaymentDetailService {
     params.addValue("as_spjangcd", spjangcd);
     params.addValue("agencycd", agencycd);
     StringBuilder sql = new StringBuilder("""
-               SELECT e080.repodate,
-                  e080.repoperid,
-                  (select pernm from tb_ja001 where perid = 'p' + repoperid) as repopernm,
-                  e080.papercd,
-                  e080.appgubun,
-                  uc.Value AS appgubun_display,
-                  e080.appdate,
-                  e080.appnum,
-                  e080.appperid,
-                  e080.title,
-                  e080.remark,
-                  CASE     -- 파일 정보: appnum 시작 글자에 따라 분기
-             WHEN LEFT(e080.appnum, 1) = 'A' OR LEFT(e080.appnum, 2) = 'AS' THEN
-                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)\s
-                  FROM TB_AA010ATCH\s
-                  WHERE spdate = e080.appnum)
-             ELSE
-                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)\s
-                  FROM TB_AA010PDF\s
-                  WHERE spdate = e080.appnum)
+         SELECT e080.repodate,
+              e080.repoperid,
+              (select pernm from tb_ja001 where perid = 'p' + repoperid) as repopernm,
+              e080.appgubun,
+              ca510.com_code AS papercd,
+              ca510.com_cnam AS papercd_name,
+              uc.Value AS appgubun_display,
+              e080.appdate,
+              e080.appnum,
+              e080.appperid,
+              e080.title,
+              e080.remark,
+              CASE     -- 파일 정보: appnum 시작 글자에 따라 분기
+         WHEN LEFT(e080.appnum, 1) = 'A' OR LEFT(e080.appnum, 2) = 'AS' THEN
+             (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
+              FROM TB_AA010ATCH
+              WHERE spdate = e080.appnum)
+         ELSE
+             (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
+              FROM TB_AA010PDF
+              WHERE spdate = e080.appnum)
          END AS file_info
                   FROM tb_e080 e080 WITH(NOLOCK)
                   left join user_code uc on uc.Code = e080.appgubun
-             WHERE spjangcd = :as_spjangcd
-             AND appperid = :agencycd
-               AND flag = '1'
+                  LEFT JOIN tb_ca510 ca510 ON ca510.com_cls = '620' AND ca510.com_code <> '00'
+         WHERE spjangcd = :as_spjangcd
+         AND appperid = :agencycd
+           AND flag = '1'
         """);
 
     // startDate 필터링
@@ -116,6 +118,28 @@ public class PaymentDetailService {
       }
     } catch (Exception e) {
       log.info("PDF 파일명을 조회하는 중 오류 발생: {}", e.getMessage(), e);
+    }
+
+    return Optional.empty(); // 결과가 없으면 빈 Optional 반환
+  }
+
+  public Optional<String> findPdfFilenameByRealId2(String appnum) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("appnum", appnum);
+
+    String sql = "select filename from TB_AA010ATCH where spdate = :appnum;";
+
+    try {
+      // SQL 실행 후 결과 조회
+      log.info("첨부파일 PDF 파일 찾기 SQL: {}", sql);
+      log.info("SQL Parameters: {}", params.getValues());
+      List<Map<String, Object>> result = sqlRunner.getRows(sql, params);
+
+      if (!result.isEmpty() && result.get(0).get("filename") != null) {
+        return Optional.of((String) result.get(0).get("filename"));
+      }
+    } catch (Exception e) {
+      log.info("첨부파일 PDF 파일명을 조회하는 중 오류 발생: {}", e.getMessage(), e);
     }
 
     return Optional.empty(); // 결과가 없으면 빈 Optional 반환

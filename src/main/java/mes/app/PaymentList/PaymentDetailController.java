@@ -64,10 +64,10 @@ public class PaymentDetailController {
         //날짜 포맷 변환 (appdate)
         formatDateField(item, "appdate");
 
-        //papercd 값이 "101"이면 "전표결재(지출결의서)"
+     /*   //papercd 값이 "101"이면 "전표결재(지출결의서)"
         if ("101".equals(item.get("papercd"))) {
           item.put("papercd", "전표결재(지출결의서)");
-        }
+        }*/
 
         String appnum = (String) item.get("appnum");
         if (appnum != null) {
@@ -173,6 +173,68 @@ public class PaymentDetailController {
 
       // DB에서 PDF 파일명 조회
       Optional<String> optionalPdfFileName = paymentDetailService.findPdfFilenameByRealId(appnum);
+      if (optionalPdfFileName.isEmpty()) {
+        log.warn("PDF 파일명을 찾을 수 없음: appnum={}", appnum);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // 파일명 그대로 사용
+      String pdfFileName = optionalPdfFileName.get();
+      log.info("사용 파일명: {}", pdfFileName);
+
+      // 운영체제별 저장 경로 설정
+      String osName = System.getProperty("os.name").toLowerCase();
+      String uploadDir = osName.contains("win") ? "C:\\Temp\\APP\\S_KRU\\"
+          : System.getProperty("user.home") + "/APP/S_KRU";
+
+      // PDF 파일 경로 설정 및 존재 여부 확인
+      Path pdfPath = Paths.get(uploadDir, pdfFileName);
+      log.info("PDF 파일 경로: {}", pdfPath.toString());
+
+      if (!Files.exists(pdfPath)) {
+        log.warn("파일이 존재하지 않음: {}", pdfPath.toString());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      // 파일 정보 로깅
+      File file = pdfPath.toFile();
+      log.info("파일 존재 확인 완료 - 파일 크기: {} bytes", file.length());
+
+      // PDF 파일을 Resource로 변환 후 응답
+      Resource resource = new FileSystemResource(file);
+      log.info("Resource 변환 완료, 파일 응답 준비 시작");
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_PDF);
+      headers.setContentDisposition(ContentDisposition.inline().filename(pdfFileName, StandardCharsets.UTF_8).build());
+
+      // `X-Frame-Options` 제거 (필요한 경우 추가 가능)
+      headers.add("X-Frame-Options", "ALLOW-FROM http://localhost:8020");
+      headers.add("Access-Control-Allow-Origin", "*");  // 모든 도메인 허용
+      headers.add("Access-Control-Allow-Methods", "GET, OPTIONS");
+      headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+      log.info("PDF 응답 완료 - 파일명: {}, 크기: {} bytes", pdfFileName, file.length());
+
+      return ResponseEntity.ok()
+          .headers(headers)
+          .contentLength(file.length())
+          .body(resource);
+
+    } catch (Exception e) {
+      log.error("서버 내부 오류 발생: appnum={}, message={}", appnum, e.getMessage(), e);
+      return ResponseEntity.internalServerError().build();
+    }
+  }
+
+  //첨부파일
+  @RequestMapping(value = "/pdf2", method = RequestMethod.GET)
+  public ResponseEntity<Resource> getPdf2(@RequestParam("appnum") String appnum) {
+    try {
+      log.info("PDF 조회 요청: appnum={}", appnum);
+
+      // DB에서 PDF 파일명 조회
+      Optional<String> optionalPdfFileName = paymentDetailService.findPdfFilenameByRealId2(appnum);
       if (optionalPdfFileName.isEmpty()) {
         log.warn("PDF 파일명을 찾을 수 없음: appnum={}", appnum);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
