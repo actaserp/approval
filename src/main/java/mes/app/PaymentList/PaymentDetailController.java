@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import mes.app.PaymentList.service.PaymentDetailService;
 import mes.domain.entity.User;
 import mes.domain.model.AjaxResult;
+import mes.domain.repository.approval.TB_AA010ATCHRepository;
+import mes.domain.repository.approval.tb_aa010Repository;
+import org.aspectj.weaver.loadtime.Aj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
@@ -33,6 +36,12 @@ public class PaymentDetailController {
   @Autowired
   PaymentDetailService paymentDetailService;
 
+  @Autowired
+  tb_aa010Repository tbAa010PdfRepository;
+
+  @Autowired
+  TB_AA010ATCHRepository tbAa010AtchRepository;
+
   @GetMapping("/read")
   public AjaxResult getPaymentList(@RequestParam(value = "startDate") String startDate,
                                    @RequestParam(value = "endDate") String endDate,
@@ -58,6 +67,35 @@ public class PaymentDetailController {
         //papercd 값이 "101"이면 "전표결재(지출결의서)"
         if ("101".equals(item.get("papercd"))) {
           item.put("papercd", "전표결재(지출결의서)");
+        }
+
+        String appnum = (String) item.get("appnum");
+        if (appnum != null) {
+          List<Map<String, Object>> fileList = new ArrayList<>();
+
+          if (appnum.startsWith("AS")) {
+            if (fileExistsInAtchTable(appnum)) {
+              fileList.add(createFileMapFromAtch(appnum, "첨부파일"));
+            }
+            if (fileExistsInPdfTable(appnum)) {
+              fileList.add(createFileMapFromPdf(appnum, "지출결의서"));
+            }
+          } else if (appnum.startsWith("A")) {
+            if (fileExistsInAtchTable(appnum)) {
+              fileList.add(createFileMapFromAtch(appnum, "첨부파일"));
+            }
+          } else if (appnum.startsWith("S")) {
+            if (fileExistsInPdfTable(appnum)) {
+              fileList.add(createFileMapFromPdf(appnum, "지출결의서"));
+            }
+          } else {
+            if (fileExistsInPdfTable(appnum)) {
+              fileList.add(createFileMapFromPdf(appnum, "전표파일"));
+            }
+          }
+
+          item.put("fileList", fileList);
+          item.put("isdownload", !fileList.isEmpty());
         }
       }
 
@@ -188,103 +226,44 @@ public class PaymentDetailController {
       return ResponseEntity.internalServerError().build();
     }
   }
-  /*//pdf 다운로드
-  @RequestMapping(value = "/pdfDownload", method = RequestMethod.GET)
-  public ResponseEntity<Resource> downloadPdf(@RequestParam("appnum") String appnum) {
-    try {
-      log.info("📄 PDF 다운로드 요청: appnum={}", appnum);
 
-      // DB에서 PDF 파일명 조회
-      Optional<String> optionalPdfFileName = paymentDetailService.findPdfFilenameByRealId(appnum);
-      if (optionalPdfFileName.isEmpty()) {
-        log.warn("PDF 파일명을 찾을 수 없음: appnum={}", appnum);
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-      }
+  @PostMapping("/changeState")
+  public AjaxResult ChangeState(){
+    AjaxResult result = new AjaxResult();
+    try{
 
-      // 파일명 그대로 사용
-      String pdfFileName = optionalPdfFileName.get();
-       log.info("다운로드 파일명: {}", pdfFileName);
+    }catch (Exception e){
 
-      // 운영체제별 저장 경로 설정
-      String osName = System.getProperty("os.name").toLowerCase();
-      String uploadDir = osName.contains("win") ? "C:\\Temp\\APP\\S_KRU\\"
-          : System.getProperty("user.home") + "/APP/S_KRU";
-
-      // PDF 파일 경로 설정 및 존재 여부 확인
-      Path pdfPath = Paths.get(uploadDir, pdfFileName);
-      if (!Files.exists(pdfPath)) {
-         log.warn("파일이 존재하지 않음: {}", pdfPath.toString());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-      }
-
-      // PDF 파일을 Resource로 변환 후 응답
-      File file = pdfPath.toFile();
-      Resource resource = new FileSystemResource(file);
-
-      HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(MediaType.APPLICATION_PDF);
-      headers.setContentDisposition(ContentDisposition.attachment().filename(pdfFileName, StandardCharsets.UTF_8).build());
-
-      return ResponseEntity.ok()
-          .headers(headers)
-          .contentLength(file.length())
-          .body(resource);
-
-    } catch (Exception e) {
-      log.error("서버 내부 오류 발생", e);
-      return ResponseEntity.internalServerError().build();
     }
+
+    return result;
   }
-*/
-  /*@GetMapping("/pdfDownload")
-  public ResponseEntity<StreamingResponseBody> downloadPdf(@RequestParam("appnum") String appnum) {
-    try {
-      log.info("📄 PDF 다운로드 요청: appnum={}", appnum);
 
-      String osName = System.getProperty("os.name").toLowerCase();
-      String uploadDir = osName.contains("win") ? "C:\\Temp\\APP\\S_KRU\\"
-          : System.getProperty("user.home") + "/APP/S_KRU/";
-      Path pdfPath = Paths.get(uploadDir, appnum + ".pdf");
+  private boolean fileExistsInPdfTable(String appnum) {
+    return tbAa010PdfRepository.existsBySpdateAndFilenameIsNotNull(appnum);
+  }
 
-      if (!Files.exists(pdfPath)) {
-        log.warn("❌ PDF 파일이 존재하지 않음: {}", pdfPath.toString());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-      }
+  private boolean fileExistsInAtchTable(String appnum) {
+    return tbAa010AtchRepository.existsBySpdateAndFilenameIsNotNull(appnum);
+  }
 
-      String filename = appnum + ".pdf";
-      String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8)
-          .replace("+", "%20");
-      String contentDisposition = "attachment; filename=\"" + encodedFilename + "\"";
+  private Map<String, Object> createFileMapFromPdf(String appnum, String label) {
+    var entity = tbAa010PdfRepository.findBySpdate(appnum);
+    return Map.of(
+        "filepath", entity.getFilepath(),
+        "filesvnm", entity.getFilename(),
+        "fileornm", label
+    );
+  }
 
-      HttpHeaders headers = new HttpHeaders();
-      headers.setContentType(MediaType.APPLICATION_PDF);
-      headers.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
-
-      StreamingResponseBody responseBody = outputStream -> {
-        try (InputStream inputStream = Files.newInputStream(pdfPath)) {
-          byte[] buffer = new byte[8192]; // 8KB 버퍼
-          int bytesRead;
-          while ((bytesRead = inputStream.read(buffer)) != -1) {
-            outputStream.write(buffer, 0, bytesRead);
-          }
-          outputStream.flush();  // ✅ 강제 플러시
-          outputStream.close();  // ✅ 스트림 명확히 종료
-        } catch (IOException e) {
-          log.error("🚨 PDF 스트리밍 중 오류 발생: {}", e.getMessage(), e);
-        }
-      };
-
-      log.info("✅ PDF 다운로드 스트리밍 완료: 파일명={}", filename);
-
-      return ResponseEntity.ok()
-          .headers(headers)
-          .body(responseBody);
-
-    } catch (Exception e) {
-      log.error("🚨 서버 내부 오류 발생: {}", e.getMessage(), e);
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-  }*/
+  private Map<String, Object> createFileMapFromAtch(String appnum, String label) {
+    var entity = tbAa010AtchRepository.findBySpdate(appnum);
+    return Map.of(
+        "filepath", entity.getFilepath(),
+        "filesvnm", entity.getFilename(),
+        "fileornm", label
+    );
+  }
 
   @PostMapping("/downloader")
   public ResponseEntity<?> downloadFile(@RequestBody List<Map<String, Object>> downloadList) throws IOException {

@@ -201,7 +201,9 @@
               repodate: item.repodate || '' ,
               repoperid: item.repoperid || '' ,
               repopernm : item.repopernm||'',
-              title: item.title ||''
+              title: item.title ||'',
+              fileList: item.fileList || [],
+              isdownload: item.isdownload || false
             }));
           }
         },
@@ -224,7 +226,9 @@
           repodate:'',
           repoperid:'',
           repopernm:'',
-          title:''
+          title:'' ,
+          fileList:'',
+          isdownload: ''
         });
       }
 
@@ -249,13 +253,37 @@
             {binding: 'appdate', header: '결재일자', width: '*', minWidth: 120, align: 'center'},
             {binding: 'title', header: '제목', width: '*', align: 'center', minWidth: 150},
             {binding: 'remark', header: '사유',width: '*' ,align: 'center', minWidth: 250},
-            {binding: 'file_A', header: '첨부파일', width: '*', align: 'center', minWidth: 120},
-            {binding: 'file_p', header: '전표파일',width: '*' ,align: 'center', minWidth: 120},
-            {binding: 'file_S', header: '지출결의서',width: '*' ,align: 'center', minWidth: 120},
+            {binding: 'fileList', header: '다운로드', width: '*', minWidth: 120, align: 'center'},
             {binding:'appperid', header: '', visible: false },
             {binding:'repoperid', header: '', visible: false },
+            {binding: 'isdownload', visible: false},
           ],
           itemsSource: viewdata,
+          itemFormatter: function (panel, r, c, cell) {
+            if (panel.cellType === wijmo.grid.CellType.Cell) {
+              let item = panel.rows[r].dataItem;
+
+              if (panel.columns[c].binding === 'fileList') {
+                cell.innerHTML = ''; // 기존 내용 삭제
+
+                if (item.isdownload && item.fileList.length > 0) {
+                  let file = item.fileList[0]; // 첫 번째 파일
+                  let downloadBtn = document.createElement("a");
+                  downloadBtn.href = "#";
+                  downloadBtn.classList.add("btn-filedown");
+                  downloadBtn.title = "다운로드"
+                  downloadBtn.textContent = file.fileornm;
+
+                  downloadBtn.onclick = function (event) {
+                    event.preventDefault();
+                    downloadFile(item.fileList);
+                  };
+
+                  cell.appendChild(downloadBtn);
+                }
+              }
+            }
+          }
         });
         theGrid.rowHeaders.columns.splice(0, 1);
         new FlexGridContextMenu(theGrid);
@@ -374,6 +402,26 @@
           }
         }
       })
+    }
+
+    function downloadFile(fileList) {
+      if (!fileList || fileList.length === 0) {
+        console.warn("다운로드할 파일이 없습니다.");
+        return;
+      }
+
+      console.log("다운로드할 파일 목록:", fileList);
+
+      let downloadList = fileList.map(file => ({
+        filepath: file.filepath,
+        filesvnm: file.filesvnm,
+        fileornm: file.fileornm
+      }));
+
+      let downloadUrl = '/api/PaymentList/downloader';
+
+      // 파일 리스트를 서버에 전송하여 다운로드 실행
+      downloadFiles(downloadList, downloadUrl);
     }
 
 

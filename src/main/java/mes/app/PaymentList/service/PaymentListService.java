@@ -21,24 +21,35 @@ public class PaymentListService {//결재목록
     params.addValue("as_spjangcd", spjangcd);
     params.addValue("agencycd", agencycd);
     StringBuilder sql = new StringBuilder("""
-           SELECT e080.repodate,
-                e080.repoperid,
-                (select pernm from tb_ja001 where perid = 'p' + repoperid) as repopernm,
-                ca510.com_code AS papercd,
-                ca510.com_cnam AS papercd_name,
-                e080.appgubun,
-                uc.Value AS appgubun_display,
-                e080.appdate,
-                e080.appnum,
-                e080.appperid,
-                e080.title,
-                e080.remark
-         FROM tb_e080 e080 WITH(NOLOCK)
-         LEFT JOIN user_code uc ON uc.Code = e080.appgubun
-         LEFT JOIN tb_ca510 ca510 ON ca510.com_cls = '620' AND ca510.com_code <> '00'
-         WHERE spjangcd = :as_spjangcd
-         and repoperid = :agencycd
-           AND flag = '1'
+     SELECT\s
+         e080.repodate,
+         e080.repoperid,
+         (SELECT pernm FROM tb_ja001 WHERE perid = 'p' + repoperid) AS repopernm,
+         ca510.com_code AS papercd,
+         ca510.com_cnam AS papercd_name,
+         e080.appgubun,
+         uc.Value AS appgubun_display,
+         e080.appdate,
+         e080.appnum,
+         e080.appperid,
+         e080.title,
+         e080.remark,
+         CASE     -- 파일 정보: appnum 시작 글자에 따라 분기
+             WHEN LEFT(e080.appnum, 1) = 'A' OR LEFT(e080.appnum, 2) = 'AS' THEN
+                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)\s
+                  FROM TB_AA010ATCH\s
+                  WHERE spdate = e080.appnum)
+             ELSE
+                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)\s
+                  FROM TB_AA010PDF\s
+                  WHERE spdate = e080.appnum)
+         END AS file_info
+     FROM tb_e080 e080 WITH(NOLOCK)
+     LEFT JOIN user_code uc ON uc.Code = e080.appgubun
+     LEFT JOIN tb_ca510 ca510 ON ca510.com_cls = '620' AND ca510.com_code <> '00'
+     WHERE spjangcd = :as_spjangcd
+       AND repoperid = :agencycd
+       AND flag = '1'
     """);
 
     // startDate 필터링

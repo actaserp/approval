@@ -32,7 +32,17 @@ public class PaymentDetailService {
                   e080.appnum,
                   e080.appperid,
                   e080.title,
-                  e080.remark
+                  e080.remark,
+                  CASE     -- 파일 정보: appnum 시작 글자에 따라 분기
+             WHEN LEFT(e080.appnum, 1) = 'A' OR LEFT(e080.appnum, 2) = 'AS' THEN
+                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)\s
+                  FROM TB_AA010ATCH\s
+                  WHERE spdate = e080.appnum)
+             ELSE
+                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)\s
+                  FROM TB_AA010PDF\s
+                  WHERE spdate = e080.appnum)
+         END AS file_info
                   FROM tb_e080 e080 WITH(NOLOCK)
                   left join user_code uc on uc.Code = e080.appgubun
              WHERE spjangcd = :as_spjangcd
@@ -66,7 +76,7 @@ public class PaymentDetailService {
       params.addValue("as_appgubun", searchPayment);
     }
 
-    log.info("결재 목록 List SQL: {}", sql);
+    log.info("결재내역 List SQL: {}", sql);
     log.info("SQL Parameters: {}", params.getValues());
     return sqlRunner.getRows(sql.toString(), params);
   }
