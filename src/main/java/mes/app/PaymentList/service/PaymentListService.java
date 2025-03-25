@@ -34,21 +34,21 @@ public class PaymentListService {//결재목록
             e080.appperid,
             e080.title,
             e080.remark,
-           CASE
-         WHEN EXISTS (
-                  SELECT 1 FROM TB_AA010ATCH
-                  WHERE spdate = 'A' + e080.appnum OR spdate = 'AS' + e080.appnum
-              ) THEN (
-                  SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
-                  FROM TB_AA010ATCH
-                  WHERE spdate = 'A' + e080.appnum OR spdate = 'AS' + e080.appnum
-              )
-              ELSE (
-                  SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
-                  FROM TB_AA010PDF
-                  WHERE spdate = e080.appnum
-              )
-          END AS file_info
+          CASE
+               WHEN EXISTS (
+                   SELECT 1 FROM TB_AA010ATCH
+                   WHERE spdate = 'A' + e080.appnum OR spdate = 'AS' + e080.appnum
+               ) THEN (
+                   SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
+                   FROM TB_AA010ATCH
+                   WHERE spdate = 'A' + e080.appnum OR spdate = 'AS' + e080.appnum
+               )
+               ELSE (
+                   SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
+                   FROM TB_AA010PDF
+                   WHERE spdate = e080.appnum
+               )
+           END AS file_info
        FROM tb_e080 e080 WITH(NOLOCK)
        LEFT JOIN user_code uc ON uc.Code = e080.appgubun
        LEFT JOIN tb_ca510 ca510
