@@ -1,16 +1,20 @@
-<html layout:decorate="~{layout_page}" xmlns:layout="http://www.w3.org/1999/xhtml">
+<html layout:decorate="~{layout_page}" xmlns:layout="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/html">
 <style>
-    #chartModal .modal-content {
+    #noticeModal .modal-content {
         width: 80vw;
         height: 80vh;
         max-width: 800px; /
     max-height: 600px;
     }
-    #modalChartHolder {
+    #noticeHolder {
         width: 100%;
         height: 100%;
     }
 
+    .popup-overlay,
+    .popup-wrapper {
+        display: none;
+    }
 </style>
 <th:block layout:fragment="content">
 
@@ -225,13 +229,44 @@
     </div>
 
     <div style="height: 10px"></div>
+    <!--공지사항 모달-->
+    <div class="dashboard-layout-popup">
+        <div class="popup-overlay" id="popup1"></div>
+        <div class="popup-wrapper" id="wrapper1">
+            <div class="popup-title" style="text-align: center; padding-top: 20px;">
+                <h2 style="color: #0047AB; font-size: 28px; font-weight: bold;">Notice<br>check!</h2>
+            </div>
 
-    <div id="chartModal" class="modal" style="opacity:100">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <canvas id="modalChartHolder" style="width: 1292px; height: 474px; box-sizing: border-box; display: block;" width="1292" height="474"></canvas>
+            <div style="border-top: 1px solid #ccc; margin: 16px auto 20px; width: 80%;"></div>
+
+            <div class="popup-contents" style="text-align: center;">
+                <div style="font-size: 24px; color: #0047AB;"></div>
+                <div style="margin-top: 10px; font-size: 16px; color: #444;">
+                    <span style="color: #0047AB; font-weight: bold;"></span><br>
+
+                </div>
+            </div>
+
+            <!-- 첨부파일 버튼 -->
+            <div style="text-align: center; margin-top: 20px;">
+                <div id="fileDownloadArea">
+                    <!-- 첨부파일 버튼이 여기에 동적으로 삽입됨 -->
+                </div>
+            </div>
+
+            <!-- 오늘 하루 보지 않기 -->
+            <span style="display: flex; justify-content: center; align-items: center; margin-top: 20px;">
+            <input type="checkbox" id="checkNotice" style="margin: 0;">
+            <p style="margin-left: 10px; font-size: 14px;">오늘 하루 보지 않기</p>
+        </span>
+
+            <!-- 버튼 -->
+            <div class="popup-button" style="text-align: center; margin-top: 20px;">
+                <button class="btn-popup-close" onclick="noticeClose()">확인</button>
+            </div>
         </div>
     </div>
+
 
 
 
@@ -244,6 +279,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/js/nth-tabs.js"></script>
     <script type="text/javascript">
+
+        var theGrid;
+        var viewdata;
+        let csrfToken = $("[name=_csrf]").val();
+
         // 오늘 날짜 가져오기
         function getTodayDate() {
             const today = new Date();
@@ -324,8 +364,6 @@
             });
         });
 
-        let csrfToken = $("[name=_csrf]").val();
-
         var swiper = new Swiper(".card-swiper", {
             slidesPerView: 5,
             spaceBetween: 20,
@@ -372,6 +410,12 @@
                 bindSpjangcd();
                 isBindSpjangcdCalled = true; // 플래그 업데이트
             }
+            // 모든 tab에서 아이콘을 숨기기
+            const zoomIcons = document.querySelectorAll('.chart-wrap .material-symbols-outlined');
+            zoomIcons.forEach(icon => {
+                icon.style.display = 'none'; // 또는 icon.style.visibility = 'hidden';
+            });
+            isNotice();
         }
         // 전체 데이터 불러오기
         function searchData(){
@@ -845,6 +889,89 @@
                 return stateMapping[section] || "0"; // 매핑된 값이 없으면 default 반환
             }
         });
+        // 공지사항 게시기간중일 경우 로그인시 띄우기 및 첨부파일 다운로드, 오늘하루 안보기 체크박스 구현
+        function isNotice() {
+            $.ajax({
+                url: '/api/dashboard2/isNotice',
+                type: 'GET',
+                data: {
+                    'search_spjangcd': $('#search_spjangcd').val()
+                },
+                async: false,
+                success: function (data) {
+                    let data2 = data.data;
+                    console.log("data2 : ", data2);
+
+                    let cookie = document.cookie;
+
+                    let hasNoticeData = Array.isArray(data2) && data2.length > 0;
+                    let hasNoCookie = !document.cookie.includes('noticeCheck=true');
+
+                    if (hasNoticeData && hasNoCookie) {
+                        document.querySelector('.popup-contents span').innerText = data2[0].BBSTEXT || "공지 내용이 없습니다.";
+
+                        const fileArea = document.getElementById("fileDownloadArea");
+                        fileArea.innerHTML = '';
+
+                        if (Array.isArray(data2[0].fileInfos)) {
+                            data2[0].fileInfos.forEach(file => {
+                                const btn = document.createElement("button");
+                                btn.className = "file-download-button";
+                                btn.innerText = `${file.fileornm} 다운로드`;
+                                btn.onclick = function () {
+                                    window.location.href = `/file/download/${file.filesvnm}`; // 실제 파일 다운로드 경로
+                                };
+                                fileArea.appendChild(btn);
+                            });
+                        }
+                        let popup = document.getElementById('popup1');
+                        let wrapper = document.getElementById('wrapper1');
+                        popup.style.display = 'block';
+                        wrapper.style.display = 'block';
+                    }
+                }
+            })
+        }
+        function noticeClose() {
+            let popup = document.getElementById('popup1');
+            let wrapper = document.getElementById('wrapper1');
+            popup.style.display = 'none';
+            wrapper.style.display = 'none';
+
+            let checkbox = document.getElementById('checkNotice');
+            if (checkbox && checkbox.checked) {
+                // 오늘 자정까지 쿠키 유지
+                let expire = new Date();
+                expire.setHours(23, 59, 59, 999);
+                document.cookie = "noticeCheck=true; path=/; expires=" + expire.toUTCString() + ";";
+            }
+        }
+        // 다운로드
+        function downloadFile_order() {
+            let selectedItems = theGrid.selectedItems; // 선택된 항목 가져오기
+            let downloadList = [];
+
+            // 선택된 항목에서 다운로드할 파일 목록 생성
+            selectedItems.forEach(function (item) {
+                // filelist 배열을 순회하여 downloadList에 추가
+                if (item.filelist && Array.isArray(item.filelist)) {
+                    item.filelist.forEach(function (file) {
+                        downloadList.push({
+                            filepath: file.filepath, // 개별 파일 경로
+                            filesvnm: file.filesvnm, // 개별 저장된 파일 이름 (uuid)
+                            fileornm: file.fileornm  // 개별 원본 파일 이름
+                        });
+                    });
+                }
+            });
+
+            // 다운로드 URL 지정
+            let downloadUrl = '/api/announcement/downloader';
+
+            // Jung.js에서 정의한 downloadFiles 함수 호출
+            downloadFiles(downloadList, downloadUrl);
+        }
+
 
 
     </script>

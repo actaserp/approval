@@ -186,10 +186,10 @@ public class RequestController {
             e064Repository.save(body);
 
             result.success = true;
-            result.message = "결재라인정보 저장 성공";
+            result.message = "저장을 성공했습니다.";
         }catch (Exception e) {
             result.success = false;
-            result.message = "결재라인정보 저장 실패(" + e.getMessage() + ")";
+            result.message = "저장 실패(" + e.getMessage() + ")";
         }
         return result;
     }

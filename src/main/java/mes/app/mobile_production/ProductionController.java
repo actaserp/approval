@@ -40,15 +40,7 @@ public class ProductionController {
         searchLabels.put("search_endDate", search_endDate);
         searchLabels.put("search_subject", searchSubject);
         searchLabels.put("search_gubun", searchGubun);
-        List<Map<String, Object>> hweigyeList = productionService.getProductionList(searchLabels);
-        List<Map<String, Object>> jichulList = productionService.getJichulList(searchLabels);
-        List<Map<String, Object>> totalList = new ArrayList<>();
-
-        hweigyeList.forEach(product -> {
-
-        });
-        totalList.addAll(jichulList);
-        totalList.addAll(hweigyeList);
+        List<Map<String, Object>> totalList = productionService.getProductionList(searchLabels);
         AjaxResult result = new AjaxResult();
         result.data = totalList;
         return result;

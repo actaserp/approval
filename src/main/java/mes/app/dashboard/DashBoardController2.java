@@ -1,5 +1,7 @@
 package mes.app.dashboard;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mes.app.dashboard.service.DashBoardService2;
 import mes.domain.entity.User;
 import mes.domain.model.AjaxResult;
@@ -10,10 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/dashboard2")
@@ -65,5 +64,71 @@ public class DashBoardController2 {
         result.data = spjangcd;
         return result;
     }
+    @GetMapping("/isNotice")
+    public AjaxResult isNotice(Authentication auth) {
+        // 관리자 사용가능 페이지 사업장 코드 선택 로직
+        User user = (User) auth.getPrincipal();
+        String username = user.getUsername();
+        List<Map<String, Object>> spjangcd = dashBoardService2.isNotice();
+        for(Map<String, Object> item : spjangcd){
+            item.put("no", spjangcd.indexOf(item)+1);
 
+            // 날짜 형식 변환 (BBSDATE)
+            if (item.containsKey("BBSDATE")) {
+                String setupdt = (String) item.get("BBSDATE");
+                if (setupdt != null && setupdt.length() == 8) {
+                    String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
+                    item.put("BBSDATE", formattedDate);
+                }
+            }
+            // 날짜 형식 변환 (BBSFRDATE)
+            if (item.containsKey("BBSFRDATE")) {
+                String setupdt = (String) item.get("BBSFRDATE");
+                if (setupdt != null && setupdt.length() == 8) {
+                    String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
+                    item.put("BBSFRDATE", formattedDate);
+                }
+            }
+            // 날짜 형식 변환 (BBSTODATE)
+            if (item.containsKey("BBSTODATE")) {
+                String setupdt = (String) item.get("BBSTODATE");
+                if (setupdt != null && setupdt.length() == 8) {
+                    String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
+                    item.put("BBSTODATE", formattedDate);
+                }
+            }
+            ObjectMapper objectMapper = new ObjectMapper();
+            if (item.get("fileinfos") != null) {
+                try {
+                    // JSON 문자열을 List<Map<String, Object>>로 변환
+                    List<Map<String, Object>> fileitems = objectMapper.readValue((String) item.get("fileinfos"), new TypeReference<List<Map<String, Object>>>() {});
+
+                    for (Map<String, Object> fileitem : fileitems) {
+                        if (fileitem.get("filepath") != null && fileitem.get("fileornm") != null) {
+                            String filenames = (String) fileitem.get("fileornm");
+                            String filepaths = (String) fileitem.get("filepath");
+                            String filesvnms = (String) fileitem.get("filesvnm");
+
+                            List<String> fileornmList = filenames != null ? Arrays.asList(filenames.split(",")) : Collections.emptyList();
+                            List<String> filepathList = filepaths != null ? Arrays.asList(filepaths.split(",")) : Collections.emptyList();
+                            List<String> filesvnmList = filesvnms != null ? Arrays.asList(filesvnms.split(",")) : Collections.emptyList();
+
+                            item.put("isdownload", !fileornmList.isEmpty() && !filepathList.isEmpty());
+                        } else {
+                            item.put("isdownload", false);
+                        }
+                    }
+
+                    // fileitems를 다시 item에 넣어 업데이트
+                    item.remove("fileinfos");
+                    item.put("filelist", fileitems);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        AjaxResult result = new AjaxResult();
+        result.data = spjangcd;
+        return result;
+    }
 }

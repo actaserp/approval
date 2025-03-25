@@ -29,6 +29,8 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -148,6 +150,7 @@ public class SportsNoticeController {
         // 유저정보 TB_BBSINFO 객체에 바인드
         BBSINFO.setBBSUSER(user.getUsername());
         BBSINFO.setINUSERID(user.getUsername());
+        BBSINFO.setINDATEM(LocalDateTime.now());
 
         try {
             // Repository를 통해 데이터 저장
