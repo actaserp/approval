@@ -26,16 +26,19 @@ public class FileMkController {
 
       byte[] pdfData;
       String custcd;
+      String filename;
 
       // 📌 key 값이 "A"로 시작하는 경우 별도 테이블에서 조회
       if (key.startsWith("A")) {
         log.info("🔹 A로 시작하는 key 감지, 다른 테이블에서 조회: key={}", key);
-        pdfData = pdfService.getPdfByKeyForA(key);  // 다른 테이블에서 조회
-        custcd = pdfService.getCustcdBySpdateForA(key);  // 다른 테이블에서 조회
+        pdfData = pdfService.getPdfByKeyForA(key);              // PDF 데이터
+        custcd = pdfService.getCustcdBySpdateForA(key);         // 고객 코드
+        filename = pdfService.getFilenameByKeyForA(key);        // 파일명
       } else {
         log.info("🔹 일반 key 처리 진행: key={}", key);
-        pdfData = pdfService.getPdfByKey(key);  // 기존 테이블에서 조회
-        custcd = pdfService.getCustcdBySpdate(key);  // 기존 테이블에서 조회
+        pdfData = pdfService.getPdfByKey(key);
+        custcd = pdfService.getCustcdBySpdate(key);
+        filename = pdfService.getFilenameByKey(key);
       }
 
       // 📌 데이터 존재 여부 확인
@@ -51,29 +54,39 @@ public class FileMkController {
       }
       log.info("✅ 고객 코드 조회 성공: key={}, custcd={}", key, custcd);
 
+      // 📌 파일명 유효성 및 확장자 처리
+      if (filename == null || filename.trim().isEmpty()) {
+        filename = key + ".pdf"; // fallback
+        log.warn("⚠️ DB에서 파일명을 찾지 못해 기본 파일명으로 대체: {}", filename);
+      } else if (!filename.toLowerCase().endsWith(".pdf")) {
+        filename += ".pdf";
+        log.info("📎 확장자 추가된 파일명: {}", filename);
+      }
+
       // 📌 PDF 저장 경로 설정
       String directoryPath = "C:/temp/APP/" + custcd + "/";
-      String filePath = directoryPath + key + ".pdf";
+      String filePath = directoryPath + filename;
       log.info("📂 파일 저장 경로 설정: {}", filePath);
 
-      // 📌 디렉토리 확인 후 없으면 생성
+      // 📁 디렉토리 생성
       File directory = new File(directoryPath);
       if (!directory.exists()) {
         directory.mkdirs();
         log.info("📁 디렉토리 생성 완료: {}", directoryPath);
       }
 
-      // 📌 기존 파일이 존재하면 삭제 후 새 파일 저장
+      // 🗑 기존 파일 삭제
       File file = new File(filePath);
       if (file.exists()) {
         file.delete();
         log.info("🗑 기존 파일 삭제 완료: {}", filePath);
       }
 
-      // 📌 파일 저장
+      // 💾 파일 저장
       Files.write(Paths.get(filePath), pdfData);
       log.info("✅ PDF 파일 저장 완료: {}", filePath);
 
+      // 📝 파일 경로 DB 업데이트
       boolean isUpdated = pdfService.updateFilePath(key, filePath);
       if (!isUpdated) {
         log.warn("⚠️ 파일 경로 DB 업데이트 실패: key={}, filePath={}", key, filePath);

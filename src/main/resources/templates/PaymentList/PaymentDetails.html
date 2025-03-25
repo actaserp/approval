@@ -12,13 +12,6 @@
         z-index: 10;
         overflow: auto;
     }
-/*    .popup-button button:not(:disabled):hover,
-    .popup-button .btn:not(:disabled):hover,
-    .popup-button .btn-navy:not(:disabled):hover {
-        background-color: #F5F6FA;
-        border: 1px solid #03428E;
-        color: #03428E;
-    }*/
     /* ✅ 가장 먼저: disabled 상태에선 hover 무시 */
     .popup-button button:disabled:hover,
     .popup-button .btn:disabled:hover,
@@ -39,6 +32,28 @@
         color: #03428E;
     }
 
+    #pdfWrapper {
+        display: flex;
+        width: 100%;
+        gap: 10px; /* 좌우 여백 */
+    }
+
+    #pdfView {
+        flex: 6;
+        max-width: 60%;
+    }
+
+    #pdfView2 {
+        flex: 4;
+        max-width: 40%;
+    }
+
+    #pdfView, #pdfView2 {
+        padding: 10px;
+        background: #f8f9fa;
+        overflow-y: auto;
+        max-height: 500px;
+    }
 
 </style>
 <th:block layout:fragment="content">
@@ -174,6 +189,7 @@
               </tr>
               <tr>
                 <td colspan="2">
+                  <div id="pdfWrapper" style="display: flex;">
                   <div id="pdfView" class="tab-item wp60" style="display: block;">
                     <div id="pdfContainer" style="
                               width: 100%;
@@ -196,6 +212,7 @@
                       <!-- PDF 페이지가 동적으로 추가됩니다. -->
                     </div>
                   </div>
+                  </div>
                 </td>
               </tr>
               <tr>
@@ -204,6 +221,8 @@
                   <input id="remark" name="remark" class="wp100" placeholder="사유"/>
                   <input id="appgubun" type="hidden"><!--결재구분-->
                   <input id="appnum" type="hidden"> <!--문서번호-->
+                  <input id="appperid" type="hidden"><!--사원번호-->
+                  <input id="papercd" type="hidden"><!--문서코드-->
                 </td>
               </tr>
               </tbody>
@@ -430,10 +449,11 @@
       appgubun = rowData.appgubun || '';
       appnum = rowData.appnum || '';
       remark = rowData.remark || '';
-
+      papercd = rowData.papercd ||'';
       document.getElementById('appnum').value = currentRealId;
       document.getElementById('appgubun').value = appgubun;
       document.getElementById('remark').value = remark;
+      document.getElementById('papercd').value = papercd;
 
       let params = {appnum: rowData.appnum};
 
@@ -516,10 +536,12 @@
       appgubun = rowData.appgubun || '';
       appnum = rowData.appnum || '';
       remark = rowData.remark || '';
+      appperid = rowData.appperid || '';
 
       document.getElementById('appnum').value = currentRealId;
       document.getElementById('appgubun').value = appgubun;
       document.getElementById('remark').value = remark;
+      document.getElementById('appperid').value = appperid;
 
       let params = {appnum: rowData.appnum};
 
@@ -541,7 +563,7 @@
         },
         error: function () {
           console.error("🚨 데이터 요청 중 오류 발생");
-          container.innerHTML = "<p style='color:red;'>PDF 파일을 불러올 수 없습니다.</p>";
+          container.innerHTML = "<p style='color:red;'>첨부된 파일이 없습니다.</p>";
         }
       });
     }
@@ -599,6 +621,8 @@
       const appnum = document.getElementById("appnum").value; //문서번호
       const appgubun = document.getElementById("appgubun").value; //결재구분
       const remark = document.getElementById("remark").value; //사유
+      const appperid =  document.getElementById('appperid').value;
+      const papercd =  document.getElementById('papercd').value;
 
       if (!appnum || !appgubun) {
         Alert.alert('', "문서번호와 결재구분이 없습니다.");
@@ -609,18 +633,25 @@
 
       // 예시: Ajax 호출
       $.ajax({
-        url: '/api/PaymentList/changeState',
+        url: '/api/PaymentDetail/changeState',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({
           appnum: appnum,
           appgubun: appgubun,
           action: action,
-          remark: remark
+          remark: remark,
+          appperid: appperid,
+          papercd : papercd
         }),
+        headers: {
+          'X-CSRF-Token': $('[name=_csrf]').val() // CSRF 토큰을 헤더에 추가
+        },
         success: function (response) {
           Alert.alert('', "상태가 변경되었습니다.");
           NewClose(); // 팝업 닫기
+          fetchListData();
+          fetchListData1();
         },
         error: function () {
           Alert.alert('', "상태 변경 중 오류 발생");
@@ -657,8 +688,8 @@
           break;
 
         case "131": // 반려
-          $btnReject.prop("disabled", true);
-          console.log("🔴 상태: 반려 → '반려' 버튼 비활성화");
+          [$btnReject, $btnHold, $btnApprove, $btnCancel].forEach(btn => btn.prop("disabled", true));
+          console.log("⛔ 상태: 반려 → 모든 버튼 비활성화");
           break;
 
         case "301": // 전결

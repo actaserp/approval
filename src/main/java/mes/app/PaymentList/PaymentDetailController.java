@@ -64,11 +64,6 @@ public class PaymentDetailController {
         //날짜 포맷 변환 (appdate)
         formatDateField(item, "appdate");
 
-     /*   //papercd 값이 "101"이면 "전표결재(지출결의서)"
-        if ("101".equals(item.get("papercd"))) {
-          item.put("papercd", "전표결재(지출결의서)");
-        }*/
-
         String appnum = (String) item.get("appnum");
         if (appnum != null) {
           List<Map<String, Object>> fileList = new ArrayList<>();
@@ -169,7 +164,7 @@ public class PaymentDetailController {
   @RequestMapping(value = "/pdf", method = RequestMethod.GET)
   public ResponseEntity<Resource> getPdf(@RequestParam("appnum") String appnum) {
     try {
-      log.info("PDF 조회 요청: appnum={}", appnum);
+    //  log.info("PDF 조회 요청: appnum={}", appnum);
 
       // DB에서 PDF 파일명 조회
       Optional<String> optionalPdfFileName = paymentDetailService.findPdfFilenameByRealId(appnum);
@@ -180,7 +175,7 @@ public class PaymentDetailController {
 
       // 파일명 그대로 사용
       String pdfFileName = optionalPdfFileName.get();
-      log.info("사용 파일명: {}", pdfFileName);
+   //   log.info("사용 파일명: {}", pdfFileName);
 
       // 운영체제별 저장 경로 설정
       String osName = System.getProperty("os.name").toLowerCase();
@@ -189,7 +184,7 @@ public class PaymentDetailController {
 
       // PDF 파일 경로 설정 및 존재 여부 확인
       Path pdfPath = Paths.get(uploadDir, pdfFileName);
-      log.info("PDF 파일 경로: {}", pdfPath.toString());
+    //  log.info("PDF 파일 경로: {}", pdfPath.toString());
 
       if (!Files.exists(pdfPath)) {
         log.warn("파일이 존재하지 않음: {}", pdfPath.toString());
@@ -198,11 +193,11 @@ public class PaymentDetailController {
 
       // 파일 정보 로깅
       File file = pdfPath.toFile();
-      log.info("파일 존재 확인 완료 - 파일 크기: {} bytes", file.length());
+    //  log.info("파일 존재 확인 완료 - 파일 크기: {} bytes", file.length());
 
       // PDF 파일을 Resource로 변환 후 응답
       Resource resource = new FileSystemResource(file);
-      log.info("Resource 변환 완료, 파일 응답 준비 시작");
+   //   log.info("Resource 변환 완료, 파일 응답 준비 시작");
 
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_PDF);
@@ -214,7 +209,7 @@ public class PaymentDetailController {
       headers.add("Access-Control-Allow-Methods", "GET, OPTIONS");
       headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-      log.info("PDF 응답 완료 - 파일명: {}, 크기: {} bytes", pdfFileName, file.length());
+     // log.info("PDF 응답 완료 - 파일명: {}, 크기: {} bytes", pdfFileName, file.length());
 
       return ResponseEntity.ok()
           .headers(headers)
@@ -231,7 +226,7 @@ public class PaymentDetailController {
   @RequestMapping(value = "/pdf2", method = RequestMethod.GET)
   public ResponseEntity<Resource> getPdf2(@RequestParam("appnum") String appnum) {
     try {
-      log.info("PDF 조회 요청: appnum={}", appnum);
+     // log.info("PDF 조회 요청: appnum={}", appnum);
 
       // DB에서 PDF 파일명 조회
       Optional<String> optionalPdfFileName = paymentDetailService.findPdfFilenameByRealId2(appnum);
@@ -251,7 +246,7 @@ public class PaymentDetailController {
 
       // PDF 파일 경로 설정 및 존재 여부 확인
       Path pdfPath = Paths.get(uploadDir, pdfFileName);
-      log.info("PDF 파일 경로: {}", pdfPath.toString());
+     // log.info("PDF 파일 경로: {}", pdfPath.toString());
 
       if (!Files.exists(pdfPath)) {
         log.warn("파일이 존재하지 않음: {}", pdfPath.toString());
@@ -260,11 +255,11 @@ public class PaymentDetailController {
 
       // 파일 정보 로깅
       File file = pdfPath.toFile();
-      log.info("파일 존재 확인 완료 - 파일 크기: {} bytes", file.length());
+     // log.info("파일 존재 확인 완료 - 파일 크기: {} bytes", file.length());
 
       // PDF 파일을 Resource로 변환 후 응답
       Resource resource = new FileSystemResource(file);
-      log.info("Resource 변환 완료, 파일 응답 준비 시작");
+      //log.info("Resource 변환 완료, 파일 응답 준비 시작");
 
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_PDF);
@@ -276,7 +271,7 @@ public class PaymentDetailController {
       headers.add("Access-Control-Allow-Methods", "GET, OPTIONS");
       headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-      log.info("PDF 응답 완료 - 파일명: {}, 크기: {} bytes", pdfFileName, file.length());
+      //log.info("PDF 응답 완료 - 파일명: {}, 크기: {} bytes", pdfFileName, file.length());
 
       return ResponseEntity.ok()
           .headers(headers)
@@ -290,12 +285,63 @@ public class PaymentDetailController {
   }
 
   @PostMapping("/changeState")
-  public AjaxResult ChangeState(){
+  public AjaxResult ChangeState(@RequestBody Map<String, Object> request) {
     AjaxResult result = new AjaxResult();
-    try{
 
-    }catch (Exception e){
+    String appnum = (String) request.get("appnum");
+    String appgubun = (String) request.get("appgubun");
+    String action = (String) request.get("action");
+    String remark = (String) request.get("remark");
+    String appperid = (String) request.get("appperid");
+    String papercd = (String) request.get("papercd");
 
+    log.info("📥 결재 상태 변경 요청: appnum={}, appgubun={}, action={}, remark={} ,appperid={}, papercd={}",
+        appnum, appgubun, action, remark, appperid, papercd);
+
+    // 📌 action 문자열 → 상태코드로 변환
+    Map<String, String> actionCodeMap = Map.of(
+        "reject", "131",
+        "hold", "201",
+        "approve", "101",
+        "cancel", "001"
+    );
+
+    String stateCode = actionCodeMap.get(action);
+    if (stateCode == null) {
+      result.success = false;
+      result.message = "유효하지 않은 상태 변경 요청입니다.";
+      return result;
+    }
+
+
+    try {
+      boolean updated = false;
+
+      // 분기 처리
+      if (appnum.startsWith("S")) {
+        updated = paymentDetailService.updateStateForS(appnum, appgubun, stateCode, remark, appperid, papercd);
+      } else if (appnum.matches("^[0-9].*ZZ$")) {
+        updated = paymentDetailService.updateStateForNumberZZ(appnum, appgubun, stateCode, remark);
+      } else if (appnum.startsWith("V")) {
+        updated = paymentDetailService.updateStateForV(appnum, appgubun, stateCode, remark);
+      } else {
+        result.success = false;
+        result.message = "지원되지 않는 문서번호 형식입니다.";
+        return result;
+      }
+
+      if (updated) {
+        result.success = true;
+        result.message = "상태가 성공적으로 변경되었습니다.";
+      } else {
+        result.success = false;
+        result.message = "상태 변경 실패: 대상 문서가 없거나 조건 불일치";
+      }
+
+    } catch (Exception e) {
+      log.error("❌ 상태 변경 중 예외 발생", e);
+      result.success = false;
+      result.message = "상태 변경 중 오류 발생: " + e.getMessage();
     }
 
     return result;
