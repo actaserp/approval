@@ -256,44 +256,54 @@ public class OrderStatusService {
     }
 
     //주문현황 그리드
-    public List<Map<String, Object>> getOrderList(String perid, String spjangcd,
+    public List<Map<String, Object>> getOrderList(String custcd, String perid, String spjangcd,
                                                   String searchStartDate, String searchEndDate, String searchType) {
 
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
         dicParam.addValue("searchStartDate", searchStartDate);
         dicParam.addValue("searchEndDate", searchEndDate);
         dicParam.addValue("searchType", searchType);
-        dicParam.addValue("perid", perid);
-        dicParam.addValue("spjangcd", spjangcd);
+        dicParam.addValue("as_perid", perid);
+        dicParam.addValue("as_spjangcd", spjangcd);
+        dicParam.addValue("as_custcd", custcd);
 
         StringBuilder sql = new StringBuilder("""
-                SELECT
-                    *
-                FROM
-                    TB_E080 e
-                WHERE
-                    e.spjangcd = :spjangcd
-                    AND (e.appperid = :perid OR e.inperid = :perid)
+                SELECT a.papercd,
+                        a.spjangcd,
+                        a.repodate,
+                        a.appnum,
+                        b.pernm as repopernm,
+                        (select divinm from tb_jc002 where divicd=b.divicd) as divinm,
+                        a.title,
+                        a.appgubun,
+                        c.com_cnam as papernm
+                   FROM tb_e080 a with(nolock), tb_ja001 b, tb_ca510 c
+                 WHERE
+                     'p' + a.repoperid = b.perid
+                     AND a.custcd = :as_custcd
+                     AND a.spjangcd = :as_spjangcd
+                     AND (a.appperid = :as_perid)
+                     AND a.papercd = c.com_code
                 """);
         // 날짜 필터
         if (searchStartDate != null && !searchStartDate.isEmpty()) {
-            sql.append(" AND indate >= :searchStartDate");
+            sql.append(" AND a.repodate >= :searchStartDate");
         }
         //
         if (searchEndDate != null && !searchEndDate.isEmpty()) {
-            sql.append(" AND indate <= :searchEndDate");
+            sql.append(" AND a.repodate <= :searchEndDate");
         }
         // 진행구분 필터
         if (searchType != null && !searchType.isEmpty()) {
             if ("0".equals(searchType)) {
-                sql.append(" AND appgubun != '001'"); // ✅ 0일 경우 '001' 제외
+                sql.append(" AND a.appgubun != '001'"); // ✅ 0일 경우 '001' 제외
             } else {
-                sql.append(" AND appgubun LIKE :searchType"); // ✅ 기존 필터 유지
+                sql.append(" AND a.appgubun LIKE :searchType"); // ✅ 기존 필터 유지
             }
         }
 
         // 정렬 조건 추가
-        sql.append(" ORDER BY indate ASC");
+        sql.append(" ORDER BY a.repodate DESC");
 
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql.toString(), dicParam);
         return items;
@@ -309,8 +319,8 @@ public class OrderStatusService {
                     TB_E080 e
                 WHERE
                     e.spjangcd = :spjangcd
-                    AND (e.appperid = :perid OR e.inperid = :perid)
-                    AND e.indate BETWEEN :searchStartDate AND :searchEndDate
+                    AND (e.appperid = :perid)
+                    AND e.repodate BETWEEN :searchStartDate AND :searchEndDate
                 GROUP BY
                     e.appgubun;
                 """);
@@ -336,13 +346,13 @@ public class OrderStatusService {
                     TB_E080 e
                 WHERE
                     e.spjangcd = :spjangcd
-                    AND(e.appperid = :perid OR e.inperid = :perid)
-                    AND e.indate BETWEEN
+                    AND(e.appperid = :perid)
+                    AND e.repodate BETWEEN
                         CAST(CAST(YEAR(GETDATE()) - 1 AS VARCHAR(4)) + '0101' AS INT)
                         AND CAST(CAST(YEAR(GETDATE()) AS VARCHAR(4)) + '1231' AS INT)
                 """);
         // 정렬 조건 추가
-        sql.append(" ORDER BY indate ASC");
+        sql.append(" ORDER BY repodate ASC");
 
         List<Map<String, Object>> items = this.sqlRunner.getRows(sql.toString(), dicParam);
         return items;
@@ -404,21 +414,31 @@ public class OrderStatusService {
         return updatedCount;
     }
     // 사용자 사원코드 조회(맨앞 'p'제거 필요)
-    public String getPerid(String username) {
+    public Map<String, Object> getPerid(String username) {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
 
         String sql = """
-                SELECT perid
+                SELECT *
                 FROM tb_xusers
                 WHERE userid = :username
                 """;
         dicParam.addValue("username", username);
         Map<String, Object> perid = this.sqlRunner.getRow(sql, dicParam);
-        String Perid = "";
-        if(perid != null && perid.containsKey("perid")) {
-            Perid = (String) perid.get("perid");
-        }
-        return Perid;
+
+        return perid;
+    }
+    // xusers 정보 perid로 조회
+    public Map<String, Object> getuserInfoPerid(String perid) {
+        MapSqlParameterSource dicParam = new MapSqlParameterSource();
+
+        String sql = """
+                SELECT *
+                FROM tb_xusers
+                WHERE perid = :perid
+                """;
+        dicParam.addValue("perid", perid);
+        Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
+        return userInfo;
     }
 
 

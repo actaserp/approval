@@ -60,7 +60,7 @@
     <!-- Page Title -->
     <div class="page-title-wrap">
       <div class="left">
-        <h2>주문 현황</h2><a id="toggleButton" onclick="toggleSearchWrap()"><img src="/images/icon/ico-down.png" alt="알람 아이콘"></a>
+        <h2>결재 현황</h2><a id="toggleButton" onclick="toggleSearchWrap()"><img src="/images/icon/ico-down.png" alt="알람 아이콘"></a>
         <!--                <a href="#" title="북마크" class="bookmark toggle">-->
         <!--                    내메뉴-->
         <!--                </a>-->
@@ -171,7 +171,7 @@
                     <div class="search-wrap">
                       <dl>
                         <dt>
-                          조회일자<span class="eq">*</span>
+                          작성일자<span class="eq">*</span>
                         </dt>
                         <dd>
                           <ul class="date-box">
@@ -434,7 +434,7 @@
         for (let i = 0; emptyRowsCount - data2.length ; i++) {
           data2.push({
             appgubun: '',
-            indate: '',
+            repodate: '',
             title: '',
             appdate: ''
           });
@@ -447,10 +447,13 @@
           showMarquee: true,
           isReadOnly: true,
           columns: [
-            { binding: 'appgubun', header: '구분', align: 'center', width: 100 },
-            { binding: 'indate', header: '요청일자', align: 'center', width: 120 },
-            { binding: 'title', header: '제목', align: 'left', width: 227 },
-            { binding: 'appdate', header: '결재일자', align: 'center', width: 120 }
+            { binding: 'papernm', header: '문  서', align: 'center', width: '*', minWidth: 100 },
+            { binding: 'repodate', header: '작성일자', align: 'center', width: '*', minWidth: 115 },
+            { binding: 'appnum', header: '문서번호', align: 'left', width: '*', minWidth: 170 },
+            { binding: 'repopernm', header: '작성자명', align: 'center', width: '*', minWidth: 81 },
+            { binding: 'divinm', header: '부서명', align: 'center', width: '*', minWidth: 72 },
+            { binding: 'title', header: '제  목', align: 'center', width: '*', minWidth: 85 },
+            { binding: 'appgubun', header: '결재상태', align: 'center', width: '*', minWidth: 82 }
           ],
           itemsSource: viewdata // 빈 객체가 추가된 배열 사용
         });
@@ -589,7 +592,7 @@
 
       return holidays;
     }
-    // 주문현황 데이터를 가져오는 함수
+    // 캘린더 올해 전체 데이터를 가져오는 함수
     async function fetchOrderDates() {
       let data2 = []; // 데이터를 담을 배열
       let emptyRowsCount = 8;
@@ -619,7 +622,7 @@
         var item = data2[i];
         orderDates.push({
           name: item.appgubun,
-          date: item.indate
+          date: item.repodate
         });
       }
       //console.log("orderDates : ", orderDates)
@@ -718,15 +721,7 @@
     }
     /*모달창=====================================================*/
 
-    // 엔터 키를 눌렀을 때 모달을 여는 이벤트 리스너 추가
-    document.getElementById('searchCltnm').addEventListener('keydown', function(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        console.log('Enter key pressed, showing CltnmModal...');
-        showPopupById('CltnmModal');  // 모달 열기 함수 호출
-        modalGrid();  // 모달 그리드 초기화 및 데이터 로드
-      }
-    });
+
 
     // 모달 ID와 데이터 로드 함수를 매핑하는 객체
     const modalDataLoaders = {

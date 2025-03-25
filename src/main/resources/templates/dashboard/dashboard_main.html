@@ -411,7 +411,7 @@
                     let ThisMonthResCntOfDate = data2.ThisMonthResCntOfDate; // 올해 상태값별 데이터
 
                     // ✅ X축 레이블: 날짜 (YYYY-MM-DD → MM-DD 형식)
-                    const labels = ThisMonthResCntOfDate.map(item => item.indate.slice(4, 6) + "-" + item.indate.slice(6, 8));
+                    const labels = ThisMonthResCntOfDate.map(item => item.repodate.slice(4, 6) + "-" + item.repodate.slice(6, 8));
 
                     // ✅ 상태값별 데이터 정리 (Stacked Bar)
                     const stackedBarData = {
@@ -589,7 +589,7 @@
                     let ThisMonthReqCntOfDate = data2.ThisMonthReqCntOfDate; // 올해 상태값별 데이터
 
                     // ✅ X축 레이블: 날짜 (YYYY-MM-DD → MM-DD 형식)
-                    const labels3 = ThisMonthReqCntOfDate.map(item => item.indate.slice(4, 6) + "-" + item.indate.slice(6, 8));
+                    const labels3 = ThisMonthReqCntOfDate.map(item => item.repodate.slice(4, 6) + "-" + item.repodate.slice(6, 8));
 
                     // ✅ 상태값별 데이터 정리 (Stacked Bar)
                     const stackedBarData3 = {

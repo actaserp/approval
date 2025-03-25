@@ -25,8 +25,8 @@ public class ProductionController {
     @GetMapping("/read_all")
     public AjaxResult productionList(@RequestParam(value = "search_startDate", required = false) String searchStartDate,
                                      @RequestParam(value = "search_endDate", required = false) String searchEndDate,
-                                     @RequestParam(value = "search_product", required = false) String searchProduct,
-                                     @RequestParam(value = "search_cltcd", required = false) String searchCltcd,
+                                     @RequestParam(value = "search_subject", required = false) String searchSubject,
+                                     @RequestParam(value = "search_gubun", required = false) String searchGubun,
                                      Authentication auth) {
         User user = (User) auth.getPrincipal();
         String username = user.getUsername();
@@ -35,79 +35,22 @@ public class ProductionController {
         String search_endDate = (searchEndDate).replaceAll("-","");
 
         Map<String, Object> searchLabels = new HashMap<>();
-        searchLabels.put("search_spjangcd", (String) userInfo.get("spjangcd"));
-        searchLabels.put("search_custcd", (String) userInfo.get("custcd"));
+        searchLabels.put("search_spjangcd", userInfo.get("spjangcd"));
         searchLabels.put("search_startDate", search_startDate);
         searchLabels.put("search_endDate", search_endDate);
-        searchLabels.put("search_product", searchProduct);
-        searchLabels.put("search_cltcd", searchCltcd);
-        List<Map<String, Object>> productList = productionService.getProductionList(searchLabels);
+        searchLabels.put("search_subject", searchSubject);
+        searchLabels.put("search_gubun", searchGubun);
+        List<Map<String, Object>> hweigyeList = productionService.getProductionList(searchLabels);
+        List<Map<String, Object>> jichulList = productionService.getJichulList(searchLabels);
+        List<Map<String, Object>> totalList = new ArrayList<>();
 
-        productList.forEach(product -> {
-            // 기존 값을 가져오기
-            if(product.get("WFLAG01") != null) {
-                String originalValue1 = product.get("WFLAG01").toString();
-                if (originalValue1.length() > 2) {
-                    originalValue1 = originalValue1.substring(2);
-                    // 새로운 값으로 업데이트
-                    Map<String, Object> newValue = productionService.getProcess(originalValue1);
-                    // 맵에 업데이트된 값 넣기
-                    product.put("WFLAG01", newValue.get("com_cnam"));
-                }
-            }
+        hweigyeList.forEach(product -> {
 
-            if(product.get("WFLAG02") != null) {
-                String originalValue2 = product.get("WFLAG02").toString();
-                if (originalValue2.length() > 2) {
-                    originalValue2 = originalValue2.substring(2);
-                    Map<String, Object> newValue2 = productionService.getProcess(originalValue2);
-                    product.put("WFLAG02", newValue2.get("com_cnam"));
-                }
-            }
-            if(product.get("WFLAG03") != null) {
-                String originalValue3 = product.get("WFLAG03").toString();
-                if (originalValue3.length() > 2) {
-                    originalValue3 = originalValue3.substring(2);
-                    Map<String, Object> newValue3 = productionService.getProcess(originalValue3);
-                    product.put("WFLAG03", newValue3.get("com_cnam"));
-                }
-            }
-            // 날짜 형식 변환 (PRODDATE)
-            if (product.containsKey("PRODDATE")) {
-                String setupdt = (String) product.get("PRODDATE");
-                if (setupdt != null && setupdt.length() == 8) {
-                    String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
-                    product.put("PRODDATE", formattedDate);
-                }
-            }
-            // 날짜 형식 변환 (WORDT01)
-            if (product.containsKey("WORDT01")) {
-                String setupdt = (String) product.get("WORDT01");
-                if (setupdt != null && setupdt.length() == 8) {
-                    String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
-                    product.put("WORDT01", formattedDate);
-                }
-            }
-            // 날짜 형식 변환 (WORDT02)
-            if (product.containsKey("WORDT02")) {
-                String setupdt = (String) product.get("WORDT02");
-                if (setupdt != null && setupdt.length() == 8) {
-                    String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
-                    product.put("WORDT02", formattedDate);
-                }
-            }
-            // 날짜 형식 변환 (WORDT03)
-            if (product.containsKey("WORDT03")) {
-                String setupdt = (String) product.get("WORDT03");
-                if (setupdt != null && setupdt.length() == 8) {
-                    String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
-                    product.put("WORDT03", formattedDate);
-                }
-            }
         });
-
+        totalList.addAll(jichulList);
+        totalList.addAll(hweigyeList);
         AjaxResult result = new AjaxResult();
-        result.data = productList;
+        result.data = totalList;
         return result;
     }
     // 작업이력 팝업 데이터
@@ -174,6 +117,7 @@ public class ProductionController {
     // 그리드 리스트
     @GetMapping("/todayGrid")
     public AjaxResult searchTodayGrid(@RequestParam(value = "search_startDate", required = false) String searchStartDate,
+                                      @RequestParam(value = "search_endDate", required = false) String searchEndDate,
                                       @RequestParam(value = "search_cltcd", required = false) String searchCltcd,
                                       @RequestParam(value = "search_product", required = false) String searchPcode,
                                       Authentication auth) {

@@ -167,41 +167,36 @@ public class OrderStatusController {
                               Authentication auth) {
         User user = (User) auth.getPrincipal();
         String username = user.getUsername();  // 유저 사업자번호(id)
-        Map<String, Object> userInfo = orderStatusService.getUserInfo(username);
-        String userCd = orderStatusService.getPerid(username);
+//        Map<String, Object> userInfo = orderStatusService.getUserInfo(username);
+        Map<String, Object> userInfo = orderStatusService.getPerid(username);
+        String userCd = userInfo.get("perid").toString();
         String userCode = userCd.replaceFirst("p", ""); // ✅ 첫 번째 "p"만 제거
+        String userCustcd = userInfo.get("custcd").toString();
         String search_startDate = (searchStartDate).replaceAll("-","");
         String search_endDate = (searchEndDate).replaceAll("-","");
-        List<Map<String, Object>> items = this.orderStatusService.getOrderList(userCode, searchSpjangcd,
+        List<Map<String, Object>> items = this.orderStatusService.getOrderList(userCustcd, userCode, searchSpjangcd,
                 search_startDate, search_endDate, searchType);
         for (Map<String, Object> item : items) {
-            if (item.get("appgubun").equals("001")) {
+            Object appgubun = item.get("appgubun");
+            if ("001".equals(appgubun)) {
                 item.remove("appgubun");
                 item.put("appgubun", "결재대기");
-            } else if (item.get("appgubun").equals("101")) {
+            } else if ("101".equals(appgubun)) {
                 item.remove("appgubun");
                 item.put("appgubun", "결재");
-            } else if (item.get("appgubun").equals("131")) {
+            } else if ("131".equals(appgubun)) {
                 item.remove("appgubun");
                 item.put("appgubun", "보류");
-            } else if (item.get("appgubun").equals("201")) {
+            } else if ("201".equals(appgubun)) {
                 item.remove("appgubun");
                 item.put("appgubun", "반려");
             }
-            // 날짜 형식 변환 (reqdate)
-            if (item.containsKey("indate")) {
-                String setupdt = (String) item.get("indate");
+            // 날짜 형식 변환 (repodate)
+            if (item.containsKey("repodate")) {
+                String setupdt = (String) item.get("repodate");
                 if (setupdt != null && setupdt.length() == 8) {
                     String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
-                    item.put("indate", formattedDate);
-                }
-            }
-            // 날짜 형식 변환 (deldate)
-            if (item.containsKey("appdate")) {
-                String setupdt = (String) item.get("appdate");
-                if (setupdt != null && setupdt.length() == 8) {
-                    String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
-                    item.put("appdate", formattedDate);
+                    item.put("repodate", formattedDate);
                 }
             }
         }
@@ -234,8 +229,10 @@ public class OrderStatusController {
                                 Authentication auth){
         User user = (User) auth.getPrincipal();
         String username = user.getUsername();
-        String userCd = orderStatusService.getPerid(username);
+        Map<String, Object> userInfo = orderStatusService.getPerid(username);
+        String userCd = userInfo.get("perid").toString();
         String userCode = userCd.replaceFirst("p", ""); // ✅ 첫 번째 "p"만 제거
+        String userCustcd = userInfo.get("custcd").toString();
         String startDate = (searchStartDate).replaceAll("-","");
         String endDate = (searchEndDate).replaceAll("-","");
         List<Map<String, Object>> items = this.orderStatusService.initDatas(userCode, searchSpjangcd, startDate, endDate);
@@ -243,14 +240,16 @@ public class OrderStatusController {
         result.data = items;
         return result;
     }
-
+    // 캘린더 데이터 조회 올해 데이터
     @GetMapping("/readCalenderGrid2")
     public AjaxResult getList2(@RequestParam(value = "search_spjangcd", required = false) String searchSpjangcd
             , Authentication auth) {
         User user = (User) auth.getPrincipal();
         String username = user.getUsername();  // 유저 사업자번호(id)
-        String userCd = orderStatusService.getPerid(username);
+        Map<String, Object> userInfo = orderStatusService.getPerid(username);
+        String userCd = userInfo.get("perid").toString();
         String userCode = userCd.replaceFirst("p", ""); // ✅ 첫 번째 "p"만 제거
+        String userCustcd = userInfo.get("custcd").toString();
 
         List<Map<String, Object>> items = this.orderStatusService.getOrderList2(userCode, searchSpjangcd);
         for (Map<String, Object> item : items) {
@@ -267,12 +266,12 @@ public class OrderStatusController {
                 item.remove("appgubun");
                 item.put("appgubun", "반려");
             }
-            // 날짜 형식 변환 (indate)
-            if (item.containsKey("indate")) {
-                String setupdt = (String) item.get("indate");
+            // 날짜 형식 변환 (repodate)
+            if (item.containsKey("repodate")) {
+                String setupdt = (String) item.get("repodate");
                 if (setupdt != null && setupdt.length() == 8) {
                     String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
-                    item.put("indate", formattedDate);
+                    item.put("repodate", formattedDate);
                 }
             }
             // 날짜 형식 변환 (appdate)

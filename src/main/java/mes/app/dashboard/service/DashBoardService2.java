@@ -132,8 +132,8 @@ public class DashBoardService2 {
                                FROM TB_E080
                                CROSS JOIN DateRanges
                                WHERE
-                               CONVERT(DATE, indate, 112) BETWEEN CONVERT(DATE, ThisYearStart, 112) AND CONVERT(DATE, ThisYearEnd, 112)
-                               AND spjangcd = :spjangcd AND (appperid = :as_perid OR repoperid = :as_perid)
+                               CONVERT(DATE, repodate, 112) BETWEEN CONVERT(DATE, ThisYearStart, 112) AND CONVERT(DATE, ThisYearEnd, 112)
+                               AND spjangcd = :spjangcd AND (appperid = :as_perid)
                                GROUP BY appgubun
             """;
         dicParam.addValue("spjangcd", spjangcd);
@@ -148,12 +148,12 @@ public class DashBoardService2 {
         String sql = """
             WITH DateSeries AS (
                      SELECT
-                         FORMAT(DATEADD(DAY, v.number, DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)), 'yyyyMMdd') AS indate
+                         FORMAT(DATEADD(DAY, v.number, DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)), 'yyyyMMdd') AS repodate
                      FROM master.dbo.spt_values v
                      WHERE v.type = 'P' AND v.number BETWEEN 0 AND 30
                  )
                  SELECT
-                     d.indate,
+                     d.repodate,
                      COUNT(CASE WHEN e.appgubun = '001' THEN 1 END) AS appgubun001,    -- appgubun = '001'
                      COUNT(CASE WHEN e.appgubun = '101' THEN 1 END) AS appgubun101,    -- appgubun = '101'
                      COUNT(CASE WHEN e.appgubun = '131' THEN 1 END) AS appgubun131,    -- appgubun = '131'
@@ -161,13 +161,13 @@ public class DashBoardService2 {
                      COUNT(CASE WHEN e.appgubun IN ('101', '131', '201') THEN 1 END) AS totalCnt -- ✅ 001(대기) 제외한 합계
                  FROM DateSeries d
                  LEFT JOIN TB_E080 e
-                     ON d.indate = e.indate
+                     ON d.repodate = e.repodate
                      AND e.appperid = :as_perid
                      AND e.spjangcd = :spjangcd
-                 WHERE d.indate BETWEEN FORMAT(DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1), 'yyyyMMdd')
+                 WHERE d.repodate BETWEEN FORMAT(DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1), 'yyyyMMdd')
                                     AND FORMAT(EOMONTH(GETDATE()), 'yyyyMMdd')
-                 GROUP BY d.indate
-                 ORDER BY d.indate;
+                 GROUP BY d.repodate
+                 ORDER BY d.repodate;
            """;
         dicParam.addValue("as_perid", as_perid);
         dicParam.addValue("spjangcd", spjangcd);
@@ -193,10 +193,10 @@ public class DashBoardService2 {
                     COUNT(CASE WHEN e.appgubun IN ('101', '131', '201') THEN 1 END) AS totalCnt -- ✅ 001(대기) 제외한 합계
                 FROM MonthSeries m
                 LEFT JOIN TB_E080 e
-                    ON FORMAT(CONVERT(DATE, e.indate, 112), 'yyyyMM') = m.YearMonth
+                    ON FORMAT(CONVERT(DATE, e.repodate, 112), 'yyyyMM') = m.YearMonth
                     AND e.appperid = :as_perid
                     AND e.spjangcd = :spjangcd
-                    AND e.indate BETWEEN FORMAT(DATEFROMPARTS(YEAR(GETDATE()), 1, 1), 'yyyyMMdd')
+                    AND e.repodate BETWEEN FORMAT(DATEFROMPARTS(YEAR(GETDATE()), 1, 1), 'yyyyMMdd')
                                      AND FORMAT(DATEFROMPARTS(YEAR(GETDATE()), 12, 31), 'yyyyMMdd')
                 GROUP BY m.YearMonth
                 ORDER BY m.YearMonth;
@@ -213,12 +213,12 @@ public class DashBoardService2 {
         String sql = """
             WITH DateSeries AS (
                  SELECT
-                     FORMAT(DATEADD(DAY, v.number, DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)), 'yyyyMMdd') AS indate
+                     FORMAT(DATEADD(DAY, v.number, DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1)), 'yyyyMMdd') AS repodate
                  FROM master.dbo.spt_values v
                  WHERE v.type = 'P' AND v.number BETWEEN 0 AND 30
              )
              SELECT
-                 d.indate,
+                 d.repodate,
                  COUNT(CASE WHEN e.appgubun = '001' THEN 1 END) AS appgubun001,    -- appgubun = '001'
                  COUNT(CASE WHEN e.appgubun = '101' THEN 1 END) AS appgubun101,    -- appgubun = '101'
                  COUNT(CASE WHEN e.appgubun = '131' THEN 1 END) AS appgubun131,    -- appgubun = '131'
@@ -226,13 +226,13 @@ public class DashBoardService2 {
                  COUNT(CASE WHEN e.appgubun IN ('101', '131', '201') THEN 1 END) AS totalCnt -- ✅ 001(대기) 제외한 합계
              FROM DateSeries d
              LEFT JOIN TB_E080 e
-                 ON d.indate = e.indate
+                 ON d.repodate = e.repodate
                  AND e.inperid = :as_perid
                  AND e.spjangcd = :spjangcd
-             WHERE d.indate BETWEEN FORMAT(DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1), 'yyyyMMdd')
+             WHERE d.repodate BETWEEN FORMAT(DATEFROMPARTS(YEAR(GETDATE()), MONTH(GETDATE()), 1), 'yyyyMMdd')
                                 AND FORMAT(EOMONTH(GETDATE()), 'yyyyMMdd')
-             GROUP BY d.indate
-             ORDER BY d.indate;
+             GROUP BY d.repodate
+             ORDER BY d.repodate;
             """;
         dicParam.addValue("spjangcd", spjangcd);
         dicParam.addValue("as_perid", as_perid);
@@ -258,10 +258,10 @@ public class DashBoardService2 {
                   COUNT(CASE WHEN e.appgubun IN ('101', '131', '201') THEN 1 END) AS totalCnt -- ✅ 001(대기) 제외한 합계
               FROM MonthSeries m
               LEFT JOIN TB_E080 e
-                  ON FORMAT(CONVERT(DATE, e.indate, 112), 'yyyyMM') = m.YearMonth
+                  ON FORMAT(CONVERT(DATE, e.repodate, 112), 'yyyyMM') = m.YearMonth
                   AND e.inperid = :as_perid
                   AND e.spjangcd = :spjangcd
-                  AND e.indate BETWEEN FORMAT(DATEFROMPARTS(YEAR(GETDATE()), 1, 1), 'yyyyMMdd')
+                  AND e.repodate BETWEEN FORMAT(DATEFROMPARTS(YEAR(GETDATE()), 1, 1), 'yyyyMMdd')
                                    AND FORMAT(DATEFROMPARTS(YEAR(GETDATE()), 12, 31), 'yyyyMMdd')
               GROUP BY m.YearMonth
               ORDER BY m.YearMonth;
