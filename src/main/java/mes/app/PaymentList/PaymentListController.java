@@ -168,6 +168,36 @@ public class PaymentListController { //결재목록
     return result;
   }
 
+  @GetMapping("/read2")
+  public AjaxResult getPaymentList2(@RequestParam(value = "search_spjangcd", required = false) String spjangcd,
+                                    @RequestParam(value = "appnum", required = false) String appnum,
+                                    Authentication auth) {
+    AjaxResult result = new AjaxResult();
+    log.info("더블클릭(결재목록) 들어온 데이터:spjangcd {}, appnum: {} ", spjangcd, appnum);
+
+    try {
+      String custcd;
+
+      custcd = paymentListService.getCustcd(appnum);
+      List<Map<String, Object>> getPaymentList2 = paymentListService.getPaymentList2(spjangcd,appnum, custcd);
+
+      for (Map<String, Object> item : getPaymentList2) {
+        //날짜 포맷
+        formatDateField(item, "appdate");
+      }
+
+      result.success = true;
+      result.message = "데이터 조회 성공";
+      result.data = getPaymentList2;
+    } catch (Exception e) {
+      // 예외 처리
+      result.success = false;
+      result.message = "데이터 조회 중 오류 발생: " + e.getMessage();
+    }
+
+    return result;
+  }
+
   // 날짜 포맷
   private void formatDateField(Map<String, Object> item, String fieldName) {
     Object dateValue = item.get(fieldName);

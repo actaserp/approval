@@ -21,35 +21,42 @@ public class PaymentListService {//결재목록
     params.addValue("as_spjangcd", spjangcd);
     params.addValue("agencycd", agencycd);
     StringBuilder sql = new StringBuilder("""
-     SELECT\s
-         e080.repodate,
-         e080.repoperid,
-         (SELECT pernm FROM tb_ja001 WHERE perid = 'p' + repoperid) AS repopernm,
-         ca510.com_code AS papercd,
-         ca510.com_cnam AS papercd_name,
-         e080.appgubun,
-         uc.Value AS appgubun_display,
-         e080.appdate,
-         e080.appnum,
-         e080.appperid,
-         e080.title,
-         e080.remark,
-         CASE     -- 파일 정보: appnum 시작 글자에 따라 분기
-             WHEN LEFT(e080.appnum, 1) = 'A' OR LEFT(e080.appnum, 2) = 'AS' THEN
-                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath) 
-                  FROM TB_AA010ATCH 
-                  WHERE spdate = e080.appnum)
-             ELSE
-                 (SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath) 
-                  FROM TB_AA010PDF 
-                  WHERE spdate = e080.appnum)
-         END AS file_info
-     FROM tb_e080 e080 WITH(NOLOCK)
-     LEFT JOIN user_code uc ON uc.Code = e080.appgubun
-     LEFT JOIN tb_ca510 ca510 ON ca510.com_cls = '620' AND ca510.com_code <> '00'
-     WHERE spjangcd = :as_spjangcd
-       AND repoperid = :agencycd
-       AND flag = '1'
+     SELECT
+            e080.repodate,
+            e080.repoperid,
+            (SELECT pernm FROM tb_ja001 WHERE perid = 'p' + repoperid) AS repopernm,
+            ca510.com_code AS papercd,
+            ca510.com_cnam AS papercd_name,
+            e080.appgubun,
+            uc.Value AS appgubun_display,
+            e080.appdate,
+            e080.appnum,
+            e080.appperid,
+            e080.title,
+            e080.remark,
+           CASE
+         WHEN EXISTS (
+                  SELECT 1 FROM TB_AA010ATCH
+                  WHERE spdate = 'A' + e080.appnum OR spdate = 'AS' + e080.appnum
+              ) THEN (
+                  SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
+                  FROM TB_AA010ATCH
+                  WHERE spdate = 'A' + e080.appnum OR spdate = 'AS' + e080.appnum
+              )
+              ELSE (
+                  SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
+                  FROM TB_AA010PDF
+                  WHERE spdate = e080.appnum
+              )
+          END AS file_info
+       FROM tb_e080 e080 WITH(NOLOCK)
+       LEFT JOIN user_code uc ON uc.Code = e080.appgubun
+       LEFT JOIN tb_ca510 ca510
+           ON ca510.com_cls = '620'
+          AND ca510.com_code = e080.papercd
+       WHERE spjangcd = :as_spjangcd
+         AND repoperid = :agencycd
+        AND flag = '1'
     """);
 
     // startDate 필터링
@@ -136,6 +143,49 @@ public class PaymentListService {//결재목록
         """);
     log.info("결재목록_문서현황 List SQL: {}", sql);
     log.info("SQL Parameters: {}", params.getValues());
+    return sqlRunner.getRows(sql.toString(), params);
+  }
+
+  public String getCustcd(String appnum) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("appnum", appnum);
+
+    String sql = "SELECT TOP 1 custcd FROM TB_E080 WHERE appnum = :appnum";
+    Map<String, Object> row = sqlRunner.getRow(sql, params);
+
+    if (row != null && row.containsKey("custcd")) {
+      return row.get("custcd").toString();  // ✅ 여기서 진짜 custcd 값만 추출!
+    } else {
+      throw new IllegalStateException("해당 appnum에 대한 custcd를 찾을 수 없습니다.");
+    }
+  }
+
+  public List<Map<String, Object>> getPaymentList2(String spjangcd, String appnum, String custcd) {
+
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    StringBuilder sql = new StringBuilder("""
+         SELECT
+         a.appnum,
+         a.seq,
+         a.appperid,
+         (select pernm from tb_ja001 where perid='p' + appperid) as apppernm,
+         (select rspnm from tb_pz001 where rspcd=(select rspcd from tb_ja001 x , tb_e080 y where x.custcd=a.custcd and x.spjangcd=a.spjangcd and x.perid='p' + y.appperid and y.seq=2 and y.appnum=a.appnum)) as rspnm1,
+         uc.Value AS appgubun_display,
+         a.appgubun,
+         a.appdate,
+         a.remark
+         FROM tb_e080 a with(nolock)
+         LEFT JOIN user_code uc ON uc.Code = a.appgubun
+         WHERE custcd = :as_custcd
+         AND  spjangcd = :as_spjangcd
+         AND appnum = :as_appnum
+        """);
+    params.addValue("as_spjangcd", spjangcd);
+    params.addValue("as_appnum", appnum);
+    params.addValue("as_custcd", custcd);
+
+//    log.info("더블클릭 결재상세 SQL: {}", sql);
+//    log.info("SQL Parameters: {}", params.getValues());
     return sqlRunner.getRows(sql.toString(), params);
   }
 }

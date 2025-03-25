@@ -142,6 +142,7 @@ public class PaymentDetailController {
     return result;
   }
 
+
   // 날짜 포맷
   private void formatDateField(Map<String, Object> item, String fieldName) {
     Object dateValue = item.get(fieldName);
@@ -321,9 +322,9 @@ public class PaymentDetailController {
       if (appnum.startsWith("S")) {
         updated = paymentDetailService.updateStateForS(appnum, appgubun, stateCode, remark, appperid, papercd);
       } else if (appnum.matches("^[0-9].*ZZ$")) {
-        updated = paymentDetailService.updateStateForNumberZZ(appnum, appgubun, stateCode, remark);
+        updated = paymentDetailService.updateStateForNumberZZ(appnum, appgubun, stateCode, remark, appperid, papercd);
       } else if (appnum.startsWith("V")) {
-        updated = paymentDetailService.updateStateForV(appnum, appgubun, stateCode, remark);
+        updated = paymentDetailService.updateStateForV(appnum, appgubun, stateCode, remark, appperid, papercd);
       } else {
         result.success = false;
         result.message = "지원되지 않는 문서번호 형식입니다.";
@@ -342,6 +343,41 @@ public class PaymentDetailController {
       log.error("❌ 상태 변경 중 예외 발생", e);
       result.success = false;
       result.message = "상태 변경 중 오류 발생: " + e.getMessage();
+    }
+
+    return result;
+  }
+
+
+  @PostMapping("/currentAppperid")
+  public AjaxResult currentAppperid(@RequestBody Map<String, Object> request,
+                                    Authentication auth) {
+    AjaxResult result = new AjaxResult();
+    try{
+      Object appnumObj = request.get("appnum");
+      String appnum;
+
+      if (appnumObj instanceof String) {
+        appnum = (String) appnumObj;
+      } else if (appnumObj instanceof Map) {
+        Map<?, ?> appnumMap = (Map<?, ?>) appnumObj;
+        appnum = String.valueOf(appnumMap.get("value")); // "value"는 프론트 구조에 따라 수정
+      } else {
+        throw new IllegalArgumentException("올바르지 않은 appnum 값");
+      }
+
+      User user = (User) auth.getPrincipal();
+      String agencycd = user.getAgencycd().replaceFirst("^p", "");
+
+      boolean rows = paymentDetailService.isApprovable(agencycd, appnum);
+
+      result.success = true;
+      result.message ="";
+      result.data = rows;
+
+    } catch (Exception e) {
+      result.success= false;
+      result.message = "결재자 정보 확인 중 오류 발생";
     }
 
     return result;

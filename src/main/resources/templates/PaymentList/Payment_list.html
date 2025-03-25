@@ -98,7 +98,7 @@
               <dt>&nbsp;</dt>
               <dd>
                 <li>
-                  <a class="btn btn-delete" title="검색" id="searchButton1" onclick="fetchListData()">
+                  <a class="btn btn-delete" title="검색" id="searchButton1" onclick="Search()">
                     <img src="/images/icon/btn-srch.svg" alt="검색 아이콘">
                     검색
                   </a>
@@ -110,8 +110,9 @@
 
         <div class="container-fluid">
           <p id="selectedItem"></p>
-          <div id="theGrid1" style="max-height:200px"></div>
-          <div id="theGrid" style="max-height: 590px"></div>
+          <div id="theGrid1" style="max-height: 200px"></div>
+          <div id="theGrid"  style="max-height: 450px"></div>
+          <div id="theGrid2" style="max-height: 250px"></div>
         </div>
       </section>
     </div> <!--//tab-wrap end-->
@@ -127,6 +128,7 @@
   <script type="text/javascript">
     let theGrid;
     let theGrid1;
+    let theGrid2;
     let isBindSpjangcdCalled = false;
 
     $(document).ready(function () {
@@ -135,10 +137,10 @@
       const year = today.getFullYear();
       const month = today.getMonth();
 
-      // 시작일
-      const startOfYear = new Date(year, 0, 1);
-      const startYearFormatted = `${startOfYear.getFullYear()}-${String(startOfYear.getMonth() + 1).padStart(2, '0')}-${String(startOfYear.getDate()).padStart(2, '0')}`;
-      $('#startDate').val(startYearFormatted);
+      //시작일: 이번 달 1일
+      const startOfMonth = new Date(year, month, 1);
+      const startFormatted = `${startOfMonth.getFullYear()}-${String(startOfMonth.getMonth() + 1).padStart(2, '0')}-${String(startOfMonth.getDate()).padStart(2, '0')}`;
+      $('#startDate').val(startFormatted);
 
       // 종료일
       const endOfMonth = new Date(year, month + 1, 0);
@@ -149,7 +151,7 @@
 
     document.getElementById('searchUserNm').addEventListener('keydown', function (event) {
       if (event.key === 'Enter') {
-        fetchListData(); // 엔터 키를 눌렀을 때 실행할 함수
+        Search(); // 엔터 키를 눌렀을 때 실행할 함수
       }
     })
 
@@ -158,6 +160,11 @@
         bindSpjangcd();
         isBindSpjangcdCalled = true; // 플래그 업데이트
       }
+      fetchListData();
+      fetchListData1();
+    }
+
+    function Search(){
       fetchListData();
       fetchListData1();
     }
@@ -232,7 +239,7 @@
         }
       });
 
-      while (data.length < 15) {
+      while (data.length < 8) {
         data.push({
           rownum: data.length + 1,
           appdate: '',
@@ -266,6 +273,7 @@
           columns: [
             {binding: 'rownum', header: '순번', width: 70, align: 'center'},
             {binding: 'appnum', header: '문서번호', width: '*', minWidth: 200, align: 'center'},
+            {binding: 'appnum', header: '문서번호', width: '*', minWidth: 200, align: 'center', visible: false},
             {binding: 'repodate', header: '상신일자', width: '*', minWidth: 120, align: 'center'},
             {binding: 'repopernm', header: '작성자명', width: '*', minWidth: 110, align: 'center'},
             {binding: 'papercd', header: '문서명', width: '*', minWidth: 250, align: 'center', visible: false},
@@ -311,7 +319,9 @@
 
               // 📄 전표파일 컬럼
               else if (col.binding === 'jeonpyoFiles') {
-                const jeonpyoFiles = item.fileList.filter(f => f.fileType === '전표');
+                const jeonpyoFiles = Array.isArray(item.fileList)
+                  ? item.fileList.filter(f => f.fileType === '전표')
+                  : [];
                 if (jeonpyoFiles.length > 0) {
                   jeonpyoFiles.forEach(file => {
                     const btn = document.createElement("a");
@@ -332,7 +342,9 @@
               }
               // 📎 첨부파일 컬럼
               else if (col.binding === 'atchFiles') {
-                const atchFiles = item.fileList.filter(f => f.fileType === '첨부');
+                const atchFiles = Array.isArray(item.fileList)
+                  ? item.fileList.filter(f => f.fileType === '첨부')
+                  : [];
                 if (atchFiles.length > 0) {
                   atchFiles.forEach(file => {
                     const btn = document.createElement("a");
@@ -355,11 +367,33 @@
           }
         });
         theGrid.rowHeaders.columns.splice(0, 1);
+        attachDoubleClickEvent(theGrid); //더블 클릭 이벤트
         new FlexGridContextMenu(theGrid);
         window.downloadFileName = '결재 목록';
       } else {
         theGrid.itemsSource = viewdata;
       }
+    }
+
+    function attachDoubleClickEvent(grid) {
+      let lastClickTime = 0;
+      grid.hostElement.addEventListener('click', function (e) {
+        const now = new Date().getTime();
+
+        if (now - lastClickTime < 300) { // 300ms 이내 클릭 -> 더블클릭 처리
+          const ht = grid.hitTest(e);
+
+          if (ht.cellType === wijmo.grid.CellType.Cell) {
+            const rowData = grid.rows[ht.row].dataItem; // 더블 클릭한 행의 데이터
+            console.log('Row Data:', rowData); // 디버깅
+
+            if (rowData) {
+              fetchListData2(rowData);
+            }
+          }
+        }
+        lastClickTime = now;
+      });
     }
 
     function fetchListData1() {
@@ -439,6 +473,85 @@
       }
     }
 
+    function fetchListData2(rowData) {
+      let data = [];
+
+      appnum = rowData.appnum || '';
+
+      params={
+        appnum : appnum,
+        search_spjangcd: $('#search_spjangcd').val(),
+      }
+
+      // 서버에서 데이터 가져오기
+      $.ajax({
+        url: '/api/PaymentList/read2',
+        type: 'GET',
+        data: params,
+        async: false,
+        success: function (response) {
+          console.log("서버에서 받은 데이터:", response);
+          if (response && Array.isArray(response.data)) {
+            data = response.data.map((item, index) => ({
+              appnum:  item.appnum || '',
+              seq: item.seq || '' ,
+              appperid: item.appperid || '',
+              apppernm: item.apppernm || '',
+              appgubun_display: item.appgubun_display || '',
+              rspnm1 : item.rspnm1 ||'',
+              appgubun : item.appgubun || '',
+              appdate: item.appdate || '',
+              remark : item.remark ||''
+            }));
+          }
+        },
+        error: function () {
+          console.error("데이터를 가져오는 중 오류가 발생했습니다.");
+        }
+      });
+
+      // 데이터가 비어 있으면 기본값 추가 (그리드가 깨지지 않도록)
+      if (data.length < 1) {
+        data.push({
+          appnum:  '',
+          seq:  '' ,
+          appperid:  '',
+          apppernm: '',
+          appgubun_display:'',
+          rspnm1 : '',
+          appgubun :'',
+          appdate:  '',
+          remark : ''
+        });
+      }
+
+      const viewdata = new wijmo.collections.CollectionView(data);
+
+      if (!theGrid2) {
+        theGrid2 = new wijmo.grid.FlexGrid('#theGrid2', {
+          autoGenerateColumns: false,
+          showMarquee: true,
+          isReadOnly: true,
+          columns: [
+            {binding: 'appnum', header: '문서번호', width: '*', minWidth: 100, align: 'center',  visible: false},
+            {binding: 'seq', header: '결재순서', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appperid', header: '결제사원코드', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'apppernm', header: '결재자명', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'rspnm1', header: '직급', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appgubun', header: '결재구분', width: '*', minWidth: 100, align: 'center', visible: false},
+            {binding: 'appgubun_display', header: '결재구분', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'appdate', header: '결재일자', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'remark', header: '사유', width: '*', minWidth: 100, align: 'center'},
+          ],
+          itemsSource: viewdata,
+        });
+        theGrid2.rowHeaders.columns.splice(0, 1);
+        new FlexGridContextMenu(theGrid2);
+        window.downloadFileName = '결재 라인';
+      } else {
+        theGrid2.itemsSource = viewdata;
+      }
+    }
 
     //공통코드
     const selectConfigs = [

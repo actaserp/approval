@@ -61,7 +61,7 @@
     <!-- Page Title -->
     <div class="page-title-wrap">
       <div class="left">
-        <h2>결재 내역</h2><a id="toggleButton" onclick="toggleSearchWrap()"><img src="/images/icon/ico-down.png"
+        <h2>결재 할 내역</h2><a id="toggleButton" onclick="toggleSearchWrap()"><img src="/images/icon/ico-down.png"
                                                                              alt="알람 아이콘"></a>
         <!--<a title="북마크" class="bookmark toggle">
             내메뉴
@@ -70,7 +70,7 @@
       <ul class="page-navi">
         <li><img src="/images/icon/ico-nav-home.svg" alt="홈아이콘"></li>
         <li>결재목록</li>
-        <li>결재내역</li>
+        <li>결재 할 내역</li>
       </ul>
     </div>
     <!-- Select -->
@@ -141,7 +141,7 @@
               <dt>&nbsp;</dt>
               <dd>
                 <li>
-                  <a class="btn btn-delete" title="검색" id="searchButton1" onclick="fetchListData()">
+                  <a class="btn btn-delete" title="검색" id="searchButton1" onclick="Search()">
                     <img src="/images/icon/btn-srch.svg" alt="검색 아이콘">
                     검색
                   </a>
@@ -255,10 +255,10 @@
       const year = today.getFullYear();
       const month = today.getMonth();
 
-      // 시작일
-      const startOfYear = new Date(year, 0, 1);
-      const startYearFormatted = `${startOfYear.getFullYear()}-${String(startOfYear.getMonth() + 1).padStart(2, '0')}-${String(startOfYear.getDate()).padStart(2, '0')}`;
-      $('#startDate').val(startYearFormatted);
+      //시작일: 이번 달 1일
+      const startOfMonth = new Date(year, month, 1);
+      const startFormatted = `${startOfMonth.getFullYear()}-${String(startOfMonth.getMonth() + 1).padStart(2, '0')}-${String(startOfMonth.getDate()).padStart(2, '0')}`;
+      $('#startDate').val(startFormatted);
 
       // 종료일
       const endOfMonth = new Date(year, month + 1, 0);
@@ -281,6 +281,11 @@
         bindSpjangcd();
         isBindSpjangcdCalled = true; // 플래그 업데이트
       }
+      fetchListData();
+      fetchListData1();
+    }
+
+    function Search(){
       fetchListData();
       fetchListData1();
     }
@@ -439,7 +444,6 @@
         lastClickTime = now;
       });
     }
-
     function modifyData(rowData) {
       console.log("✔️ 더블클릭한 행의 데이터:", rowData);
       let container = document.getElementById("pdfContainer");
@@ -631,7 +635,6 @@
 
       console.log("상태 변경 요청:", {action, appnum, appgubun, remark});
 
-      // 예시: Ajax 호출
       $.ajax({
         url: '/api/PaymentDetail/changeState',
         type: 'POST',
@@ -710,6 +713,30 @@
           console.log("⚠️ 예외 상태 → 모든 버튼 비활성화");
           break;
       }
+
+      $.ajax({
+        url: '/api/PaymentDetail/currentAppperid',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+          appnum: appnum,
+        }),
+        headers: {
+          'X-CSRF-Token': $('[name=_csrf]').val()
+        },
+        success: function (result) {
+          if (result === true) {
+            // 다른 결재자가 이미 승인한 상태라면 버튼 전부 비활성화
+            [$btnReject, $btnHold, $btnApprove, $btnCancel].forEach(btn => btn.prop("disabled", true));
+            console.log("🚫 다른 결재자가 이미 승인한 상태 → 버튼 비활성화");
+          } else {
+            console.log("✅ 다른 결재자 승인 없음 → 정상 상태 유지");
+          }
+        },
+        error: function () {
+          console.log("⚠️ 승인 체크 Ajax 실패");
+        }
+      });
     }
 
 
