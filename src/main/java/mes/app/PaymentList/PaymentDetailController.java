@@ -349,11 +349,12 @@ public class PaymentDetailController {
   }
 
 
-  @PostMapping("/currentAppperid")
+  @PostMapping("/currentApprovalInfo")
   public AjaxResult currentAppperid(@RequestBody Map<String, Object> request,
                                     Authentication auth) {
     AjaxResult result = new AjaxResult();
-    try{
+
+    try {
       Object appnumObj = request.get("appnum");
       String appnum;
 
@@ -361,27 +362,32 @@ public class PaymentDetailController {
         appnum = (String) appnumObj;
       } else if (appnumObj instanceof Map) {
         Map<?, ?> appnumMap = (Map<?, ?>) appnumObj;
-        appnum = String.valueOf(appnumMap.get("value")); // "value"는 프론트 구조에 따라 수정
+        appnum = String.valueOf(appnumMap.get("value")); // 프론트 구조 확인 필요
       } else {
         throw new IllegalArgumentException("올바르지 않은 appnum 값");
       }
 
       User user = (User) auth.getPrincipal();
-      String agencycd = user.getAgencycd().replaceFirst("^p", "");
+      String appperid = user.getAgencycd().replaceFirst("^p", "");
 
-      boolean rows = paymentDetailService.isApprovable(agencycd, appnum);
+      boolean canCancel = paymentDetailService.canCancelApproval(appnum, appperid);
+      boolean isApproved = paymentDetailService.isAlreadyApproved(appnum, appperid);
 
       result.success = true;
-      result.message ="";
-      result.data = rows;
+      result.message = "";
+      result.data = Map.of(
+          "canCancel", canCancel,
+          "isApproved", isApproved
+      );
 
     } catch (Exception e) {
-      result.success= false;
+      result.success = false;
       result.message = "결재자 정보 확인 중 오류 발생";
     }
 
     return result;
   }
+
 
   private boolean fileExistsInPdfTable(String appnum) {
     return tbAa010PdfRepository.existsBySpdateAndFilenameIsNotNull(appnum);

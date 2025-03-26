@@ -87,8 +87,8 @@ public class PaymentListService {//결재목록
 
     sql.append(" ORDER BY repodate DESC");
 
-    log.info("결재 목록 List SQL: {}", sql);
-    log.info("SQL Parameters: {}", params.getValues());
+//    log.info("결재 목록 List SQL: {}", sql);
+//    log.info("SQL Parameters: {}", params.getValues());
     return sqlRunner.getRows(sql.toString(), params);
   }
 
@@ -141,48 +141,34 @@ public class PaymentListService {//결재목록
                (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '201' AND repoperid = :as_perid AND flag = '1'  AND repodate Between :as_stdate AND :as_enddate) as appgubun4
          FROM dual
         """);
-    log.info("결재목록_문서현황 List SQL: {}", sql);
-    log.info("SQL Parameters: {}", params.getValues());
+//    log.info("결재목록_문서현황 List SQL: {}", sql);
+//    log.info("SQL Parameters: {}", params.getValues());
     return sqlRunner.getRows(sql.toString(), params);
   }
 
-  public String getCustcd(String appnum) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("appnum", appnum);
-
-    String sql = "SELECT TOP 1 custcd FROM TB_E080 WHERE appnum = :appnum";
-    Map<String, Object> row = sqlRunner.getRow(sql, params);
-
-    if (row != null && row.containsKey("custcd")) {
-      return row.get("custcd").toString();  // ✅ 여기서 진짜 custcd 값만 추출!
-    } else {
-      throw new IllegalStateException("해당 appnum에 대한 custcd를 찾을 수 없습니다.");
-    }
-  }
-
-  public List<Map<String, Object>> getPaymentList2(String spjangcd, String appnum, String custcd) {
+  public List<Map<String, Object>> getPaymentList2(String spjangcd, String appnum) {
 
     MapSqlParameterSource params = new MapSqlParameterSource();
     StringBuilder sql = new StringBuilder("""
          SELECT
-         a.appnum,
-         a.seq,
-         a.appperid,
-         (select pernm from tb_ja001 where perid='p' + appperid) as apppernm,
-         (select rspnm from tb_pz001 where rspcd=(select rspcd from tb_ja001 x , tb_e080 y where x.custcd=a.custcd and x.spjangcd=a.spjangcd and x.perid='p' + y.appperid and y.seq=2 and y.appnum=a.appnum)) as rspnm1,
-         uc.Value AS appgubun_display,
-         a.appgubun,
-         a.appdate,
-         a.remark
-         FROM tb_e080 a with(nolock)
-         LEFT JOIN user_code uc ON uc.Code = a.appgubun
-         WHERE custcd = :as_custcd
-         AND  spjangcd = :as_spjangcd
-         AND appnum = :as_appnum
+           a.appnum,
+           a.seq,
+           a.appperid,
+           (select pernm from tb_ja001 where perid='p' +  appperid) as apppernm,
+              (select divinm from tb_jc002 where divicd=b.divicd and spjangcd=b.spjangcd) as divinm,
+              (select rspnm from tb_pz001 where rspcd=b.rspcd and spjangcd=b.spjangcd) as rspnm,
+           uc.Value AS appgubun_display,
+           a.appgubun,
+           a.appdate,
+           a.remark
+           FROM tb_e080 a with(nolock)
+           LEFT JOIN user_code uc ON uc.Code = a.appgubun
+            JOIN tb_ja001 B on b.perid = 'p' + a.appperid and b.spjangcd=a.spjangcd
+           AND  a.spjangcd = :as_spjangcd
+           AND a.appnum = :as_appnum;
         """);
     params.addValue("as_spjangcd", spjangcd);
     params.addValue("as_appnum", appnum);
-    params.addValue("as_custcd", custcd);
 
 //    log.info("더블클릭 결재상세 SQL: {}", sql);
 //    log.info("SQL Parameters: {}", params.getValues());

@@ -170,16 +170,13 @@ public class PaymentListController { //결재목록
 
   @GetMapping("/read2")
   public AjaxResult getPaymentList2(@RequestParam(value = "search_spjangcd", required = false) String spjangcd,
-                                    @RequestParam(value = "appnum", required = false) String appnum,
-                                    Authentication auth) {
+                                    @RequestParam(value = "appnum", required = false) String appnum) {
     AjaxResult result = new AjaxResult();
     log.info("더블클릭(결재목록) 들어온 데이터:spjangcd {}, appnum: {} ", spjangcd, appnum);
 
     try {
-      String custcd;
 
-      custcd = paymentListService.getCustcd(appnum);
-      List<Map<String, Object>> getPaymentList2 = paymentListService.getPaymentList2(spjangcd,appnum, custcd);
+      List<Map<String, Object>> getPaymentList2 = paymentListService.getPaymentList2(spjangcd,appnum);
 
       for (Map<String, Object> item : getPaymentList2) {
         //날짜 포맷

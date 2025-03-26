@@ -380,7 +380,7 @@
             {binding: 'appgubun_display', header: '결재구분', width: '*', minWidth: 100, align: 'center'},
             {binding: 'appdate', header: '결재일자', width: '*', minWidth: 110, align: 'center'},
             {binding: 'title', header: '제목', width: '*', align: 'center', minWidth: 100},
-            {binding: 'remark', header: '사유', width: '*', align: 'center', minWidth: 100},
+            {binding: 'remark', header: '사유', width: '*', align: 'left', minWidth: 100},
             {binding: 'fileList', header: '다운로드', width: '*', minWidth: 120, align: 'center', visible: false},
             {binding: 'isdownload', visible: false},
             {binding: 'appperid', header: '', visible: false},
@@ -651,7 +651,7 @@
           'X-CSRF-Token': $('[name=_csrf]').val() // CSRF 토큰을 헤더에 추가
         },
         success: function (response) {
-          Alert.alert('', "상태가 변경되었습니다.");
+          Alert.alert('', "결재가 되었습니다.");
           NewClose(); // 팝업 닫기
           fetchListData();
           fetchListData1();
@@ -662,7 +662,66 @@
       });
     }
 
-    function setButtonStateByAppgubun(appgubun) {
+    function setButtonStateByAppgubun(appgubun, currentUserId) {
+      const $btnReject = $('.btn-reject');
+      const $btnHold = $('.btn-hold');
+      const $btnApprove = $('.btn-approve');
+      const $btnCancel = $('.btn-cancel');
+
+      // 초기화
+      [$btnReject, $btnHold, $btnApprove, $btnCancel].forEach(btn => btn.prop("disabled", true));
+
+      $.ajax({
+        url: '/api/PaymentDetail/currentApprovalInfo',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ appnum: appnum }),
+        headers: {
+          'X-CSRF-Token': $('[name=_csrf]').val()
+        },
+        success: function (response) {
+          const canCancel = response.data?.canCancel === true;
+          const isApproved = response.data?.isApproved === true;
+
+          switch (appgubun) {
+            case "101": // 결재 중
+              if (canCancel && isApproved) {
+                // 🔓 이미 결재한 상태라면 → 승인취소만 가능
+                $btnCancel.prop("disabled", false);
+                console.log("✅ 이미 결재함 → 승인취소만 활성화");
+              } else if (canCancel && !isApproved) {
+                // 🔓 내가 결재자고 아직 결재 안 했으면 → 일반 결재 가능
+                [$btnReject, $btnHold, $btnApprove].forEach(btn => btn.prop("disabled", false));
+                console.log("🟢 결재 가능 상태 → 결재 버튼들 활성화");
+              } else {
+                console.log("🚫 결재자가 아님 또는 뒤 결재자 있음 → 버튼 비활성화");
+              }
+              break;
+
+            case "001": // 대기
+              console.log("🟢 대기 상태 → 전체 버튼 활성화");
+              [$btnReject, $btnHold, $btnApprove].forEach(btn => btn.prop("disabled", false));
+              break;
+
+            case "201": // 보류
+              $btnReject.prop("disabled", false);
+              $btnApprove.prop("disabled", false);
+              break;
+
+            case "131": // 반려
+            default:
+              console.log("⛔ 처리불가 상태 → 전체 비활성화");
+              break;
+          }
+        },
+        error: function () {
+          console.log("⚠️ Ajax 실패");
+        }
+      });
+    }
+
+
+    /* function setButtonStateByAppgubun(appgubun) {
 
       const $btnReject = $('.btn-reject');// 반려
       const $btnHold = $('.btn-hold');// 보류
@@ -695,19 +754,6 @@
           console.log("⛔ 상태: 반려 → 모든 버튼 비활성화");
           break;
 
-        case "301": // 전결
-        case "311": // 전결중
-          $btnApprove.prop("disabled", true);
-          console.log("🟣 상태: 전결/전결중 → '승인' 버튼 비활성화");
-          break;
-
-        case "111": // 결재중
-          $btnReject.prop("disabled", true);
-          $btnHold.prop("disabled", true);
-          $btnApprove.prop("disabled", true);
-          console.log("🟠 상태: 결재중 → '반려, 보류, 승인' 비활성화");
-          break;
-
         default:
           [$btnReject, $btnHold, $btnApprove, $btnCancel].forEach(btn => btn.prop("disabled", true));
           console.log("⚠️ 예외 상태 → 모든 버튼 비활성화");
@@ -737,7 +783,7 @@
           console.log("⚠️ 승인 체크 Ajax 실패");
         }
       });
-    }
+    }*/
 
 
     function downloadFile(fileList) {

@@ -281,7 +281,7 @@
             {binding: 'appgubun_display', header: '결재구분', width: '*', minWidth: 100, align: 'center'},
             {binding: 'appdate', header: '결재일자', width: '*', minWidth: 120, align: 'center'},
             {binding: 'title', header: '제목', width: '*', align: 'center', minWidth: 150},
-            {binding: 'remark', header: '사유',width: '*' ,align: 'center', minWidth: 250},
+            {binding: 'remark', header: '사유',width: '*' ,align: 'left', minWidth: 250},
             {binding: 'fileList', header: '다운로드', width: '*', minWidth: 120, align: 'center', visible: false },
             {binding: 'jeonpyoFiles', header: '전표파일', width: '*', minWidth: 120, align: 'center'},
             {binding: 'atchFiles', header: '첨부파일', width: '*', minWidth: 120, align: 'center'},
@@ -366,7 +366,7 @@
           }
         });
         theGrid.rowHeaders.columns.splice(0, 1);
-        attachDoubleClickEvent(theGrid); //더블 클릭 이벤트
+        attachClickEvent(theGrid); //더블 클릭 이벤트
         new FlexGridContextMenu(theGrid);
         window.downloadFileName = '결재 목록';
       } else {
@@ -374,24 +374,18 @@
       }
     }
 
-    function attachDoubleClickEvent(grid) {
-      let lastClickTime = 0;
+    function attachClickEvent(grid) {
       grid.hostElement.addEventListener('click', function (e) {
-        const now = new Date().getTime();
+        const ht = grid.hitTest(e);
 
-        if (now - lastClickTime < 300) { // 300ms 이내 클릭 -> 더블클릭 처리
-          const ht = grid.hitTest(e);
+        if (ht.cellType === wijmo.grid.CellType.Cell) {
+          const rowData = grid.rows[ht.row].dataItem; // 클릭한 행의 데이터
+          console.log('Row Data:', rowData); // 디버깅
 
-          if (ht.cellType === wijmo.grid.CellType.Cell) {
-            const rowData = grid.rows[ht.row].dataItem; // 더블 클릭한 행의 데이터
-            console.log('Row Data:', rowData); // 디버깅
-
-            if (rowData) {
-              fetchListData2(rowData);
-            }
+          if (rowData) {
+            fetchListData2(rowData);
           }
         }
-        lastClickTime = now;
       });
     }
 
@@ -497,7 +491,8 @@
               appperid: item.appperid || '',
               apppernm: item.apppernm || '',
               appgubun_display: item.appgubun_display || '',
-              rspnm1 : item.rspnm1 ||'',
+              rspnm : item.rspnm ||'',
+              divinm : item.divinm || '',
               appgubun : item.appgubun || '',
               appdate: item.appdate || '',
               remark : item.remark ||''
@@ -517,7 +512,8 @@
           appperid:  '',
           apppernm: '',
           appgubun_display:'',
-          rspnm1 : '',
+          rspnm : '',
+          divinm:'',
           appgubun :'',
           appdate:  '',
           remark : ''
@@ -536,13 +532,31 @@
             {binding: 'seq', header: '결재순서', width: '*', minWidth: 100, align: 'center'},
             {binding: 'appperid', header: '결제사원코드', width: '*', minWidth: 100, align: 'center'},
             {binding: 'apppernm', header: '결재자명', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'rspnm1', header: '직급', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'divinm', header: '부서명', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'rspnm', header: '직급', width: '*', minWidth: 100, align: 'center'},
             {binding: 'appgubun', header: '결재구분', width: '*', minWidth: 100, align: 'center', visible: false},
             {binding: 'appgubun_display', header: '결재구분', width: '*', minWidth: 100, align: 'center'},
             {binding: 'appdate', header: '결재일자', width: '*', minWidth: 100, align: 'center'},
-            {binding: 'remark', header: '사유', width: '*', minWidth: 100, align: 'center'},
+            {binding: 'remark', header: '사유', width: '*', minWidth: 100, align: 'left'},
           ],
           itemsSource: viewdata,
+          formatItem: function (s, e) {
+            if (e.panel == s.cells) {
+              const col = s.columns[e.col];
+              const item = s.rows[e.row].dataItem;
+
+              if (col.binding === 'appgubun_display') {
+                if (item.appgubun_display === '결재') {
+                  e.cell.style.color = 'red';
+                  e.cell.style.fontWeight = 'bold';
+                } else {
+                  // 스타일 초기화
+                  e.cell.style.color = '';
+                  e.cell.style.fontWeight = '';
+                }
+              }
+            }
+          }
         });
         theGrid2.rowHeaders.columns.splice(0, 1);
         new FlexGridContextMenu(theGrid2);
