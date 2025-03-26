@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.NumberFormat;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/mobile_production")
@@ -36,14 +34,62 @@ public class ProductionController {
 
         Map<String, Object> searchLabels = new HashMap<>();
         searchLabels.put("search_spjangcd", userInfo.get("spjangcd"));
+        String perid = userInfo.get("perid").toString();
+        String splitPerid = perid.replaceFirst("p", ""); // ✅ 첫 번째 "p"만 제거
+        searchLabels.put("search_perid", splitPerid);
         searchLabels.put("search_startDate", search_startDate);
         searchLabels.put("search_endDate", search_endDate);
         searchLabels.put("search_subject", searchSubject);
         searchLabels.put("search_gubun", searchGubun);
         List<Map<String, Object>> totalList = productionService.getProductionList(searchLabels);
         List<Map<String, Object>> vacList = productionService.getVacList(searchLabels);
+        List<Map<String, Object>> allList = new ArrayList<>();
+        allList.addAll(totalList);
+        allList.addAll(vacList);
+        allList.sort(Comparator.comparing(
+                m -> (String) m.get("spdate"),
+                Comparator.nullsLast(Comparator.reverseOrder())
+        ));
+        for(Map<String, Object> item : allList) {
+            // 날짜 형식 변환 (spdate)
+            if (item.containsKey("spdate")) {
+                String setupdt = (String) item.get("spdate");
+                if (setupdt != null && setupdt.length() == 8) {
+                    String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
+                    item.put("spdate", formattedDate);
+                }
+            }
+            // title 형식변환 (e080_title)
+            if (item.containsKey("e080_title")) {
+                String setup = (String) item.get("e080_title");
+                if (setup == null || setup.isEmpty()) {
+                    item.put("e080_title", '-');
+                }
+            }
+            // remark 형식변환 (remark)
+            if (item.containsKey("remark")) {
+                String setup = (String) item.get("remark");
+                if (setup == null || setup.isEmpty()) {
+                    item.put("remark", '-');
+                }
+            }
+            // 금액 비교 (dramt, cramt)
+            if (item.containsKey("dramt")) {
+                Number dramt = (Number) item.getOrDefault("dramt", 0);
+                Number cramt = (Number) item.getOrDefault("cramt", 0);
+                int setamt = Math.max(dramt.intValue(), cramt.intValue());
+                item.put("setamt", setamt);
+
+                // 쉼표 포함 포맷팅
+                NumberFormat formatter = NumberFormat.getNumberInstance(Locale.KOREA);
+                String setamtStr = formatter.format(setamt);
+                item.put("setamtStr", setamtStr);
+            }
+        }
         AjaxResult result = new AjaxResult();
-        result.data = totalList;
+
+        System.out.println("vacList : " + vacList);
+        result.data = allList;
         return result;
     }
     // 작업이력 팝업 데이터

@@ -257,36 +257,43 @@
         // 색상을 순환적으로 할당하기 위한 인덱스
         let colorIndex = 0;
         // 날자 변환
-
+        console.log("랜더링 data (서류별 개별 작업필요 ): " , data)
         data.forEach(item => {
-            const cardColor = availableColors[colorIndex];
-            colorIndex = (colorIndex + 1) % availableColors.length;
+            let cardColor = 'card-blue'; // 기본값
+
+            if (item.e080_appgubun === '001') {
+                cardColor = 'card-green';
+            } else if (item.e080_appgubun === '131') {
+                cardColor = 'card-red';
+            }
             // 버튼 처리
             let buttonsHtml = `<button class="btn btn-popup-open" data-popup="popup-history" title="반려">반려</button>
                                <button class="btn btn-popup-open" data-popup="popup-history" title="승인">승인</button>
                                <button class="btn btn-popup-open" data-popup="popup-history" title="전표보기">전표보기</button>`;
+            let cardHtml = '';
+            if(item.flag === '1') {
 
-            const cardHtml = `
+                cardHtml = `
                         <div class="card-box ${cardColor}" data-wono="${item.WONO}">
                             <div class="card-tit">
-                                <h3>${`${item.WONO.slice(0, 2)}-${item.WONO.slice(2, 6)}-${item.WONO.slice(6)}`}</h3>
+                                <h3>${item.e080_title}</h3>
                             </div>
                             <div class="card-cont">
                                 <dl>
                                     <dt>일자</dt>
-                                    <dd>${item.PRODDATE}</dd>
+                                    <dd>${item.spdate}</dd>
                                 </dl>
                                 <dl>
                                     <dt>구분</dt>
-                                    <dd>${item.PNAME}</dd>
+                                    <dd>${item.mssecnm}</dd>
                                 </dl>
                                 <dl>
                                     <dt>제목</dt>
-                                    <dd>${item.ORDQTY}</dd>
+                                    <dd>${item.subject}</dd>
                                 </dl>
                                 <dl>
                                     <dt>금액</dt>
-                                    <dd>${item.PRODQTY}</dd>
+                                    <dd>${item.setamtStr}</dd>
                                 </dl>
                             </div>
                             <div class="card-btn">
@@ -294,6 +301,29 @@
                             </div>
                         </div>
                     `;
+            }
+            if(item.flag === '2'){
+                cardHtml = `
+                        <div class="card-box ${cardColor}" data-wono="${item.WONO}">
+                            <div class="card-tit">
+                                <h3>${item.e080_title}</h3>
+                            </div>
+                            <div class="card-cont">
+                                <dl>
+                                    <dt>일자</dt>
+                                    <dd>${item.spdate}</dd>
+                                </dl>
+                                <dl>
+                                    <dt>추가사항</dt>
+                                    <dd>${item.remark}</dd>
+                                </dl>
+                            </div>
+                            <div class="card-btn">
+                                ${buttonsHtml}
+                            </div>
+                        </div>
+                    `;
+            }
             listCardWrap.insertAdjacentHTML('beforeend', cardHtml);
             // 작업이력 버튼에 클릭 이벤트 추가
             const historyButton = listCardWrap.querySelector(

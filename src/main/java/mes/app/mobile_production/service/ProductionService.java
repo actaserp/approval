@@ -23,10 +23,9 @@ public class ProductionService {
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
 
         String sql = """
-                select xs.custcd,
-                       xs.spjangcd
-                FROM TB_XUSERS xs
-                WHERE xs.userid = :username
+                SELECT *
+                FROM tb_xusers
+                WHERE userid = :username
                 """;
         dicParam.addValue("username", username);
         Map<String, Object> userInfo = this.sqlRunner.getRow(sql, dicParam);
@@ -40,12 +39,14 @@ public class ProductionService {
         String searchEnddate = (String) searchLabels.get("search_endDate");
         String searchSubject = (String) searchLabels.get("search_subject");
         String searchGubun = (String) searchLabels.get("search_gubun");
+        String searchPerid = (String) searchLabels.get("search_perid");
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
         List<Map<String, Object>> items = new ArrayList<>();
 
         dicParam.addValue("search_spjangcd", searchSpjangcd);
         dicParam.addValue("search_startdate", searchStartdate);
         dicParam.addValue("search_enddate", searchEnddate);
+        dicParam.addValue("search_perid", searchPerid);
 
         dicParam.addValue("searchSubject",
                 (searchSubject != null && !searchSubject.isEmpty()) ? "%" + searchSubject + "%" : "%");
@@ -55,7 +56,8 @@ public class ProductionService {
 
 
         StringBuilder sql = new StringBuilder("""
-                    SELECT *
+                    SELECT *,
+                            '1' as flag
                           FROM (
                               -- 첫 번째 쿼리
                               SELECT
@@ -100,6 +102,7 @@ public class ProductionService {
                                   AND A.spdate BETWEEN :search_startdate AND :search_enddate
                                   AND (:searchSubject = '%' OR A.subject LIKE :searchSubject)
                                   AND (:searchGubun = '%' OR A.appgubun LIKE :searchGubun)
+                                  AND C.appperid = :search_perid
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
@@ -150,6 +153,7 @@ public class ProductionService {
                                   AND A.spdate BETWEEN :search_startdate AND :search_enddate
                                   AND (:searchSubject = '%' OR A.subject LIKE :searchSubject)
                                   AND (:searchGubun = '%' OR A.appgubun LIKE :searchGubun)
+                                  AND C.appperid = :search_perid
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
@@ -169,19 +173,28 @@ public class ProductionService {
     // 휴가신청서 데이터 조회
     public List<Map<String, Object>> getVacList(Map<String, Object> searchLabels) {
         String searchSpjangcd = (String) searchLabels.get("search_spjangcd");
-        String searchStartdate = (String) searchLabels.get("search_startdate");
-        String searchEnddate = (String) searchLabels.get("search_enddate");
+        String searchStartdate = (String) searchLabels.get("search_startDate");
+        String searchEnddate = (String) searchLabels.get("search_endDate");
         String searchSubject = (String) searchLabels.get("search_subject");
         String searchGubun = (String) searchLabels.get("search_gubun");
+        String searchPerid = (String) searchLabels.get("search_perid");
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
         List<Map<String, Object>> items = new ArrayList<>();
 
         dicParam.addValue("search_spjangcd", searchSpjangcd);
         dicParam.addValue("search_startdate", searchStartdate);
         dicParam.addValue("search_enddate", searchEnddate);
+        dicParam.addValue("search_perid", searchPerid);
+
+        dicParam.addValue("searchSubject",
+                (searchSubject != null && !searchSubject.isEmpty()) ? "%" + searchSubject + "%" : "%");
+
+        dicParam.addValue("searchGubun",
+                (searchGubun != null && !searchGubun.isEmpty()) ? "%" + searchGubun + "%" : "%");
 
         StringBuilder sql = new StringBuilder("""
                 SELECT
+                 '2' as flag,
                   A.reqdate,
                   A.custcd,
                   A.spjangcd,
@@ -197,6 +210,7 @@ public class ProductionService {
                   A.appperid,
                   A.appremark,
                   A.appnum,
+                  A.reqdate AS spdate,
                   C.appgubun AS e080_appgubun,
                   C.appnum   AS e080_appnum,
                   C.title    AS e080_title
@@ -207,25 +221,23 @@ public class ProductionService {
                   AND A.custcd = C.custcd
                 WHERE A.spjangcd = :search_spjangcd
                 AND A.reqdate BETWEEN :search_startdate AND :search_enddate
-                AND A.remark LIKE :searchSubject
-                AND (C.appgubun LIKE :searchGubun OR C.appgubun IS NULL)
+                AND (:searchSubject = '%' OR A.remark LIKE :searchSubject)
+                AND (:searchGubun = '%' OR A.appgubun LIKE :searchGubun)
+                AND C.appperid = :search_perid
                 ORDER BY A.reqdate DESC, A.vanum DESC;
-                
                 """);
 
-        if(!searchSubject.isEmpty()) {
-            dicParam.addValue("searchSubject","%" + searchSubject + "%");
-        }else {
-            dicParam.addValue("searchSubject", "%");
-        }
-        if(!searchGubun.isEmpty()) {
-            dicParam.addValue("searchGubun",searchGubun);
-        }else {
-            dicParam.addValue("searchGubun", "%");
-        }
-
-
         try {
+            System.out.println("──────────────────────────────");
+            System.out.println("📜 최종 실행 SQL:");
+            System.out.println(sql.toString());
+
+            System.out.println("\n📦 바인딩 파라미터:");
+            for (String key : dicParam.getValues().keySet()) {
+                System.out.println("→ " + key + " = " + dicParam.getValue(key));
+            }
+            System.out.println("──────────────────────────────");
+
             items = this.sqlRunner.getRows(String.valueOf(sql), dicParam);
         } catch (Exception e) {
             e.printStackTrace();
