@@ -38,6 +38,17 @@ public class AlarmController {
             // 알림 데이터 조회
             List<Map<String, Object>> notifications = alarmService.getNotifications(userCode, spjangcd, userGroupId);
 
+            for(Map<String, Object> item : notifications) {
+                // 날짜 형식 변환 (alert_date)
+                if (item.containsKey("alert_date")) {
+                    String setupdt = (String) item.get("alert_date");
+                    if (setupdt != null && setupdt.length() == 8) {
+                        String formattedDate = setupdt.substring(0, 4) + "-" + setupdt.substring(4, 6) + "-" + setupdt.substring(6, 8);
+                        item.put("alert_date", formattedDate);
+                    }
+                }
+            }
+
             result.success = true;
             result.data = notifications;
             result.message = "알림 조회 성공";
