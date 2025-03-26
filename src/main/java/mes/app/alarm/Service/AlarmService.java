@@ -40,7 +40,7 @@ public class AlarmService {
                 FROM
                     TB_E080 e
                 WHERE
-                    e.adflag = '0'           -- spjangcd가 0인 데이터만 가져오기
+                    e.adflag = '0'
                     AND e.spjangcd = :spjangcd
                     AND e.appperid = :perid
                 ORDER BY

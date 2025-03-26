@@ -85,6 +85,54 @@ public class ProductionController {
                 String setamtStr = formatter.format(setamt);
                 item.put("setamtStr", setamtStr);
             }
+            // 휴가신청서 구분 포맷팅 (appperid -> apppernm)
+            if (item.containsKey("yearflag")) {
+                if(item.get("yearflag").toString().equals("0")){
+                    item.put("yearflag", "근태");
+                }
+                if(item.get("yearflag").toString().equals("1")){
+                    item.put("yearflag", "연차차감");
+                }
+                if(item.get("yearflag").toString().equals("2")){
+                    item.put("yearflag", "대체휴가생성");
+                }
+            }
+            // 휴가신청서 휴가일 포맷팅 (vafrdate)
+            if (item.containsKey("vafrdate")) {
+                String setupdt = (String) item.get("vafrdate");
+                if (setupdt != null && setupdt.length() == 8) {
+                    String formattedDate = setupdt.substring(0, 4) + "." + setupdt.substring(4, 6) + "." + setupdt.substring(6, 8);
+                    item.put("vafrdate", formattedDate);
+                }
+            }
+            // 휴가신청서 휴가일 포맷팅 (vatodate)
+            if (item.containsKey("vatodate")) {
+                String setupdt = (String) item.get("vatodate");
+                if (setupdt != null && setupdt.length() == 8) {
+                    String formattedDate = setupdt.substring(0, 4) + "." + setupdt.substring(4, 6) + "." + setupdt.substring(6, 8);
+                    item.put("vatodate", formattedDate);
+                }
+            }
+            // 휴가신청서 휴가시간 포맷팅 (vafrtime)
+            if (item.containsKey("vafrtime")) {
+                String setupdt = (String) item.get("vafrtime");
+                if (setupdt != null && setupdt.length() == 4) {
+                    String formattedTime = setupdt.substring(0, 2) + ":" + setupdt.substring(2, 4);
+                    item.put("vafrtime", formattedTime);
+                }else{
+                    item.put("vafrtime", "-");
+                }
+            }
+            // 휴가신청서 휴가일 포맷팅 (vatotime)
+            if (item.containsKey("vatotime")) {
+                String setupdt = (String) item.get("vatotime");
+                if (setupdt != null && setupdt.length() == 4) {
+                    String formattedTime = setupdt.substring(0, 2) + ":" + setupdt.substring(2, 4);
+                    item.put("vatotime", formattedTime);
+                }else{
+                    item.put("vatotime", "-");
+                }
+            }
         }
         AjaxResult result = new AjaxResult();
 

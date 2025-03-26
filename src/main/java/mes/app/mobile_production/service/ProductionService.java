@@ -200,6 +200,10 @@ public class ProductionService {
                   A.spjangcd,
                   A.vayear,
                   A.vanum,
+                  A.vafrdate,
+                  A.vatodate,
+                  A.vafrtime,
+                  A.vatotime,
                   A.perid,
                   A.reqdate,
                   A.reasontxt,
@@ -210,15 +214,19 @@ public class ProductionService {
                   A.appperid,
                   A.appremark,
                   A.appnum,
+                  A.yearflag,
                   A.reqdate AS spdate,
                   C.appgubun AS e080_appgubun,
                   C.appnum   AS e080_appnum,
-                  C.title    AS e080_title
+                  C.title    AS e080_title,
+                  X.pernm AS apppernm
                 FROM TB_PB204 A WITH (NOLOCK)
                 LEFT JOIN TB_E080 C
                   ON 'V' + A.vayear + A.vanum + A.spjangcd = C.appnum
                   AND A.spjangcd = C.spjangcd
                   AND A.custcd = C.custcd
+                LEFT JOIN tb_xusers X
+                    ON 'p' + A.perid = X.perid
                 WHERE A.spjangcd = :search_spjangcd
                 AND A.reqdate BETWEEN :search_startdate AND :search_enddate
                 AND (:searchSubject = '%' OR A.remark LIKE :searchSubject)
