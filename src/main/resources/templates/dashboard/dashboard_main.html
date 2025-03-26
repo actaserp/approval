@@ -913,16 +913,14 @@
                         const fileArea = document.getElementById("fileDownloadArea");
                         fileArea.innerHTML = '';
 
-                        if (Array.isArray(data2[0].fileInfos)) {
-                            data2[0].fileInfos.forEach(file => {
-                                const btn = document.createElement("button");
-                                btn.className = "file-download-button";
-                                btn.innerText = `${file.fileornm} 다운로드`;
+                        if (Array.isArray(data2[0].filelist)) {
+                                const btn = document.createElement("a");
+                                btn.className = "btn-filedown";
+                                btn.innerText = `첨부파일다운로드`;
                                 btn.onclick = function () {
-                                    window.location.href = `/file/download/${file.filesvnm}`; // 실제 파일 다운로드 경로
+                                    downloadFile_order(data2);
                                 };
                                 fileArea.appendChild(btn);
-                            });
                         }
                         let popup = document.getElementById('popup1');
                         let wrapper = document.getElementById('wrapper1');
@@ -947,12 +945,11 @@
             }
         }
         // 다운로드
-        function downloadFile_order() {
-            let selectedItems = theGrid.selectedItems; // 선택된 항목 가져오기
+        function downloadFile_order(data) {
             let downloadList = [];
 
             // 선택된 항목에서 다운로드할 파일 목록 생성
-            selectedItems.forEach(function (item) {
+            data.forEach(function (item) {
                 // filelist 배열을 순회하여 downloadList에 추가
                 if (item.filelist && Array.isArray(item.filelist)) {
                     item.filelist.forEach(function (file) {
