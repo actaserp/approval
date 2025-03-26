@@ -101,7 +101,7 @@ public class ProductionService {
                                   A.spjangcd = :search_spjangcd
                                   AND A.spdate BETWEEN :search_startdate AND :search_enddate
                                   AND (:searchSubject = '%' OR A.subject LIKE :searchSubject)
-                                  AND (:searchGubun = '%' OR A.appgubun LIKE :searchGubun)
+                                  AND (:searchGubun = '%' OR C.appgubun LIKE :searchGubun)
                                   AND C.appperid = :search_perid
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
@@ -152,7 +152,7 @@ public class ProductionService {
                                   A.spjangcd = :search_spjangcd
                                   AND A.spdate BETWEEN :search_startdate AND :search_enddate
                                   AND (:searchSubject = '%' OR A.subject LIKE :searchSubject)
-                                  AND (:searchGubun = '%' OR A.appgubun LIKE :searchGubun)
+                                  AND (:searchGubun = '%' OR C.appgubun LIKE :searchGubun)
                                   AND C.appperid = :search_perid
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
@@ -222,7 +222,7 @@ public class ProductionService {
                 WHERE A.spjangcd = :search_spjangcd
                 AND A.reqdate BETWEEN :search_startdate AND :search_enddate
                 AND (:searchSubject = '%' OR A.remark LIKE :searchSubject)
-                AND (:searchGubun = '%' OR A.appgubun LIKE :searchGubun)
+                AND (:searchGubun = '%' OR C.appgubun LIKE :searchGubun)
                 AND C.appperid = :search_perid
                 ORDER BY A.reqdate DESC, A.vanum DESC;
                 """);
