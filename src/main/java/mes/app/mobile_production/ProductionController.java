@@ -41,6 +41,7 @@ public class ProductionController {
         searchLabels.put("search_subject", searchSubject);
         searchLabels.put("search_gubun", searchGubun);
         List<Map<String, Object>> totalList = productionService.getProductionList(searchLabels);
+        List<Map<String, Object>> vacList = productionService.getVacList(searchLabels);
         AjaxResult result = new AjaxResult();
         result.data = totalList;
         return result;

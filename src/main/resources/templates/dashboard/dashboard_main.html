@@ -234,9 +234,11 @@
         <div class="popup-overlay" id="popup1"></div>
         <div class="popup-wrapper" id="wrapper1">
             <div class="popup-title" style="text-align: center; padding-top: 20px;">
-                <h2 style="color: #0047AB; font-size: 28px; font-weight: bold;">Notice<br>check!</h2>
+                <h2 id="noticeTitle" style="color: #0047AB; font-size: 28px; font-weight: bold;">공지사항<br>check!</h2>
             </div>
-
+            <div class="popup-title" style="text-align: center;">
+                <h4 id="noticePeriod" style="color: #0047AB; font-size: 14px; font-weight: normal">공지사항<br>check!</h4>
+            </div>
             <div style="border-top: 1px solid #ccc; margin: 16px auto 20px; width: 80%;"></div>
 
             <div class="popup-contents" style="text-align: center;">
@@ -909,6 +911,12 @@
 
                     if (hasNoticeData && hasNoCookie) {
                         document.querySelector('.popup-contents span').innerText = data2[0].BBSTEXT || "공지 내용이 없습니다.";
+                        document.getElementById('noticeTitle').innerHTML =
+                            data2[0].BBSSUBJECT;
+
+                        document.getElementById('noticePeriod').innerHTML =
+                            "공지기간<br>" + data2[0].BBSFRDATE + " ~ " + data2[0].BBSTODATE;
+
 
                         const fileArea = document.getElementById("fileDownloadArea");
                         fileArea.innerHTML = '';

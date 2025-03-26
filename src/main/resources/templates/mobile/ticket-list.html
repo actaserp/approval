@@ -262,9 +262,9 @@
             const cardColor = availableColors[colorIndex];
             colorIndex = (colorIndex + 1) % availableColors.length;
             // 버튼 처리
-            let buttonsHtml = `<button class="btn btn-popup-open" data-popup="popup-history" title="작업이력">반려</button>
-                               <button class="btn btn-popup-open" data-popup="popup-history" title="작업이력">승인</button>
-                               <button class="btn btn-popup-open" data-popup="popup-history" title="작업이력">전표보기</button>`;
+            let buttonsHtml = `<button class="btn btn-popup-open" data-popup="popup-history" title="반려">반려</button>
+                               <button class="btn btn-popup-open" data-popup="popup-history" title="승인">승인</button>
+                               <button class="btn btn-popup-open" data-popup="popup-history" title="전표보기">전표보기</button>`;
 
             const cardHtml = `
                         <div class="card-box ${cardColor}" data-wono="${item.WONO}">

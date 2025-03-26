@@ -33,11 +33,11 @@ public class ProductionService {
         return userInfo;
     }
 
-    // 회계전표 데이터 불러오기
+    // 회계전표 + 지출결의서 데이터 불러오기
     public List<Map<String, Object>> getProductionList(Map<String, Object> searchLabels) {
         String searchSpjangcd = (String) searchLabels.get("search_spjangcd");
-        String searchStartdate = (String) searchLabels.get("search_startdate");
-        String searchEnddate = (String) searchLabels.get("search_enddate");
+        String searchStartdate = (String) searchLabels.get("search_startDate");
+        String searchEnddate = (String) searchLabels.get("search_endDate");
         String searchSubject = (String) searchLabels.get("search_subject");
         String searchGubun = (String) searchLabels.get("search_gubun");
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
@@ -46,6 +46,13 @@ public class ProductionService {
         dicParam.addValue("search_spjangcd", searchSpjangcd);
         dicParam.addValue("search_startdate", searchStartdate);
         dicParam.addValue("search_enddate", searchEnddate);
+
+        dicParam.addValue("searchSubject",
+                (searchSubject != null && !searchSubject.isEmpty()) ? "%" + searchSubject + "%" : "%");
+
+        dicParam.addValue("searchGubun",
+                (searchGubun != null && !searchGubun.isEmpty()) ? "%" + searchGubun + "%" : "%");
+
 
         StringBuilder sql = new StringBuilder("""
                     SELECT *
@@ -79,7 +86,7 @@ public class ProductionService {
                                   AND A.spnum = B.spnum
                               LEFT JOIN
                                   TB_E080 C
-                                  ON C.appnum = A.spdate + A.spnum + A.spjangcd
+                                  ON C.appnum =  'S' + A.spdate + A.spnum + A.spjangcd
                                   AND C.spjangcd = A.spjangcd
                                   AND C.custcd = A.custcd
                               OUTER APPLY (
@@ -91,7 +98,8 @@ public class ProductionService {
                               WHERE
                                   A.spjangcd = :search_spjangcd
                                   AND A.spdate BETWEEN :search_startdate AND :search_enddate
-                                  AND COALESCE(A.subject, '') LIKE :searchSubject
+                                  AND (:searchSubject = '%' OR A.subject LIKE :searchSubject)
+                                  AND (:searchGubun = '%' OR A.appgubun LIKE :searchGubun)
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
@@ -140,7 +148,8 @@ public class ProductionService {
                               WHERE
                                   A.spjangcd = :search_spjangcd
                                   AND A.spdate BETWEEN :search_startdate AND :search_enddate
-                                  AND COALESCE(A.subject, '') LIKE :searchSubject
+                                  AND (:searchSubject = '%' OR A.subject LIKE :searchSubject)
+                                  AND (:searchGubun = '%' OR A.appgubun LIKE :searchGubun)
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
@@ -148,18 +157,6 @@ public class ProductionService {
                           ) AS UNION_RESULT
                           ORDER BY spdate DESC, spnum DESC
                 """);
-
-        if(searchSubject != null && !searchSubject.isEmpty()) {
-            dicParam.addValue("searchSubject","%" + searchSubject + "%");
-        }else {
-            dicParam.addValue("searchSubject", "%");
-        }
-        if(searchGubun != null && !searchGubun.isEmpty()) {
-            dicParam.addValue("searchGubun",searchGubun);
-        }else {
-            dicParam.addValue("searchGubun", "%");
-        }
-
 
         try {
             items = this.sqlRunner.getRows(String.valueOf(sql), dicParam);
@@ -169,8 +166,8 @@ public class ProductionService {
         return items != null ? items : List.of();
     }
 
-    // 지출결의서 데이터 조회
-    public List<Map<String, Object>> getJichulList(Map<String, Object> searchLabels) {
+    // 휴가신청서 데이터 조회
+    public List<Map<String, Object>> getVacList(Map<String, Object> searchLabels) {
         String searchSpjangcd = (String) searchLabels.get("search_spjangcd");
         String searchStartdate = (String) searchLabels.get("search_startdate");
         String searchEnddate = (String) searchLabels.get("search_enddate");
@@ -184,51 +181,36 @@ public class ProductionService {
         dicParam.addValue("search_enddate", searchEnddate);
 
         StringBuilder sql = new StringBuilder("""
-                SELECT A.custcd  ,  --회사코드
-                		 A.spjangcd,  --사업장코드
-                		 A.spdate  ,  --전표일자
-                		 A.spnum   , --전표번호
-                		 A.tiosec  ,  --세입세출구분
-                		SUM(B.dramt)   AS dramt,  --  차변금액
-                		SUM(B.cramt)   AS cramt,    -- 대변금액
-                		 MIN(B.comnote) AS summy, --적요
-                		 A.subject,     -- 제목
-                		 A. mssec,     -- 재원
-                		 A.appdate		, --  결재상신일자
-                		 A.appperid		,  -- 결재상신 사원번호
-                		 A.appgubun		,  -- 결재구분
-                		 A.appnum		,   -- 결재번호
-                		 (select mssecnm from tb_x0005 where mssec=min(B.mssec)) as mssecnm,
-                		 C.appgubun ,
-                		 C.appnum ,
-                		 C.title
-                  FROM TB_AA009 A WITH (NOLOCK) ,
-                		 TB_AA010 B WITH (NOLOCK),
-                		 TB_E080 C
-                 WHERE (A.custcd   = B.custcd    )
-                	AND (A.spjangcd = B.spjangcd  )
-                	AND (A.spdate   = B.spdate    )
-                	AND (A.spnum    = B.spnum     )
-                	AND (A.spjangcd = :searchSpjangcd)
-                	AND (A.spdate   BETWEEN :search_startdate AND :search_enddate)    --  검색 : 일자
-                	AND (isnull(A.subject,'')   LIKE :searchSubject)  -- 검색 : 제목
-                	AND C.appgubun = :searchGubun
-                	AND A.spdate + A.spnum + A.spjangcd = substring(C.appnum,2,20)
+                SELECT
+                  A.reqdate,
+                  A.custcd,
+                  A.spjangcd,
+                  A.vayear,
+                  A.vanum,
+                  A.perid,
+                  A.reqdate,
+                  A.reasontxt,
+                  A.remark,
+                  A.gowhere,
+                  A.appdate,
+                  A.appgubun,
+                  A.appperid,
+                  A.appremark,
+                  A.appnum,
+                  C.appgubun AS e080_appgubun,
+                  C.appnum   AS e080_appnum,
+                  C.title    AS e080_title
+                FROM TB_PB204 A WITH (NOLOCK)
+                LEFT JOIN TB_E080 C
+                  ON 'V' + A.vayear + A.vanum + A.spjangcd = C.appnum
+                  AND A.spjangcd = C.spjangcd
+                  AND A.custcd = C.custcd
+                WHERE A.spjangcd = :search_spjangcd
+                AND A.reqdate BETWEEN :search_startdate AND :search_enddate
+                AND A.remark LIKE :searchSubject
+                AND (C.appgubun LIKE :searchGubun OR C.appgubun IS NULL)
+                ORDER BY A.reqdate DESC, A.vanum DESC;
                 
-                GROUP BY A.custcd  ,
-                		    A.spjangcd,
-                		    A.spdate  ,
-                		 	 A.spnum   ,
-                		 	 A.tiosec  ,
-                		 	 A.mssec,
-                		 A.subject,
-                		 A.appdate		,
-                		 A.appperid		,
-                		 A.appgubun		,
-                		 A.appnum		,
-                		 C.appgubun ,
-                		 C.appnum ,
-                		 C.title
                 """);
 
         if(!searchSubject.isEmpty()) {
