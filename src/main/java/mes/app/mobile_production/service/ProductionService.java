@@ -75,7 +75,7 @@ public class ProductionService {
                                   A.appdate,
                                   A.appperid,
                                   A.appgubun,
-                                  A.appnum,
+                                  C.appnum,
                                   C.appgubun AS e080_appgubun,
                                   C.title AS e080_title
                               FROM
@@ -106,7 +106,7 @@ public class ProductionService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  A.appnum, X.mssecnm, C.appgubun, C.title
+                                  C.appnum, X.mssecnm, C.appgubun, C.title
                 
                               UNION ALL
                 
@@ -126,7 +126,7 @@ public class ProductionService {
                                   A.appdate,
                                   A.appperid,
                                   A.appgubun,
-                                  A.appnum,
+                                  C.appnum,
                                   C.appgubun AS e080_appgubun,
                                   C.title AS e080_title
                               FROM
@@ -157,7 +157,7 @@ public class ProductionService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  A.appnum, X.mssecnm, C.appgubun, C.title
+                                  C.appnum, X.mssecnm, C.appgubun, C.title
                           ) AS UNION_RESULT
                           ORDER BY spdate DESC, spnum DESC
                 """);
