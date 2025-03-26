@@ -91,8 +91,8 @@
                                 </th>
                                 <td>
                                     <div class="input-clear">
-                                        <input type="text" id="perid" name="perid" placeholder="사워코드"
-                                               style="width: 400px !important;">
+                                        <input type="text" id="perid" name="perid" placeholder="사원코드"
+                                               style="width: 400px !important;" readonly>
                                     </div>
                                 </td>
                             </tr>
@@ -136,6 +136,33 @@
                                 <td style="text-align: center; vertical-align: middle;">
                                     <input type="checkbox" id="is_active" name="is_active"
                                            style="display: block; margin: auto;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    <label for="PasswordChange">
+                                        비밀번호
+                                    </label>
+                                </th>
+                                <td>
+                                    <div class="input-clear">
+                                        <input type="password" id="PasswordChange" name="PasswordChange"
+                                               placeholder="변경시에 입력하세요."
+                                               autocomplete="off" style="width: 400px !important;">
+                                        <i class="toggle-password" data-target="PasswordChange"></i>
+                                    </div>
+                                </td>
+                                <th>
+                                    <label for="PasswordChangeChk">
+                                        비밀번호 확인
+                                    </label>
+                                </th>
+                                <td>
+                                    <div class="input-clear">
+                                        <input type="password" id="PasswordChangeChk" name="PasswordChangeChk"
+                                        placeholder="비밀번호 확인" autocomplete="off" style="width: 400px !important;">
+                                        <i class="toggle-password" data-target="PasswordChangeChk"></i>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
@@ -230,7 +257,20 @@
     <footer>
         <p>Copyrightⓒ 0000 corp. All rights reserved.</p>
     </footer>
-
+    <!--사원정보 모달-->
+    <div class="modal">
+        <div id="CltnmModal" style="display: none;">
+            <div class="modal-content">
+                <h2 style="text-align: center;">사원 정보</h2>
+                <a title="팝업닫기" onclick="closePopup('CltnmModal')" class="btn-popup-close">
+                    <img src="/images/icon/btn-popup-close.svg" style=" float: right; right: 30px;" alt="닫기">
+                </a>
+                <form id="CltnmFindForm">
+                    <div id="modalGrid" style="height: 350px;width: 100%; margin-right:0px;  margin-top: 20px;"></div>
+                </form>
+            </div>
+        </div>
+    </div>
 </th:block>
 <th:block layout:fragment="scripts">
     <th:block th:replace="/common/approve_box :: approve_box"></th:block>
@@ -241,6 +281,7 @@
     <script type="text/javascript">
 
         var theGrid;
+        let modalGrid;
         var viewdata;
         let csrfToken = $("[name=_csrf]").val();
 
@@ -571,6 +612,21 @@
                     $('#userid-check-message').hide();
                 }
             });
+
+            document.querySelectorAll('.toggle-password').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const targetId = icon.getAttribute('data-target');
+                    const inputField = document.getElementById(targetId);
+
+                    if (inputField.type === 'password') {
+                        inputField.type = 'text';
+                        icon.style.backgroundImage = "url('/images/icon/btn-hidden.svg')"; // 비밀번호 보임 상태
+                    } else {
+                        inputField.type = 'password';
+                        icon.style.backgroundImage = "url('/images/icon/btn-show.svg')"; // 비밀번호 숨김 상태
+                    }
+                });
+            });
         });
 
         function checkUserId(userid) {
@@ -597,39 +653,17 @@
                 let formData = new FormData();
 
                 // 입력 필드 값을 formData에 추가
-                formData.append("cltnm", $('#cltnm').val() || '');
-                formData.append("prenm", $('#prenm').val() || '');
-                formData.append("biztypenm", $('#biztypenm').val() || '');
-                formData.append("bizitemnm", $('#bizitemnm').val() || '');
-                formData.append("tel", $('#tel').val() || '');
-                formData.append("Phone", $('#Phone').val() || '');
                 formData.append("userid", $('#userid').val() || '');
-                formData.append("UserGroup_id", $('#authType').val() || '');
-                formData.append("id", $('#id').val().trim());
-                formData.append("email", $('#email').val() || '');
-                formData.append("authType", $('#authType').val() || '');
-                formData.append("agencycd", $('#agencycd').val() || '');
-                formData.append('_csrf', $('[name=_csrf]').val());
-                formData.append("postno", $('#postno').val() || '');
-                formData.append("address1", $('#address1').val() || '');
-                formData.append("address2", $('#address2').val() || '');
+                formData.append("first_name", $('#first_name').val() || '');
+                formData.append("perid", $('#perid').val() || '');
+                formData.append("divinm", $('#divinm').val() || '');
+                formData.append("rspnm", $('#rspnm').val() || '');
+                formData.append("divinm", $('#divinm').val() || '');
+                formData.append("Password", $('#Password').val() || '');
 
                 // 체크박스 값 추가
                 const isActiveCheckbox = document.getElementById("is_active");
                 formData.append("is_active", isActiveCheckbox ? isActiveCheckbox.checked : false);
-
-                // 비밀번호 설정만 처리
-                let authType = $('#authType').val();
-                let saupnumValue = $('#saupnum').val(); // 사업자번호
-                let password;
-
-                if (authType === "35") {
-                    password = saupnumValue.slice(-5); // 사업자번호 뒤 5자리 비밀번호
-                } else {
-                    password = "12345"; // 기본 비밀번호
-                }
-
-                formData.append("password", password); // 비밀번호만 추가
 
                 // 서버로 데이터 전송
                 $.ajax({
@@ -701,6 +735,158 @@
                 });
             });
         });
+        // 사원코드 input 클릭 시 모달 열기
+        document.getElementById('perid').addEventListener('click', function () {
+            console.log('📌 사원코드 input 클릭됨 → 사원 모달 오픈');
+            showPopupById('CltnmModal');  // 모달 열기 함수 호출
+        });
+
+        const modalDataLoaders = {
+            'CltnmModal': loadEmpModalData,
+        };
+
+        function showPopupById(popupId, rowIndex = null) {
+            const popup = document.getElementById(popupId);
+            if (popup) {
+                const modal = popup.closest('.modal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    requestAnimationFrame(() => modal.classList.add('show'));
+                }
+                popup.style.display = 'block';
+                requestAnimationFrame(() => popup.classList.add('show'));
+
+                // 모달이 열리면서 해당 모달의 데이터 로드 함수 호출
+                const loadDataFunction = modalDataLoaders[popupId];
+                if (typeof loadDataFunction === 'function') {
+                    try {
+                        // rowIndex가 필요할 경우에만 전달
+                        if (popupId === 'OrdtextModal' && rowIndex !== null) {
+                            loadDataFunction(rowIndex);
+                        } else {
+                            loadDataFunction();
+                        }
+                    } catch (error) {
+                        console.error(`Error loading data for modal '${popupId}':`, error);
+                    }
+                } else {
+                    console.log(`No data load function defined for modal with ID: ${popupId}`);
+                }
+
+                console.log(`Showing modal with ID: ${popupId}`);
+            } else {
+                console.warn(`Popup with ID '${popupId}' not found.`);
+            }
+        }
+        function loadEmpModalData() {
+            let data = [];
+
+            // 서버에서 데이터 가져오기
+            $.ajax({
+                url: '/api/system/user/read2',
+                type: 'GET',
+                async: false,
+                success: function (response) {
+                    console.log("서버에서 받은 데이터:", response);
+                    if (response && Array.isArray(response.data)) {
+                        data = response.data.map((item, index) => ({
+                            userid:  item.userid || '',
+                            perid: item.perid || '' ,
+                            rnum: item.rnum || '',
+                            pernm: item.pernm || '',
+                            useyn: item.useyn || '',
+                            rspnm : item.rspnm ||'',
+                            rspnm : item.rspnm || '',
+                            divinm : item.divinm || ''
+                        }));
+                    }
+                },
+                error: function () {
+                    console.error("데이터를 가져오는 중 오류가 발생했습니다.");
+                }
+            });
+
+            // 데이터가 비어 있으면 기본값 추가 (그리드가 깨지지 않도록)
+            if (data.length < 15) {
+                data.push({
+                    userid:  '',
+                    perid:'',
+                    rnum:'',
+                    pernm:'',
+                    useyn:'',
+                    rspnm : '',
+                    divinm:''
+                });
+            }
+
+            const viewdata = new wijmo.collections.CollectionView(data);
+
+            if (!modalGrid) {
+                modalGrid = new wijmo.grid.FlexGrid('#modalGrid', {
+                    autoGenerateColumns: false,
+                    showMarquee: true,
+                    isReadOnly: true,
+                    columns: [
+                        {binding: 'userid', header: '아이디', width: '*', minWidth: 100, align: 'center'},
+                        {binding: 'perid', header: '사원코드', width: '*', minWidth: 100, align: 'center'},
+                        {binding: 'rnum', header: 'rnum', width: '*', minWidth: 100, align: 'center'},
+                        {binding: 'pernm', header: '이름', width: '*', minWidth: 100, align: 'center'},
+                        {binding: 'useyn', header: '사용여부', width: '*', minWidth: 100, align: 'center'},
+                        {binding: 'divinm', header: '부서명', width: '*', minWidth: 100, align: 'center'},
+                        {binding: 'rspnm', header: '직급', width: '*', minWidth: 100, align: 'center'},
+                    ],
+                    itemsSource: viewdata,
+                });
+                modalGrid.rowHeaders.columns.splice(0, 1);
+                attachDoubleClickEvent(modalGrid); //더블 클릭 이벤트
+                new FlexGridContextMenu(modalGrid);
+                window.downloadFileName = '사원 정보';
+            } else {
+                modalGrid.itemsSource = viewdata;
+            }
+        }
+
+        function attachDoubleClickEvent(grid) {
+            let lastClickTime = 0;
+            grid.hostElement.addEventListener('click', function (e) {
+                const now = new Date().getTime();
+
+                if (now - lastClickTime < 300) { // 300ms 이내 클릭 -> 더블클릭 처리
+                    const ht = grid.hitTest(e);
+                    if (ht.cellType === wijmo.grid.CellType.Cell) {
+                        const clickedItem = modalGrid.rows[ht.row].dataItem;
+
+                        if (clickedItem && clickedItem.perid) { // 클릭된 행에 'perid' 데이터가 있는지 확인
+                            $('#perid').val(clickedItem.perid);
+                            $('#userid').val(clickedItem.userid);
+                            $('#divinm').val(clickedItem.divinm);
+                            $('#rspnm').val(clickedItem.rspnm);
+                            $('#pernm').val(clickedItem.pernm);
+
+                        }
+
+                        closePopup('CltnmModal'); // 모달 창 닫기
+                    }
+                }
+                lastClickTime = now;
+            });
+        }
+
+        function closePopup(popupId) {
+            const popup = document.getElementById(popupId);
+            if (popup) {
+                const modal = popup.closest('.modal');
+                if (modal) {
+                    modal.style.display = 'none';
+                    modal.classList.remove('show');
+                }
+                popup.style.display = 'none';
+                popup.classList.remove('show');
+                console.log(`Closing modal with ID: ${popupId}`);
+            }
+        }
+
+
     </script>
 </th:block>
 </html>

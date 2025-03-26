@@ -174,4 +174,28 @@ public class PaymentListService {//결재목록
 //    log.info("SQL Parameters: {}", params.getValues());
     return sqlRunner.getRows(sql.toString(), params);
   }
+
+  public List<Map<String, Object>> getUserinfo(String spjangcd, String appnum) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    StringBuilder sql = new StringBuilder("""
+         SELECT  xu.custcd ,
+                xu.userid ,
+                xu.rnum   ,
+                xu.passwd1,
+                xu.passwd2,
+                xu.custnm ,
+                xu.pernm  ,
+                xu.useyn  ,
+                xu.perid  ,
+                xu.spjangcd ,
+         	(select divinm from tb_jc002 where divicd=b.divicd and spjangcd=b.spjangcd) as divinm,
+           	(select rspnm from tb_pz001 where rspcd=b.rspcd and spjangcd=b.spjangcd) as rspnm
+         from TB_XUSERS xu
+         JOIN tb_ja001 B on b.perid = xu.perid and b.spjangcd= xu.spjangcd;
+        """);
+//    log.info("더블클릭 결재상세 SQL: {}", sql);
+//    log.info("SQL Parameters: {}", params.getValues());
+    return sqlRunner.getRows(sql.toString(), params);
+
+  }
 }

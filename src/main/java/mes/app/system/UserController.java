@@ -8,6 +8,7 @@ import javax.transaction.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import mes.app.PaymentList.service.PaymentListService;
 import mes.app.UtilClass;
 import mes.app.account.service.TB_RP945_Service;
 import mes.app.account.service.TB_XClientService;
@@ -70,6 +71,10 @@ public class UserController {
 
 	@Autowired
 	JdbcTemplate jdbcTemplate;
+
+	@Autowired
+	private PaymentListService paymentListService;
+
 
 	@GetMapping("/read")
 	public AjaxResult getUserList(@RequestParam(value = "userGroup", required = false) String userGroup, // 사용자그룹
@@ -498,4 +503,50 @@ public class UserController {
 
 		return result;
 	}
+
+	@GetMapping("/read2")
+	public AjaxResult getPaymentList2(@RequestParam(value = "search_spjangcd", required = false) String spjangcd,
+																		@RequestParam(value = "appnum", required = false) String appnum) {
+		AjaxResult result = new AjaxResult();
+		log.info("더블클릭(결재목록) 들어온 데이터:spjangcd {}, appnum: {} ", spjangcd, appnum);
+
+		try {
+
+			List<Map<String, Object>> getPaymentList2 = paymentListService.getUserinfo(spjangcd,appnum);
+
+			for (Map<String, Object> item : getPaymentList2) {
+				//날짜 포맷
+				formatDateField(item, "appdate");
+			}
+
+			result.success = true;
+			result.message = "데이터 조회 성공";
+			result.data = getPaymentList2;
+		} catch (Exception e) {
+			// 예외 처리
+			result.success = false;
+			result.message = "데이터 조회 중 오류 발생: " + e.getMessage();
+		}
+
+		return result;
+	}
+	// 날짜 포맷
+	private void formatDateField(Map<String, Object> item, String fieldName) {
+		Object dateValue = item.get(fieldName);
+		if (dateValue instanceof String) {
+			String dateStr = (String) dateValue;
+			try {
+				if (dateStr.length() == 8) { // "yyyyMMdd" 형식인지 확인
+					String formattedDate = dateStr.substring(0, 4) + "-" + dateStr.substring(4, 6) + "-" + dateStr.substring(6, 8);
+					item.put(fieldName, formattedDate);
+				} else {
+					item.put(fieldName, "잘못된 날짜 형식");
+				}
+			} catch (Exception ex) {
+				log.error("{} 변환 중 오류 발생: {}", fieldName, ex.getMessage());
+				item.put(fieldName, "잘못된 날짜 형식");
+			}
+		}
+	}
+
 }

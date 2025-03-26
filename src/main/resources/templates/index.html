@@ -326,7 +326,7 @@
                                 </div>
                             </td>
                         </tr>
-                       <!-- <tr>
+                        <tr>
                             <th><label for="PasswordChange">비밀번호</label></th>
                             <td>
                                 <div class="input-clear">
@@ -341,7 +341,7 @@
                                            autocomplete="off">
                                 </div>
                             </td>
-                        </tr>-->
+                        </tr>
                         </tr>
                         </tbody>
                     </table>
@@ -349,8 +349,8 @@
             </form>
         </div>
         <div class="popup-button">
-            <button class="btn-navy" onclick="UserInfoClose()">확인</button>
-<!--            <button class="btn-navy" id="btnSaveAuth" onclick="UserInfoClose()">수정</button>-->
+<!--            <button class="btn-navy" onclick="UserInfoClose()">확인</button>-->
+            <button class="btn-navy" id="btnSaveAuth" onclick="UserInfoClose()">수정</button>
         </div>
     </div>
 </div> <!-- //dashboard-layout-popup end -->
@@ -1110,6 +1110,21 @@
                 console.error('비밀번호 변경 중 오류 발생: ', error);
                 alert('서버와의 통신 중 오류가 발생했습니다.');
             }
+        });
+
+        document.querySelectorAll('.toggle-password').forEach(icon => {
+            icon.addEventListener('click', () => {
+                const targetId = icon.getAttribute('data-target');
+                const inputField = document.getElementById(targetId);
+
+                if (inputField.type === 'password') {
+                    inputField.type = 'text';
+                    icon.style.backgroundImage = "url('/images/icon/btn-hidden.svg')"; // 비밀번호 보임 상태
+                } else {
+                    inputField.type = 'password';
+                    icon.style.backgroundImage = "url('/images/icon/btn-show.svg')"; // 비밀번호 숨김 상태
+                }
+            });
         });
     }
 
