@@ -229,46 +229,44 @@
     </div>
 
     <div style="height: 10px"></div>
+
     <!--공지사항 모달-->
     <div class="dashboard-layout-popup">
-        <div class="popup-overlay" id="popup1"></div>
-        <div class="popup-wrapper" id="wrapper1">
-            <div class="popup-title" style="text-align: center; padding-top: 20px;">
-                <h2 id="noticeTitle" style="color: #0047AB; font-size: 28px; font-weight: bold;">공지사항<br>check!</h2>
-            </div>
+        <div class="popup-overlay" id="popup1" style="background-color: rgba(0, 0, 0, 0.6); position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999;"></div>
+
+        <div class="popup-wrapper" id="wrapper1" style="position: fixed; top: 20%; left: 50%; transform: translateX(-50%); width: 360px; background: #fff; padding: 24px; border-radius: 8px; z-index: 1000; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);">
+
+            <!-- 제목 -->
             <div class="popup-title" style="text-align: center;">
-                <h4 id="noticePeriod" style="color: #0047AB; font-size: 14px; font-weight: normal">공지사항<br>check!</h4>
+                <h2 id="noticeTitle" style="font-size: 28px; font-weight: bold; color: #333;">공지 제목</h2>
             </div>
-            <div style="border-top: 1px solid #ccc; margin: 16px auto 20px; width: 80%;"></div>
-
-            <div class="popup-contents" style="text-align: center;">
-                <div style="font-size: 24px; color: #0047AB;"></div>
-                <div style="margin-top: 10px; font-size: 16px; color: #444;">
-                    <span style="color: #0047AB; font-weight: bold;"></span><br>
-
-                </div>
+            <!-- 등록일 + 입력자 같은 줄에 표시 -->
+            <div class="popup-title" style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px; margin-top: 10px;">
+                <!-- 등록 날짜 (왼쪽 정렬) -->
+                <h4 id="noticePeriod" style="color: #444; font-size: 18px; font-weight: normal; margin: 0;">
+                </h4>
+                <!-- 입력자 (오른쪽 정렬) -->
+                <h4 id="noticePernm" style="color: #444; font-size: 18px; font-weight: normal; margin: 0;">
+                </h4>
             </div>
-
-            <!-- 첨부파일 버튼 -->
-            <div style="text-align: center; margin-top: 20px;">
-                <div id="fileDownloadArea">
-                    <!-- 첨부파일 버튼이 여기에 동적으로 삽입됨 -->
-                </div>
+            <div style="border-top: 1px solid #ccc; margin: 16px auto 20px; width: 95%;"></div>
+            <!-- 본문 내용 -->
+            <div class="popup-contents" style="margin-top: 16px; font-size: 20px; color: #444; text-align: left; line-height: 1.6;">
+                <span style="display: block; padding-left: 20px;">공지 내용이 여기에 출력됩니다.</span>
             </div>
 
-            <!-- 오늘 하루 보지 않기 -->
+            <!-- 버튼 영역 -->
+            <div class="popup-button" style="display: flex; justify-content: space-between; margin-top: 24px;">
+                <!-- 오늘 하루 보지 않기 버튼 -->
+                <button id="fileDownloadArea" style="flex: 1; margin-right: 8px; padding: 10px 0; background-color: #FFFFFF; color: #444; border-radius: 4px; border: 2px solid #ccc;">첨부파일 다운로드</button>
+                <button onclick="noticeClose()" style="flex: 1; padding: 10px 0; background-color: #3069B3; color: #fff; border: none; border-radius: 4px;">확인</button>
+            </div>
             <span style="display: flex; justify-content: center; align-items: center; margin-top: 20px;">
-            <input type="checkbox" id="checkNotice" style="margin: 0;">
-            <p style="margin-left: 10px; font-size: 14px;">오늘 하루 보지 않기</p>
-        </span>
-
-            <!-- 버튼 -->
-            <div class="popup-button" style="text-align: center; margin-top: 20px;">
-                <button class="btn-popup-close" onclick="noticeClose()">확인</button>
-            </div>
+                <input type="checkbox" id="checkNotice" style="margin: 0;">
+                <p style="margin-left: 10px; font-size: 14px;">오늘 하루 보지 않기</p>
+            </span>
         </div>
     </div>
-
 
 
 
@@ -915,8 +913,9 @@
                             data2[0].BBSSUBJECT;
 
                         document.getElementById('noticePeriod').innerHTML =
-                            "공지기간<br>" + data2[0].BBSFRDATE + " ~ " + data2[0].BBSTODATE;
-
+                            data2[0].BBSFRDATE;
+                        document.getElementById('noticePernm').innerHTML =
+                            data2[0].pernm;
 
                         const fileArea = document.getElementById("fileDownloadArea");
                         fileArea.innerHTML = '';

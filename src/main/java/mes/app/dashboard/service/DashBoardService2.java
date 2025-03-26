@@ -277,30 +277,32 @@ public class DashBoardService2 {
 
         MapSqlParameterSource dicParam = new MapSqlParameterSource();
         String sql = """
-                SELECT TOP 1
-                    b.*,
-                    COALESCE((
-                        SELECT JSON_QUERY((
-                            SELECT
-                                f.FILESEQ AS fileseq,
-                                f.FILESIZE AS filesize,
-                                f.FILEEXTNS AS fileextns,
-                                f.FILEORNM AS fileornm,
-                                f.FILEPATH AS filepath,
-                                f.FILESVNM AS filesvnm
-                            FROM TB_FILEINFO f
-                            WHERE b.BBSSEQ = f.BBSSEQ
-                            AND f.CHECKSEQ = '01'
-                            FOR JSON PATH
-                        ))
-                    ), '[]') AS fileInfos
-                FROM
-                    TB_BBSINFO b
-                WHERE
-                    b.BBSFRDATE <= CONVERT(VARCHAR(8), GETDATE(), 112)
-                    AND b.BBSTODATE >= CONVERT(VARCHAR(8), GETDATE(), 112)
-                ORDER BY
-                    b.INDATEM DESC
+            SELECT TOP 1
+                  b.*,
+                  xu.pernm,
+                  COALESCE((
+                      SELECT JSON_QUERY((
+                          SELECT
+                              f.FILESEQ AS fileseq,
+                              f.FILESIZE AS filesize,
+                              f.FILEEXTNS AS fileextns,
+                              f.FILEORNM AS fileornm,
+                              f.FILEPATH AS filepath,
+                              f.FILESVNM AS filesvnm
+                          FROM TB_FILEINFO f
+                          WHERE b.BBSSEQ = f.BBSSEQ
+                          AND f.CHECKSEQ = '01'
+                          FOR JSON PATH
+                      ))
+                  ), '[]') AS fileInfos
+              FROM
+                  TB_BBSINFO b
+              left join tb_xusers xu on b.BBSUSER = xu.userid
+              WHERE
+                  b.BBSFRDATE <= CONVERT(VARCHAR(8), GETDATE(), 112)
+                  AND b.BBSTODATE >= CONVERT(VARCHAR(8), GETDATE(), 112)
+              ORDER BY
+                  b.INDATEM DESC
             """;
         List<Map<String,Object>> items = this.sqlRunner.getRows(sql, dicParam);
 
