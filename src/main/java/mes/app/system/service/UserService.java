@@ -51,53 +51,55 @@ public class UserService {
      *  WHERE
      * au.is_superuser = 0
      * 추가 하기 */
-    public List<Map<String, Object>> getUserList(boolean superUser, String cltnm, String prenm, String biztypenm, String bizitemnm, String email) {
+    public List<Map<String, Object>> getUserList(boolean superUser, String userGroup, String keyword) {
         MapSqlParameterSource params = new MapSqlParameterSource();
-        params.addValue("superUser", superUser);
-        params.addValue("cltnm", cltnm);
-        params.addValue("prenm", prenm);
-        params.addValue("biztypenm", biztypenm);
-        params.addValue("bizitemnm", bizitemnm);
-        params.addValue("email", email);
         String sql = """
-                        SELECT
-                                    au.id,
-                                    au.last_name,
-                                    txc.cltnm,
-                                    au.username AS userid,
-                                    ug.id AS group_id,
-                                    au.email,
-                                    au.tel,
-                                    au.spjangcd AS spjType,
-                                    au.agencycd,
-                                    ug.Name AS group_name,
-                                    ug.id,
-                                    au.last_login,
-                                    up.lang_code,
-                                    au.is_active,
-                                    au.Phone,
-                                    txc.biztypenm,
-                                    txc.bizitemnm,
-                                    txc.prenm,
-                                    FORMAT(au.date_joined, 'yyyy-MM-dd') AS date_joined
-                                FROM
-                                    auth_user au
-                                LEFT JOIN
-                                    user_profile up ON up.User_id = au.id
-                                LEFT JOIN
-                                    user_group ug ON ug.id = up.UserGroup_id
-                                LEFT JOIN
-                                    TB_XCLIENT txc
-                                    ON au.first_name = txc.cltnm
-                                    AND au.username = txc.saupnum
-                                    AND au.last_name = txc.prenm
-                                WHERE
-                                    1 = 1
+             SELECT
+                  au.id,
+                  au.first_name ,
+                  au.username AS userid,
+                  ug.id AS group_id,
+                  au.spjangcd,
+                  tx2.spjangnm,
+                  tx.perid,
+                  ug.Name AS group_name,
+                  ug.id,
+                  up.lang_code,
+                  au.is_active,
+                  au.Phone,
+                  tx.pernm,
+                   (select divinm from tb_jc002 where divicd=b.divicd and spjangcd=b.spjangcd) as divinm, 
+                   (select rspnm from tb_pz001 where rspcd=b.rspcd and spjangcd=b.spjangcd) as rspnm, 
+              FORMAT(au.date_joined, 'yyyy-MM-dd') AS date_joined
+             FROM
+                 auth_user au
+             LEFT JOIN
+                 user_profile up ON up.User_id = au.id
+             LEFT JOIN
+                 user_group ug ON ug.id = up.UserGroup_id
+             LEFT JOIN
+                 tb_xusers tx 
+                 ON au.first_name = tx.pernm 
+                 AND au.username = tx.userid
+             LEFT join tb_xa012 tx2 on au.spjangcd = tx2.spjangcd
+             LEFT JOIN tb_ja001 b on au.agencycd = b.perid and b.spjangcd=au.spjangcd
+             WHERE 1 = 1
                 """;
 
-        // SQL 실행 후 결과 반환
-        return sqlRunner.getRows(sql, new MapSqlParameterSource());
+        if (!StringUtils.isEmpty(userGroup)) {
+            sql += " AND ug.[id] = :userGroup ";
+            params.addValue("userGroup", userGroup);
+        }
 
+        if (!StringUtils.isEmpty(keyword)) {
+            sql += " AND up.[Name] LIKE '%' + :name + '%' ";
+            params.addValue("name", keyword);
+        }
+
+        // SQL 실행 후 결과 반환
+//        log.info("사용자 관리 List SQL: {}", sql);
+//        log.info("SQL Parameters: {}", params.getValues());
+        return sqlRunner.getRows(sql, params);  // ✅ FIXED
     }
 
 
@@ -242,62 +244,6 @@ public class UserService {
         return sqlRunner.getRow(sql, params);
     }
 
-    public List<Map<String, Object>> searchData(String userGroup, String name, String username) {
-        // 쿼리 실행 및 결과 반환
-        MapSqlParameterSource params = new MapSqlParameterSource();
-        String sql = """
-                SELECT au.id,
-                       up.[Name],
-                       au.username AS userid,
-                       up.[UserGroup_id],
-                       ug.[id] AS group_id,
-                       au.email,
-                       au.tel,
-                       au.phone AS Phone,
-                       au.agencycd,
-                       ug.[Name] AS group_name,
-                       up.[Factory_id],
-                       uc.[Value],
-                       au.divinm,
-                       au.smtpid,
-                       au.smtppassword,
-                       up.[Depart_id],
-                       up.lang_code,
-                       au.is_active,
-                       au.is_superuser,
-                       txc.*,
-                       FORMAT(au.date_joined, 'yyyy-MM-dd') AS date_joined
-                FROM auth_user au
-                LEFT JOIN user_profile up ON up.[User_id] = au.id
-                LEFT JOIN user_group ug ON ug.id = up.[UserGroup_id]
-                LEFT JOIN user_code uc ON CAST(au.agencycd AS INT) = uc.id
-                left join TB_XCLIENT txc ON up.Name = txc.prenm
-                WHERE 1=1
-                """;
-
-        // 조건부 쿼리 추가
-
-        if (!StringUtils.isEmpty(userGroup)) {
-            sql += " AND ug.[id] = :userGroup ";
-            params.addValue("userGroup", userGroup);
-        }
-
-        if (!StringUtils.isEmpty(name)) {
-            sql += " AND up.[Name] LIKE '%' + :name + '%' ";
-            params.addValue("name", name);
-        }
-
-        if (!StringUtils.isEmpty(username)) {
-            sql += " AND au.username LIKE '%' + :username + '%' ";
-            params.addValue("username", username);
-        }
-
-        sql += " ORDER BY au.date_joined DESC";
-
-        // 쿼리 실행 및 결과 반환
-        return sqlRunner.getRows(sql, params);
-    }
-
     public boolean isUserIdExists(String userid) {
         return userRepository.existsByUsername(userid); // username 컬럼 확인
     }
@@ -308,16 +254,17 @@ public class UserService {
         paramMap.addValue("username", username);
 
         String sql = """
-        SELECT
-            au.username AS userid,
-            xu.pernm AS usernm,
-            au.phone,
-            au.email,
-            xu.custcd
-            FROM auth_user au
-            left join TB_XUSERS xu
-            on au.username = xu.userid
-        WHERE username = :username
+       SELECT
+           au.username AS userid,
+           xu.pernm AS usernm,
+           xu.perid,
+           (select divinm from tb_jc002 where divicd=b.divicd and spjangcd=b.spjangcd) as divinm,\s
+         (select rspnm from tb_pz001 where rspcd=b.rspcd and spjangcd=b.spjangcd) as rspnm,\s
+           xu.custcd
+           FROM auth_user au
+           left join TB_XUSERS xu on au.username = xu.userid
+           LEFT JOIN tb_ja001 b on au.agencycd = b.perid and b.spjangcd=au.spjangcd
+       WHERE username = :username;
     """;
 
         List<Map<String, Object>> rows = sqlRunner.getRows(sql, paramMap);

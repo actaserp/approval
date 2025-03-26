@@ -271,80 +271,58 @@
                         <tbody>
                         <tr>
                             <th>
-                                <label for="">
+                                <label for="userid">
                                     ID
                                 </label>
                             </th>
                             <td colspan="3" style="text-align: left">
                                 <div class="input-clear">
-                                    <input type="text" id="login_id" name="login_id" class="wp50" required
+                                    <input type="text" id="userid" name="userid" class="wp50" required
                                            readonly="readonly"/>
                                 </div>
                             </td>
                         </tr>
                         <tr>
                             <th>
-                                <label for="">
-                                    업체명
+                                <label for="first_name">
+                                    이름
                                 </label>
                             </th>
                             <td>
                                 <div class="input-clear">
-                                    <input type="text" id="cltnm" name="cltnm">
+                                    <input type="text" id="first_name" name="first_name" readonly="readonly">
                                 </div>
                             </td>
                             <th>
-                                <label for="">
-                                    대표자
+                                <label for="perid">
+                                    사원코드
                                 </label>
                             </th>
                             <td>
                                 <div class="input-clear">
-                                    <input type="text" id="prenm" name="prenm">
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th>
-                                <label for="">
-                                    업태
-                                </label>
-                            </th>
-                            <td>
-                                <div class="input-clear">
-                                    <input type="text" id="biztypenm" name="biztypenm">
-                                </div>
-                            </td>
-                            <th>
-                                <label for="">
-                                    종목
-                                </label>
-                            </th>
-                            <td>
-                                <div class="input-clear">
-                                    <input type="text" id="bizitemnm" name="bizitemnm">
+                                    <input type="text" id="perid" name="perid" readonly="readonly">
                                 </div>
                             </td>
                         </tr>
                         <tr>
                             <th>
-                                <label for="">
-                                    전화번호
+                                <label for="divinm">
+                                    부서
                                 </label>
                             </th>
                             <td>
                                 <div class="input-clear">
-                                    <input type="text" id="tel" name="tel">
+                                    <input type="text" id="divinm" name="divinm" readonly="readonly">
                                 </div>
                             </td>
                             <th>
-                                <label for="">
-                                    핸드폰
+                                <label for="rspnm">
+                                    직급
                                 </label>
                             </th>
                             <td>
                                 <div class="input-clear">
-                                    <input type="text" id="phone" name="phone">
+                                    <input type="text" id="rspnm" name="rspnm" readonly="readonly">
                                 </div>
                             </td>
                         </tr>
@@ -364,28 +342,6 @@
                                 </div>
                             </td>
                         </tr>-->
-
-                        <tr>
-                            <th>
-                                <label for="">
-                                    이메일
-                                </label>
-                            </th>
-                            <td>
-                                <div class="input-clear">
-                                    <input type="text" id="email" name="email">
-                                </div>
-                            </td>
-                        </tr>
-                        <th><label for="postno">주소</label></th>
-                        <td colspan="3">
-                            <div class="input-clear">
-                                <input type="text" id="postno" name="postno" placeholder="우편번호" onclick="sample4_execDaumPostcode()" style="width: 85px;">
-                                <input type="text" id="address1" name="address1" placeholder="도로명주소" style="width:310px" readonly>
-                                <input type="text" id="address2" name="address2" placeholder="상세주소">
-                                <span id="guide" style="color:#999;display:none"></span>
-                            </div>
-                        </td>
                         </tr>
                         </tbody>
                     </table>
@@ -393,7 +349,8 @@
             </form>
         </div>
         <div class="popup-button">
-            <button class="btn-navy" id="btnSaveAuth" onclick="btnSaveAuth()">수정</button>
+            <button class="btn-navy" onclick="UserInfoClose()">확인</button>
+<!--            <button class="btn-navy" id="btnSaveAuth" onclick="UserInfoClose()">수정</button>-->
         </div>
     </div>
 </div> <!-- //dashboard-layout-popup end -->
@@ -1046,18 +1003,11 @@
                 // AJAX 호출 성공 시 처리할 로직
                 if (response && response.data) {
                     // 응답 데이터를 폼 필드에 채우기
-                    $('#login_id').val(response.data.login_id || ''); // ID
-                    $('#prenm').val(response.data.prenm || ''); // 대표자 이름
-                    $('#email').val(response.data.email || ''); // 이메일
-                    $('#cltnm').val(response.data.cltnm || ''); // 업체명
-                    $('#biztypenm').val(response.data.biztypenm || ''); // 업태
-                    $('#bizitemnm').val(response.data.bizitemnm || ''); // 종목
-                  /*  $('#PasswordChange').val(response.data.PasswordChange || '');*/
-                    $('#tel').val(response.data.tel || ''); // 전화번호
-                    $('#phone').val(response.data.phone || ''); // 핸드폰
-                    $('#postno').val(response.data.postno || ''); // 우편번호
-                    $('#address1').val(response.data.address1 || ''); // 도로명 주소
-                    $('#address2').val(response.data.address2 || ''); // 상세 주소
+                    $('#userid').val(response.data.userid || ''); // ID
+                    $('#first_name').val(response.data.usernm || ''); // 이름
+                    $('#perid').val(response.data.perid || ''); // 사원번호
+                    $('#divinm').val(response.data.divinm || ''); // 부서
+                    $('#rspnm').val(response.data.rspnm || ''); // 직급
                 }
                 console.log('사용자 정보 가져오기 성공: ', response);
             },

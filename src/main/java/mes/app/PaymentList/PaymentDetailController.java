@@ -12,6 +12,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -521,5 +522,20 @@ public class PaymentDetailController {
         .headers(headers)
         .body(zipResource);
   }
+
+  @GetMapping("/agencyName")
+  public AjaxResult getAgencyName(Authentication auth) {
+    AjaxResult result = new AjaxResult();
+    try {
+      String agencyName = paymentDetailService.getAgencyName();  // ✅ 서비스 호출
+      result.success = true;
+      result.data = agencyName;
+    } catch (Exception e) {
+      result.success = false;
+      result.message = "기관명 조회 실패";
+    }
+    return result;
+  }
+
 
 }

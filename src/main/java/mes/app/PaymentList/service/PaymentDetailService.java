@@ -455,4 +455,14 @@ public class PaymentDetailService {
     return sqlRunner.queryForCount(sql, params) > 0;
   }
 
+  public String getAgencyName() {
+    String sql = "SELECT spjangnm FROM tb_xa012";
+    MapSqlParameterSource param = new MapSqlParameterSource();
+    Map<String, Object> row = sqlRunner.getRow(sql, param);
+
+    return (row != null && row.get("spjangnm") != null)
+        ? row.get("spjangnm").toString()
+        : "기관명 없음";
+  }
+
 }

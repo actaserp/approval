@@ -73,105 +73,81 @@
                             <tbody>
                             <tr>
                                 <th>
-                                    <label for="">
-                                        업체명
+                                    <label for="first_name">
+                                        이름
                                     </label>
                                 </th>
                                 <td>
                                     <div class="input-clear">
-                                        <input type="text" id="cltnm" name="cltnm" placeholder="업체명"
+                                        <input type="text" id="first_name" name="first_name" placeholder="이름"
                                                style="width: 400px !important;">
+                                        <input type="hidden" id="id">
                                     </div>
                                 </td>
                                 <th>
-                                    <label for="">
-                                        대표자
+                                    <label for="perid">
+                                        사원코드
                                     </label>
                                 </th>
                                 <td>
                                     <div class="input-clear">
-                                        <input type="text" id="prenm" name="prenm" placeholder="대표자"
-                                               style="width: 400px !important;">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <label for="">
-                                        업태
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="biztypenm" name="biztypenm" placeholder="업태"
-                                               style="width: 400px !important;">
-                                    </div>
-                                </td>
-                                <th>
-                                    <label for="">
-                                        종목
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="bizitemnm" name="bizitemnm" placeholder="종목"
+                                        <input type="text" id="perid" name="perid" placeholder="사워코드"
                                                style="width: 400px !important;">
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <th>
-                                    <label for="">
-                                        전화번호
+                                    <label for="divinm">
+                                        부서
                                     </label>
                                 </th>
                                 <td>
                                     <div class="input-clear">
-                                        <input type="text" id="tel" name="tel" placeholder="전화번호"
+                                        <input type="text" id="divinm" name="divinm" placeholder="부서"
                                                style="width: 400px !important;">
                                     </div>
                                 </td>
                                 <th>
-                                    <label for="">
-                                        핸드폰
+                                    <label for="rspnm">
+                                        직급
                                     </label>
                                 </th>
                                 <td>
                                     <div class="input-clear">
-                                        <input type="text" id="Phone" name="Phone" placeholder="핸드폰 번호 "
-                                               style="width: 400px !important;">
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    <label for="id">
-                                        사업자 번호 (아이디)
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="userid" name="userid" class="wp100" maxlength="50"
-                                               placeholder="사업자 번호" style="width: 400px !important;" readonly>
-                                        <input type="hidden" id="id" name="id"/>
-                                        <div style="text-align:left; ">
-                                         <span id="userid-check-message" style="color: red; display: none; ">중복된 코드입니다.</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <th>
-                                    <label for="email">
-                                        이메일
-                                    </label>
-                                </th>
-                                <td>
-                                    <div class="input-clear">
-                                        <input type="text" id="email" name="email" placeholder="이메일"
+                                        <input type="text" id="rspnm" name="rspnm" placeholder="직급"
                                                style="width: 400px !important;">
                                     </div>
                                 </td>
                             </tr>
                             <tr>
+                                <th>
+                                    <label for="userid">
+                                        아이디
+                                    </label>
+                                </th>
+                                <td>
+                                    <div class="input-clear">
+                                        <input type="text" id="userid" name="userid" placeholder="아이디"
+                                               style="width: 400px !important;">
+                                    </div>
+                                </td>
+                                <th><label for="is_active">사용여부</label></th>
+                                <td style="text-align: center; vertical-align: middle;">
+                                    <input type="checkbox" id="is_active" name="is_active"
+                                           style="display: block; margin: auto;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>
+                                    사업체명
+                                </th>
+                                <td>
+                                    <select id="spjType" name="spjType" class="wp30">
+                                        <option value="">선택하세요</option>
+                                        <option value="ZZ">대한럭비협회</option>
+                                    </select>
+                                </td>
                                 <th>
                                     사용자그룹
                                 </th>
@@ -183,53 +159,11 @@
                                         <option value="35">일반거래처</option>
                                     </select>
                                 </td>
-                                <th><label for="is_active">사용여부</label></th>
-                                <td style="text-align: center; vertical-align: middle;">
-                                    <input type="checkbox" id="is_active" name="is_active"
-                                           style="display: block; margin: auto;">
-                                </td>
                             </tr>
-                            <tr>
-                                <th>
-                                    <label for="postno">
-                                        주소
-                                    </label>
-                                </th>
-                                <td colspan="3">
-                                    <div class="input-clear">
-                                        <input type="text" id="postno" name="postno" placeholder="우편번호"
-                                               onclick="sample4_execDaumPostcode()"
-                                               style="width: 85px; margin-bottom: 3px; display: inline-block;">
-                                        <input type="text" id="address1" name="address1" placeholder="도로명주소"
-                                               style="width: 380px; display: inline-block; margin-left: 5px;"
-                                               readonly>
-                                        <input type="text" id="address2" name="address2" placeholder="상세주소"
-                                               style="width: 390px; display: inline-block; margin-left: 7px;">
-                                        <span id="guide" style="color:#999;display:none"></span>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th>
-                                    사업체명
-                                </th>
-                                <td>
-                                    <select id="spjType" name="spjType" class="wp30">
-                                        <option value="">선택하세요</option>
-                                        <option value="ZZ">성우에스피(주)</option>
-                                        <option value="PP">성우피앤비(주)</option>
-                                    </select>
-                                </td><th>
-                            </th>
-                                <td>
-                                </td>
 
-                            </tr>
                             </tbody>
                         </table>
                     </div>
-
-
                     <div class="section-top" style="margin-top: 24px;">
                         <div class="search-wrap">
                             <dl>
@@ -244,21 +178,11 @@
                             </dl>
                             <dl>
                                 <dt>
-                                    <label for="select1">
+                                    <label for="keyword">
                                         이름</label></dt>
                                 <dd>
                                     <div class="input-clear"><input type="text" id="keyword" name="keyword"
                                                                     class="wp100" maxlength="50" placeholder="이름"></div>
-                                </dd>
-                            </dl>
-                            <dl>
-                                <dt>
-                                    <label>
-                                        사업자번호</label></dt>
-                                <dd>
-                                    <div class="input-clear"><input type="text" id="username" name="username" placeholder="사업자번호"
-                                                                    class="wp100" maxlength="50" autocomplete="off">
-                                    </div>
                                 </dd>
                             </dl>
                             <dl>
@@ -270,7 +194,7 @@
                                     <div class="srch-box">
                                         <div class="input-clear"></div>
                                         <a style="margin-left: 10px" class="btn btn-delete" title="검색" id="searchgrid"
-                                           onclick="searchData()" onkeyup="searchData()">
+                                           onclick="fetchListData()">
                                             <!--                                        class 쓰이는 곳 찾고 없으면 클래스명 수정하기-->
                                             <img src="/images/icon/btn-srch.svg" alt="검색 아이콘">
                                             검색
@@ -287,13 +211,6 @@
                                         삭제
                                     </a>
                                 </li>
-                                <!--<li>
-                                    <a  class="btn btn-edit" title="수정" onclick="modifyData()">
-                                        <img src="/images/icon/ico-edit.svg" alt="엑셀 아이콘">
-                                        수정
-                                    </a>
-                                </li>-->
-
                             </ul>
                         </div>
 
@@ -321,50 +238,6 @@
     <th:block th:replace="/common/upload_one_image_box :: upload_one_image_box"></th:block>
     <th:block th:replace="/common/popup_select_user_code :: popup_select_user_code"></th:block>
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script>
-        var popupWindow;
-
-        function sample4_execDaumPostcode() {
-            popupWindow = window.open('', 'postcodePopup', 'width=530,height=530');
-            new daum.Postcode({
-                oncomplete: function(data) {
-                    // 검색 결과 선택 시 실행할 코드
-                    var roadAddr = data.roadAddress;
-                    var extraRoadAddr = '';
-
-                    if (data.bname !== '' && /[동|로|가]$/g.test(data.bname)) {
-                        extraRoadAddr += data.bname;
-                    }
-                    if (data.buildingName !== '' && data.apartment === 'Y') {
-                        extraRoadAddr += (extraRoadAddr !== '' ? ', ' + data.buildingName : data.buildingName);
-                    }
-                    if (extraRoadAddr !== '') {
-                        extraRoadAddr = ' (' + extraRoadAddr + ')';
-                    }
-
-                    document.getElementById('postno').value = data.zonecode;
-                    document.getElementById('address1').value = roadAddr;
-
-                    var guideTextBox = document.getElementById("guide");
-                    if (data.autoRoadAddress) {
-                        var expRoadAddr = data.autoRoadAddress + extraRoadAddr;
-                        guideTextBox.innerHTML = '(예상 도로명 주소 : ' + expRoadAddr + ')';
-                        guideTextBox.style.display = 'block';
-                    } else if (data.autoJibunAddress) {
-                        var expJibunAddr = data.autoJibunAddress;
-                        guideTextBox.innerHTML = '(예상 지번 주소 : ' + expJibunAddr + ')';
-                        guideTextBox.style.display = 'block';
-                    } else {
-                        guideTextBox.innerHTML = '';
-                        guideTextBox.style.display = 'none';
-                    }
-
-                    // 검색 완료 후 팝업 닫기
-                    popupWindow.close();
-                }
-            }).embed(popupWindow.document.body);
-        }
-    </script>
     <script type="text/javascript">
 
         var theGrid;
@@ -373,15 +246,11 @@
 
         //유효성 검사
         const requiredFields = [
-            {id: 'userid', name: '사용자ID'},
-            {id: 'prenm', name: '사용자명'},
-            {id: 'cltnm', name: '업체명'},
-            {id: 'authType', name: '사용자그룹'},
-            {id: 'biztypenm', name: '업태'},
-            {id: 'bizitemnm', name: '종목'},
-            {id: 'tel', name: '전화번호'},
-            {id: 'Phone', name: '핸드폰'},
-            {id: 'email', name: '이메일'},
+            {id: 'userid', name: '아이디'},
+            {id: 'first_name', name: '이름'},
+            {id: 'perid', name: '사원코드'},
+            {id: 'divinm', name: '부서'},
+            {id: 'rspnm', name: '직급'}
         ]
 
         document.readyState === 'complete' ? init() : window.onload = init;
@@ -424,22 +293,31 @@
             });
         }
 
-
         function fetchListData() {
             let data2 = [];
+
+            // 검색 조건 수집
+            const userGroup = document.getElementById('cboUserGroup').value;
+            const name = document.getElementById('keyword').value.trim();
+
+            // 검색 조건을 객체로 정리
+            const searchParams = {
+                userGroup: userGroup,
+                name: name,
+            };
+            console.log("🔍 보낼 파라미터:", searchParams);  // ✅ 여기가 핵심
 
             // 서버로부터 데이터를 비동기적으로 가져옴
             $.ajax({
                 url: '/api/system/user/read',
                 type: 'GET',
                 async: false,
+                data: searchParams,
                 success: function (response) {
                     console.log("API Response:", response); // 응답 데이터를 출력
                     if (response && Array.isArray(response.data)) {
                         data2 = response.data;
-                      /*  data2.forEach(item => {
-                            item.spjType = getSpjTypeText(item.spjangcd);
-                        });*/
+
                     }
                 },
                 error: function () {
@@ -459,17 +337,18 @@
                     data2.push({
                         id: '',
                         userid: '',
-                        prenm: '',
-                        cltnm: '',
-                        group_name: '',
-                        group_id: '',
-                        biztypenm: '',
-                        bizitemnm: '',
-                        tel: '',
-                        Phone: '',
-                        email: '',
+                        first_name:'',
+                        group_id:'',
+                        spjangcd:'',
+                        spjangnm:'',
+                        perid:'',
+                        group_name:'',
+                        lang_code:'',
+                        is_active:'',
+                        pernm:'',
+                        divinm:'',
+                        rspnm:'',
                         date_joined: '',
-                        spjType:'',
                     });
                 }
             }
@@ -491,17 +370,15 @@
                     columns: [
                         {binding: 'id', header: 'id', width: '*', align: 'center', visible: false, isReadOnly: false},
                         {binding: 'userid', header: '사용자ID', width: '*', align: 'center', isReadOnly: true},
-                        {binding: 'prenm', header: '대표자', width: '*', align: 'center', isReadOnly: true},
-                        {binding: 'cltnm', header: '업체명', width: '*', align: 'center', isReadOnly: true},
+                        {binding: 'first_name', header: '이름', width: '*', align: 'center', isReadOnly: true},
+                        {binding: 'perid', header: '사원코드', width: '*', align: 'center', isReadOnly: true},
+                        {binding: 'divinm', header: '부서', width: '*', align: 'center', isReadOnly: true},
+                        {binding: 'rspnm', header: '직급', width: '*', align: 'center', isReadOnly: true},
                         {binding: 'group_name', header: '사용자그룹', width: '*', align: 'center', isReadOnly: true},
                         {binding: 'group_id', header: '사용자그룹', width: '*', align: 'center', visible: false},
-                        {binding: 'biztypenm', header: '업태', width: '*', align: 'center', isReadOnly: true},
-                        {binding: 'bizitemnm', header: '종목', width: '*', align: 'center', isReadOnly: true},
-                        {binding: 'tel', header: '전화번호', width: '*', align: 'center', visible: false},
-                        {binding: 'Phone', header: '핸드폰', width: '*', align: 'center', visible: true},
-                        {binding: 'email', header: '이메일', width: '*', align: 'center', visible: false},
                         {binding: 'is_active', header: '활성화', width: '*', align: 'center', isReadOnly: false,},
-                        {binding: 'spjType', header: '사업체명', width: '*', align: 'center', isReadOnly: true},
+                        {binding: 'spjangcd', header: '사업체코드', width: '*', align: 'center', isReadOnly: true, visible: false},
+                        {binding: 'spjangnm', header: '사업체명', width: '*', align: 'center', isReadOnly: true},
                         {binding: 'date_joined', header: '생성일', width: '*', align: 'center', isReadOnly: true},
                     ],
                     itemsSource: viewdata,
@@ -530,35 +407,10 @@
             });
         }//fetchListData
 
-        function getSpjTypeText(spjangcd) {
-            switch (spjangcd) {
-                case 'ZZ':
-                    return "성우에스피(주)";
-                case 'PP':
-                    return "성우피앤비(주)";
-                default:
-                    return " ";
-            }
-        }
-
-        //날짜 포맷
-        function formatDateString(dateString) {
-            if (!dateString || typeof dateString !== 'string' || dateString.length < 8) {
-                return ""; // 유효하지 않은 날짜는 빈 문자열 반환
-            }
-            const year = dateString.substring(0, 4);
-            const month = dateString.substring(4, 6);
-            const day = dateString.substring(6, 8);
-            return `${year}${month}${day}`;
-        }
-
-
         <!-- 초반 페이지 진입시 그리드 바인딩 끝-->
         function showUserInfo(rowData) {
             // 필드 중 하나라도 비어있는지 확인하여 추가 데이터를 가져올지 결정
-            const hasMissingFields = !rowData || !rowData.cltnm || !rowData.prenm || !rowData.biztypenm ||
-                !rowData.bizitemnm || !rowData.tel || !rowData.Phone ||
-                !rowData.userid || !rowData.email || !rowData.spjType;
+            const hasMissingFields = !rowData ||!rowData.userid ;
 
             if (hasMissingFields) {
                 // 데이터가 불완전하거나 비어 있을 때
@@ -594,13 +446,10 @@
             // 각 필드에 데이터를 채움
             document.getElementById("id").value = data.id || '';
             document.getElementById("userid").value = data.userid || '';
-            document.getElementById("cltnm").value = data.cltnm || '';
-            document.getElementById("prenm").value = data.prenm || '';
-            document.getElementById("biztypenm").value = data.biztypenm || '';
-            document.getElementById("bizitemnm").value = data.bizitemnm || '';
-            document.getElementById("tel").value = data.tel || '';
-            document.getElementById("Phone").value = data.Phone || '';
-            document.getElementById("email").value = data.email || '';
+            document.getElementById("first_name").value = data.first_name || '';
+            document.getElementById("perid").value = data.perid || '';
+            document.getElementById("divinm").value = data.divinm || '';
+            document.getElementById("rspnm").value = data.rspnm || '';
 
             // authType(사용자 그룹) 설정
             document.getElementById('authType').value = data.group_id;
@@ -611,136 +460,15 @@
             //사업체명
             document.getElementById('spjType').value = data.spjangcd;
 
-            // 주소 관련 필드 설정
-            const addressParts = splitAddress(data.cltadres || '');
-            document.getElementById("postno").value = data.zipcd || '';
-            document.getElementById("address1").value = addressParts.address1 || '';
-            document.getElementById("address2").value = addressParts.address2 || '';
-
             $('#userid').prop('readonly', true);
-        }
-
-        // fullAddress를 address1과 address2로 분리하는 함수
-        function splitAddress(fullAddress) {
-            const addressParts = { address1: '', address2: '' };
-            if (fullAddress && fullAddress.trim() !== '') {
-                const lastSpaceIndex = fullAddress.lastIndexOf(" ");
-                if (lastSpaceIndex > 0) {
-                    addressParts.address1 = fullAddress.substring(0, lastSpaceIndex).trim(); // 도로명주소
-                    addressParts.address2 = fullAddress.substring(lastSpaceIndex + 1).trim(); // 상세주소
-                } else {
-                    addressParts.address1 = fullAddress.trim(); // 공백이 없으면 전체를 address1로
-                }
-            }
-            return addressParts;
-        }
-
-        //검색
-        function searchData() {
-            // 검색 조건 수집
-            const userGroup = document.getElementById('cboUserGroup').value;
-            const name = document.getElementById('keyword').value.trim();
-            const username = document.getElementById('username').value.trim();
-
-            // 검색 조건을 객체로 정리
-            const searchParams = {
-                userGroup: userGroup,
-                name: name,
-                username: username
-            };
-
-            // 서버로 AJAX 요청 전송
-            $.ajax({
-                url: '/api/system/user/search', // 서버 API 엔드포인트 설정
-                type: 'GET',
-                data: searchParams, // 검색 조건 전달
-                success: function (response) {
-                    let data = response && response.data ? response.data : [];
-
-                    // 최소 행 수 유지 - 검색 결과가 없을 경우 빈 행 추가
-                    const minimumRows = 3;
-                    if (data.length < minimumRows) {
-                        const additionalRows = minimumRows - data.length;
-                        for (let i = 0; i < additionalRows; i++) {
-                            data.push({
-                                id: '',
-                                userid: '',
-                                prenm: '',
-                                cltnm: '',
-                                group_name: '',
-                                group_id: '',
-                                biztypenm: '',
-                                bizitemnm: '',
-                                tel: '',
-                                Phone: '',
-                                email: '',
-                                date_joined: '',
-                                spjType: '',
-                            });
-                        }
-                    }
-
-                    updateGrid(data); // 데이터를 업데이트하는 함수 호출
-                },
-                error: function () {
-                    console.error("검색 중 오류가 발생했습니다.");
-                    alert("검색에 실패했습니다. 다시 시도해주세요.");
-                }
-            });
-        }
-
-        // 검색 결과를 그리드에 업데이트하는 함수
-        function updateGrid(data) {
-            // 데이터를 수집하여 CollectionView로 업데이트
-            if (viewdata) {
-                viewdata.sourceCollection = data; // 데이터 갱신
-                viewdata.refresh(); // CollectionView 새로고침
-            } else {
-                viewdata = new wijmo.collections.CollectionView(data);
-                theGrid.itemsSource = viewdata; // 데이터 그리드에 반영
-            }
-            theGrid.refresh();
-        }
-
-        function grid_binding(data) {
-            var inspecDto = data;
-            var inspecData = [];
-            var cnt = 1;
-            for (let i = 0; i < inspecDto.length; i++) {
-                let item = inspecDto[i];
-                inspecData.push({
-                    id: item["id"],
-                    userid: item["userid"],            // 사용자ID
-                    prenm: item["prenm"],              // 대표자
-                    cltnm: item["cltnm"],              // 업체명
-                    group_name: item["group_name"],    // 사용자그룹
-                    group_id: item["group_id"],        // 사용자그룹 (보이지 않음)
-                    authType: item["UserGroup_id"],
-                    biztypenm: item["biztypenm"],      // 업태
-                    bizitemnm: item["bizitemnm"],      // 종목
-                    tel: item["tel"],                  // 전화번호 (보이지 않음)
-                    Phone: item["Phone"],              // 핸드폰
-                    email: item["email"],              // 이메일 (보이지 않음)
-                    date_joined: item["date_joined"],   // 생성일
-                    spjType: item['spjangcd']          //사업체명
-                });
-                cnt++
-            }
-            theGrid.columns.clear();
-            theGrid.autoGenerateColumns = false;
-
-            viewdata.sourceCollection = inspecData;
-
-            for (var i = 0; i < columns.length; i++) {
-                var col = new wijmo.grid.Column(columns[i]);
-                theGrid.columns.push(col);
-            }
+            $('#perid').prop('readonly', true);
+            $('#first_name').prop('readonly', true);
+            $('#divinm').prop('readonly', true);
+            $('#rspnm').prop('readonly', true);
         }
 
         function clearForm() {
-            ['id', 'userid', 'prenm', 'cltnm', 'authType', 'email',
-                'Phone', 'tel', 'divinm2', 'agencycd', 'firstSelect', 'placeAddress',
-                'biztypenm', 'bizitemnm', 'postno', 'address1','address2', 'username', 'spjType'].forEach(id => {
+            ['id', 'userid', 'rspnm', 'divinm', 'first_name', 'perid'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) { // 요소가 존재하는 경우에만 실행
                     element.value = '';
@@ -764,6 +492,10 @@
             }
 
             $('#userid').prop('readonly', false);
+            $('#perid').prop('readonly', false);
+            $('#first_name').prop('readonly', false);
+            $('#divinm').prop('readonly', false);
+            $('#rspnm').prop('readonly', false);
 
             $('.new-fl-ac').remove();
         }
@@ -858,82 +590,6 @@
                 }
             });
         }
-
-        // 저장
-        /*$('#btnSave').click(function (e) {
-            Alert.confirm('', '저장을 하시겠습니까?', function () {
-                let formData = new FormData();
-
-                // 입력 필드 값을 formData에 추가
-                formData.append("cltnm", $('#cltnm').val() || '');
-                formData.append("prenm", $('#prenm').val() || '');
-                formData.append("biztypenm", $('#biztypenm').val() || '');
-                formData.append("bizitemnm", $('#bizitemnm').val() || '');
-                formData.append("tel", $('#tel').val() || '');
-                formData.append("Phone", $('#Phone').val() || '');
-                formData.append("userid", $('#userid').val() || '');
-                formData.append("UserGroup_id", $('#authType').val() || '');
-
-                // id 값 추가 (존재 유무로 등록/업데이트를 구분)
-                let id = $('#id').val().trim();
-                formData.append("id", id);
-
-                formData.append("email", $('#email').val() || '');
-                formData.append("authType", $('#authType').val() || '');
-                formData.append("agencycd", $('#agencycd').val() || '');
-                formData.append('_csrf', $('[name=_csrf]').val());
-
-                // 체크박스 값
-                const isActiveCheckbox = document.getElementById("is_active");
-                formData.append("is_active", isActiveCheckbox ? isActiveCheckbox.checked : false);
-
-                // 주소 관련 필드
-                formData.append("postno", $('#postno').val() || '');
-                formData.append("address1", $('#address1').val() || '');
-                formData.append("address2", $('#address2').val() || '');
-
-                // 비밀번호 설정 로직
-                let saupnumValue = $('#saupnum').val() || ''; // 사업자번호 필드의 값을 가져옴
-                let password;
-                /!*if (userid === "admin") {
-                    password = userid; // 아이디가 "admin"일 경우 아이디를 비밀번호로 설정
-                } else {
-                    password = saupnumValue.slice(-5); // 그 외의 경우 사업자 번호의 뒤 5자리를 비밀번호로 설정
-                }*!/
-                if (authType === "35") {
-                    // 일반거래처일 경우 사업자번호를 아이디로 사용
-                    userid = $('#saupnum').val() || ''; // 사업자번호 필드 값
-                    password = saupnumValue.slice(-5); // 사업자번호의 뒤 5자리 비밀번호
-                } else {
-                    // 다른 경우 사용자로부터 입력받은 텍스트 값을 아이디로 사용
-                    userid = $('#userid').val() || ''; // 아이디 필드 값
-                    password = "12345"; // 고정된 비밀번호
-                }
-                formData.append("password", password);
-
-
-
-                // 서버로 formData 전송
-                $.ajax({
-                    url: '/api/system/user/save',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {'X-CSRF-TOKEN': csrfToken}, // CSRF 토큰을 헤더에 추가
-                    success: function (response) {
-                        console.log("저장 성공:", response);
-                        fetchListData(); // 목록 갱신
-                        clearForm();     // 폼 초기화
-                    },
-                    error: function (xhr, status, error) {
-                        console.error("저장 실패:", error);
-                        Alert.alert('', "저장 중 오류가 발생했습니다. 다시 시도해주세요.");
-                        console.log("오류가 발생했습니다. 상태 코드: " + xhr.status + "\n오류 메시지: " + xhr.responseText);
-                    }
-                });
-            });
-        });*///저장
 
         // 저장
         $('#btnSave').click(function (e) {

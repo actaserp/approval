@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import mes.app.UtilClass;
 import mes.app.account.service.TB_RP945_Service;
 import mes.app.account.service.TB_XClientService;
@@ -38,6 +39,7 @@ import mes.domain.security.Pbkdf2Sha256;
 import mes.domain.services.CommonUtil;
 import mes.domain.services.SqlRunner;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/system/user")
 public class UserController {
@@ -70,21 +72,18 @@ public class UserController {
 	JdbcTemplate jdbcTemplate;
 
 	@GetMapping("/read")
-	public AjaxResult getUserList(@RequestParam(value = "cltnm", required = false) String cltnm, // 업체명
-								  @RequestParam(value = "prenm", required = false) String prenm, // 대표자
-								  @RequestParam(value = "biztypenm", required = false) String biztypenm, // 업태
-								  @RequestParam(value = "bizitemnm", required = false) String bizitemnm, // 종목
-								  @RequestParam(value = "email", required = false) String email,
+	public AjaxResult getUserList(@RequestParam(value = "userGroup", required = false) String userGroup, // 사용자그룹
+																@RequestParam(value = "name" ,required = false) String keyword, // 이름
 								  Authentication auth){
 		AjaxResult result = new AjaxResult();
 		User user = (User)auth.getPrincipal();
 		boolean superUser = user.getSuperUser();
-
+		log.info("사용자 관리__ userGroup: {}, keyword: {}", userGroup, keyword);
 		if (!superUser) {
 			superUser = user.getUserProfile().getUserGroup().getCode().equals("dev");
 		}
 
-		List<Map<String, Object>> items = this.userService.getUserList(superUser, cltnm, prenm, biztypenm, bizitemnm, email);
+		List<Map<String, Object>> items = this.userService.getUserList(superUser, userGroup, keyword);
 
 		result.data = items;
 
@@ -331,23 +330,6 @@ public class UserController {
 		boolean exists = userRepository.findById(id).isPresent();
 		Map<String, Boolean> response = new HashMap<>();
 		response.put("exists", exists);
-		return ResponseEntity.ok(response);
-	}
-
-	//사용자 관리 검색
-	@GetMapping("/search")
-	public ResponseEntity<Map<String, Object>> search(
-			@RequestParam(name = "auth", required = false, defaultValue = "false") boolean auth,
-			@RequestParam(required = false) String userGroup,
-			@RequestParam(required = false) String name,
-			@RequestParam(required = false) String username) {
-
-		// 검색 결과를 가져오는 로직
-		List<Map<String, Object>> result = userService.searchData(userGroup, name, username);
-
-		// 응답 데이터를 "data" 키로 래핑하여 JSON 형식으로 반환
-		Map<String, Object> response = new HashMap<>();
-		response.put("data", result);
 		return ResponseEntity.ok(response);
 	}
 
