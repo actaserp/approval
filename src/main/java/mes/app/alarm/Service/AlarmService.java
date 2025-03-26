@@ -34,7 +34,7 @@ public class AlarmService {
 
         String sql = """
         SELECT
-                    e.indate AS alert_date,
+                    e.repodate AS alert_date,
                     e.title,
                     e.appgubun
                 FROM
@@ -44,7 +44,7 @@ public class AlarmService {
                     AND e.spjangcd = :spjangcd
                     AND e.appperid = :perid
                 ORDER BY
-                    e.indate DESC;
+                    e.repodate DESC;
         """;
 
         return sqlRunner.getRows(sql, params);
