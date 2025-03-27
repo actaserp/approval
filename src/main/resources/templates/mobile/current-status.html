@@ -97,7 +97,7 @@
                 </a>
             </div>
             <div class="center" style="margin-left:35px;">
-                <h2>결재현황</h2>
+                <h2>결재목록</h2>
             </div>
             <div class="right">
                 <a href="#" title="전체메뉴" class="btn-menu">
@@ -238,6 +238,40 @@
             </div>
         </div>
     </div>
+<!-- 결재목록 상세보기 버튼 팝업-->
+    <div class="mobile-layout-popup">
+        <div class="popup-overlay2"></div>
+        <div class="popup-wrapper" id="popup-detail-viewer">
+            <div class="popup-title">
+                <h3>결재정보 상세보기</h3>
+            </div>
+            <div class="popup-contents">
+                <div class="table-wrap">
+                    <div class="write-wrap">
+                        <section>
+                            <div class="tab-wrap" style="width: 100%;">
+                                <!-- PDF 뷰어 -->
+                                <section class="tab-item" id="detailView" style="display: block;">
+                                    <div id="detailContainer" style="
+                          width: 100%;
+                          height: auto;
+                          padding: 10px;
+                          background: #f8f9fa;
+                          overflow-y: auto;
+                          max-height: 600px;">
+                                        <!--  PDF 페이지가 동적으로 추가됩니다. -->
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <div class="popup-button">
+                <button class="btn-popup-close btn-navy" onclick="closeDetailModal('popup-detail-viewer')">닫기</button>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -261,6 +295,11 @@
 <script type="text/javascript">
     var theGrid;
     var viewdata1;
+    let currentRealId = null;
+    let currentAppnum = null;
+
+    // 클릭이벤트 중첩 바인드 방지 핸들러
+    let eventHandlerBound = false;
 
     document.readyState === 'complete' ? init() : window.onload = init;
     // 오늘 날짜 설정
@@ -291,7 +330,6 @@
         // 색상을 순환적으로 할당하기 위한 인덱스
         let colorIndex = 0;
         // 날자 변환
-        console.log("랜더링 data (서류별 개별 작업필요 ): " , data)
         data.forEach(item => {
             let cardColor = 'card-blue'; // 기본값
 
@@ -302,6 +340,7 @@
             }
             // 버튼 처리
             let buttonsHtml = `
+                                    <button class="btn btn-detail-view" data-appnum="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;">상세 보기</button>
                                     <button class="btn btn-register-view" data-realid="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;">전표 보기</button>
                                 `;
             let cardHtml = '';
@@ -375,45 +414,27 @@
                     `;
             }
             listCardWrap.insertAdjacentHTML('beforeend', cardHtml);
-            // 작업이력 버튼에 클릭 이벤트 추가
-            const historyButton = listCardWrap.querySelector(
-                `.card-box[data-wono="${item.WONO}"] .btn-popup-open[data-popup="popup-history"]`
-            );
-            attachPopupEvent(historyButton, item, 'popup-history');
-
-            //  이벤트 위임을 사용하여 버튼 클릭 처리
+        });
+        //  이벤트 위임을 사용하여 버튼 클릭 처리
+        if (!eventHandlerBound) {
             listCardWrap.addEventListener('click', (event) => {
-                const button = event.target.closest('.btn-popup-open[data-popup="popup-history2"]');
+                const detailButton = event.target.closest('.btn-detail-view');
                 const pdfButton = event.target.closest('.btn-register-view');
-                const delButton = event.target.closest('.btn-popup-open[data-popup="popup-details"]');
-                const address = event.target.closest('.realadd-click[data-popup="popup-history"]'); // 주소 클릭 이벤트 추가
 
-
-
-                if (button) {
-                    const cardBox = button.closest('.card-box');
-                    if (!cardBox) return;
-
-                    const realId = cardBox.getAttribute('data-realid');
-                    if (!realId) return;
-
-                    console.log("📌 상세보기 버튼 클릭됨! REALID:", realId);
-
-                    //cardDetail()` 함수 실행
-                    cardDetail(realId);
+                if (detailButton) {
+                    const appnum = detailButton.getAttribute("data-appnum");
+                    console.log("상세조회 버튼 클릭됨! appnum:", appnum);
+                    detailModal('popup-detail-viewer', `/api/mobile_list/read_detail?appnum=${appnum}`, appnum);
                 }
 
-                if (pdfButton) {  // PDF 보기 버튼이 클릭된 경우
+                if (pdfButton) {
                     const realId = pdfButton.getAttribute("data-realid");
-                    if (!realId) return;
-
                     console.log("PDF 보기 클릭됨! REALID:", realId);
                     openModal('popup-pdf-viewer', `/api/IssueInquiry/pdf?realId=${realId}`, realId);
                 }
-
-
             });
-        });
+            eventHandlerBound = true; // ✅ 다시 바인딩하지 않도록 플래그 설정
+        }
     }
     function attachPopupEvent(button, item, popupType) {
         if (!button) return;
@@ -430,7 +451,7 @@
     function fetchListData() {
 
         $.ajax({
-            url: '/api/mobile_production/read_all',
+            url: '/api/mobile_list/read_all',
             type: 'GET',
             data: {
                 'search_startDate': $('#startDate').val(),
@@ -585,6 +606,175 @@
         }
     }
 
+    // 상세조회(진행상황) 클릭 이벤트 메서드
+    function detailModal(popupId, Url = null, appnum = null) {
+        let popup = document.getElementById(popupId);
+        let overlay = document.querySelector('.popup-overlay2');
+        let container = document.getElementById("detailContainer");
+
+        console.log(" openModal 실행됨! popupId:", popupId, "요청 URL:", Url);
+
+        if (!popup) {
+            console.error(` 팝업 ID (${popupId})를 찾을 수 없습니다.`);
+            return;
+        }
+
+        // 팝업 강제 표시
+        popup.style.display = "block";
+        setTimeout(() => {
+            popup.classList.add("active");
+            popup.style.opacity = "1";
+            popup.style.visibility = "visible";
+        }, 10);
+
+        if (overlay) {
+            overlay.style.display = "block";
+            overlay.classList.add("active");
+        }
+        if (appnum) {
+            currentAppnum = appnum;
+            //  console.log(" 전역 변수에 appnum 저장 완료:", appnum);
+        } else {
+            // console.warn(" appnum 값이 전달되지 않음!");
+        }
+
+        // 결재목록 상세조회 후 바인드
+        if (Url) {
+            console.log(" 요청 URL 확인:", Url);
+
+            fetch(Url, {method: 'GET', mode: 'cors'})
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(' PDF 파일을 찾을 수 없습니다.');
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log("반환값 전체:", result);
+
+                    if (!result.success) {
+                        throw new Error(result.message || '데이터 없음');
+                    }
+
+                    const data = result.data;
+                    console.log("✅ result.data:", data);
+
+                    // PDF 또는 상세정보 렌더링 등
+                    container.innerHTML = ""; // 혹은 다른 DOM 바인딩
+
+                    let tableHtml = `
+                        <table style="width: max-content; border-collapse: collapse; text-align: center;">
+                            <thead>
+                                <tr style="background-color: #f2f2f2;">
+                                    <th>결재순서</th>
+                                    <th>결재사원 코드</th>
+                                    <th>결재자명</th>
+                                    <th>부서명</th>
+                                    <th>직급</th>
+                                    <th>결재구분</th>
+                                    <th>결재일자</th>
+                                    <th>사유</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                                        data.forEach(item => {
+                                            tableHtml += `
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td>${item.seq ?? ''}</td>
+                                <td>${item.appperid ?? ''}</td>
+                                <td>${item.apppernm ?? ''}</td>
+                                <td>${item.divinm ?? ''}</td>
+                                <td>${item.rspnm ?? ''}</td>
+                                <td>${item.appgubun_display ?? item.appgubun ?? ''}</td>
+                                <td>${item.appdate ?? '-'}</td>
+                                <td>${item.remark ?? '-'}</td>
+                            </tr>
+                        `;
+                    });
+                    tableHtml += `
+                            </tbody>
+                        </table>
+                    `;
+                    // DOM에 렌더링
+                    container.innerHTML = tableHtml;
+                })
+                .catch(error => {
+                    console.error(error.message);
+                    Alert.alert('', "상세정보가 존재하지 않습니다.");
+                    container.innerHTML = "<p style='color:red;'>상세정보를 불러올 수 없습니다.</p>";
+                });
+        }
+    }
+    function closeDetailModal(popupId){
+        let overlay = document.querySelector('.popup-overlay2');
+        //console.log(" closeModal 실행됨! popupId:", popupId);
+        if (!popupId) {
+            console.error(` 닫을 팝업 ID (${popupId})를 찾을 수 없습니다.`);
+            return;
+        }
+
+        // 해당 팝업만 닫기
+        popupId.classList.remove("active");
+        setTimeout(() => {
+            popupId.style.display = "none";
+        }, 300);
+
+        // 팝업이 모두 닫혔을 경우, 오버레이도 닫기
+        let allActivePopups = document.querySelectorAll('.mobile-layout-popup.active');
+        if (allActivePopups.length === 0 && overlay) {
+            overlay.classList.remove("active");
+        }
+    }
+    // pdf 조회 메서드
+    function showPdf(filepath) {
+        console.log(" PDF.js를 사용하여 PDF 렌더링:", filepath);
+
+        let container = document.getElementById("pdfContainer");
+        container.innerHTML = ""; // 기존 내용 초기화
+
+        // 🛠 PDF.js를 이용하여 PDF 불러오기
+        pdfjsLib.getDocument({url: filepath}).promise.then(pdf => {  // ✅ PDF.js는 Blob URL을 객체 형태로 받아야 함.
+            console.log(" PDF 로드 완료. 총 페이지 수:", pdf.numPages);
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                pdf.getPage(pageNum).then(page => {
+                    let viewport = page.getViewport({scale: 1.5}); // 기본 스케일
+
+                    // 🛠 컨테이너 너비에 맞춰 PDF를 자동 확대
+                    let scale = container.clientWidth / viewport.width;
+                    let scaledViewport = page.getViewport({scale: scale});
+
+                    // 페이지별 <canvas> 생성
+                    let canvas = document.createElement("canvas");
+                    canvas.classList.add("pdf-page");
+                    container.appendChild(canvas);
+
+                    let context = canvas.getContext("2d");
+
+                    // 🛠 PDF 크기를 컨테이너에 맞게 설정
+                    let scaleFactor = 3; // 3배 확대
+                    canvas.width = scaledViewport.width * scaleFactor;
+                    canvas.height = scaledViewport.height * scaleFactor;
+                    canvas.style.width = "100%"; // 컨테이너에 맞게 꽉 채우기
+                    canvas.style.height = "auto"; // 세로 비율 유지
+
+                    // 고해상도 렌더링 (텍스트 선명하게)
+                    let renderContext = {
+                        canvasContext: context,
+                        viewport: scaledViewport,
+                        transform: [scaleFactor, 0, 0, scaleFactor, 0, 0]
+                    };
+
+                    page.render(renderContext);
+                });
+            }
+        }).catch(error => {
+            console.error("❌ PDF 렌더링 오류:", error);
+            Alert.alert('', " PDF를 불러올 수 없습니다.");
+        });
+    }
 
 </script>
 </body>
