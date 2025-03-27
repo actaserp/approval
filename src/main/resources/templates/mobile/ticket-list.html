@@ -79,6 +79,8 @@
     <script src="https://cdn.grapecity.com/wijmo/5.latest/controls/wijmo.pdf.min.js"></script>
     <script src="https://cdn.grapecity.com/wijmo/5.latest/controls/wijmo.grid.pdf.min.js"></script>
     <script src="https://cdn.grapecity.com/wijmo/5.latest/controls/wijmo.grid.xlsx.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script> <!-- Slide js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script><!-- PDF.js 라이브러리 추가 -->
     <script src="/js/flex-grid-context-menu.js"></script>
 
     <!-- Wijmo 배포라이선스키 적용 (배포 시 필요) -->
@@ -137,10 +139,10 @@
                                     <input type="date" id="endDate" name="startDate">
                                     <label for="endDate" class="hide">종료일</label>
                                 </li>
-<!--                                <li>-->
-<!--                                    <input type="date" id="endDate" name="endDate">-->
-<!--                                    <label for="endDate" class="hide">종료일</label>-->
-<!--                                </li>-->
+                                <!--                                <li>-->
+                                <!--                                    <input type="date" id="endDate" name="endDate">-->
+                                <!--                                    <label for="endDate" class="hide">종료일</label>-->
+                                <!--                                </li>-->
                             </ul>
                         </dd>
                     </dl>
@@ -148,10 +150,10 @@
                         <dt>진행구분</dt>
                         <dd>
                             <div style="display: flex; gap: 10px">
-<!--                                <div style="width: 100%">-->
-<!--                                    <input type="text" id="searchcltnm" placeholder="거래처를 입력해주세요">-->
-<!--                                    <input type="hidden" id="searchcltcd">-->
-<!--                                </div>-->
+                                <!--                                <div style="width: 100%">-->
+                                <!--                                    <input type="text" id="searchcltnm" placeholder="거래처를 입력해주세요">-->
+                                <!--                                    <input type="hidden" id="searchcltcd">-->
+                                <!--                                </div>-->
                                 <div class="input-clear" style="width: 100%">
                                     <select id="gubuncd" name="gubuncd">
                                         <option value="" selected>전체</option>
@@ -167,12 +169,12 @@
                                 <div style="width: 100%">
                                     <input type="text" id="searchSubject" placeholder="제목을 입력해주세요">
                                 </div>
-<!--                                <div>-->
-<!--                                    <a href="#" class="btn" title="검색" onclick="searchProduct($('#searchproductnm').val())"-->
-<!--                                       style="background-color: #022D60; color: #fff; text-decoration: none; border-radius: 4px; width: 80px;">-->
-<!--                                        검색-->
-<!--                                    </a>-->
-<!--                                </div>-->
+                                <!--                                <div>-->
+                                <!--                                    <a href="#" class="btn" title="검색" onclick="searchProduct($('#searchproductnm').val())"-->
+                                <!--                                       style="background-color: #022D60; color: #fff; text-decoration: none; border-radius: 4px; width: 80px;">-->
+                                <!--                                        검색-->
+                                <!--                                    </a>-->
+                                <!--                                </div>-->
                             </div>
                         </dd>
                     </dl>
@@ -188,21 +190,22 @@
                         목록 <span class="blue">- 건</span>
                     </div>
                     <div>
-<!--                        <button id="saveXlsx" class="btn btn-default">Excel</button>-->
+                        <!--                        <button id="saveXlsx" class="btn btn-default">Excel</button>-->
                     </div>
                 </div>
                 <div class="list-card-wrap" id="cardWrap">
                     <div class="container-fluid">
-<!--                        <p id="selectedItem"></p>-->
-<!--                        <div id="gridContainer" style="overflow-x: auto; white-space: nowrap;">-->
-<!--                            <div id="theGrid"></div>-->
-<!--                        </div>-->
+                        <!--                        <p id="selectedItem"></p>-->
+                        <!--                        <div id="gridContainer" style="overflow-x: auto; white-space: nowrap;">-->
+                        <!--                            <div id="theGrid"></div>-->
+                        <!--                        </div>-->
                     </div>
                 </div> <!--//card-wrap end-->
             </div> <!--// contents-wrap end-->
         </div> <!--//layout-contents end -->
 
     </div> <!-- //mobile-layout-contents end-->
+
     <!-- PDF 보기 팝업 -->
     <div class="mobile-layout-popup">
         <div class="popup-overlay"></div>
@@ -238,7 +241,6 @@
             </div>
         </div>
     </div>
-
 
 
 </div> <!-- //page-wrapper end-->
@@ -301,18 +303,14 @@
                 cardColor = 'card-red';
             }
             // 버튼 처리
-            let buttonsHtml = `
-                                <div class = "button-container">
-                                    <button class="btn btn-popup-open" data-popup="popup-history" title="반려">반려</button>
-                                    <button class="btn btn-popup-open" data-popup="popup-history" title="승인">승인</button>
-                                    <button class="btn btn-register-view" data-realid="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;">전표 보기</button>
-                                </div>
-                                `;
+            let buttonsHtml = `<button class="btn btn-popup-open" data-popup="popup-history" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;" title="반려">반려</button>
+                               <button class="btn btn-popup-open" data-popup="popup-history" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;" title="승인">승인</button>
+                               <button class="btn btn-register-view" data-appnum="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;">전표 보기</button>`;
             let cardHtml = '';
             if(item.flag === '1') {
 
                 cardHtml = `
-                        <div class="card-box ${cardColor}" data-wono="${item.WONO}">
+                        <div class="card-box ${cardColor}" data-wono="${item.WONO}" data-appnum="${item.e080_appnum}">
                             <div class="card-tit">
                                 <h3>${item.e080_title}</h3>
                             </div>
@@ -389,11 +387,6 @@
             listCardWrap.addEventListener('click', (event) => {
                 const button = event.target.closest('.btn-popup-open[data-popup="popup-history2"]');
                 const pdfButton = event.target.closest('.btn-register-view');
-                const delButton = event.target.closest('.btn-popup-open[data-popup="popup-details"]');
-                const address = event.target.closest('.realadd-click[data-popup="popup-history"]'); // 주소 클릭 이벤트 추가
-
-
-
                 if (button) {
                     const cardBox = button.closest('.card-box');
                     if (!cardBox) return;
@@ -407,15 +400,13 @@
                     cardDetail(realId);
                 }
 
-                if (pdfButton) {  // PDF 보기 버튼이 클릭된 경우
-                    const realId = pdfButton.getAttribute("data-realid");
-                    if (!realId) return;
+                if (pdfButton) {
+                    const e080_appnum = pdfButton.getAttribute("data-appnum");
+                    if (!e080_appnum) return;
 
-                    console.log("PDF 보기 클릭됨! REALID:", realId);
-                    openModal('popup-pdf-viewer', `/api/IssueInquiry/pdf?realId=${realId}`, realId);
+                    console.log("PDF 보기 클릭됨! e080_appnum:", e080_appnum);
+                    openModal('popup-pdf-viewer', `/api/mobilePDF/pdf?appnum=${e080_appnum}`, e080_appnum);
                 }
-
-
             });
         });
     }
@@ -423,7 +414,7 @@
         if (!button) return;
         button.addEventListener('click', () => {
 
-        if (popupType === 'popup-history') {
+            if (popupType === 'popup-history') {
                 fetchListData_action(item);
             }
         });
@@ -506,8 +497,10 @@
             });
     }
 
+    let currentRealId = null;
+
     // 버튼 클릭 모달 이벤트 메서드
-    function openModal(popupId, pdfUrl = null, realId = null) {
+    function openModal(popupId, pdfUrl = null, e080_appnum = null) {
         let popup = document.getElementById(popupId);
         let overlay = document.querySelector('.popup-overlay');
         let container = document.getElementById("pdfContainer");
@@ -517,6 +510,10 @@
         if (!popup) {
             console.error(` 팝업 ID (${popupId})를 찾을 수 없습니다.`);
             return;
+        }
+        if (e080_appnum === currentRealId) {
+            console.warn("이미 열려있는 PDF입니다. 요청 생략:", e080_appnum);
+            return; // 중복 요청 방지
         }
 
         // 팝업 강제 표시
@@ -531,11 +528,11 @@
             overlay.style.display = "block";
             overlay.classList.add("active");
         }
-        if (realId) {
-            currentRealId = realId;
-            //  console.log(" 전역 변수에 realId 저장 완료:", realId);
+        if (e080_appnum) {
+            currentRealId = e080_appnum;
+            console.log(" 전역 변수에 realId 저장 완료:", e080_appnum);
         } else {
-            // console.warn(" realId 값이 전달되지 않음!");
+            console.warn(" realId 값이 전달되지 않음!");
         }
 
         // PDF 파일이 존재하는지 확인 후 PDF.js로 렌더링
@@ -547,7 +544,7 @@
                     if (!response.ok) {
                         throw new Error(' PDF 파일을 찾을 수 없습니다.');
                     }
-                    // console.log(" PDF 파일 확인 완료:", pdfUrl);
+                    console.log(" PDF 파일 확인 완료:", pdfUrl);
 
                     // 기존 내용 초기화 후 PDF 렌더링
                     container.innerHTML = "";
@@ -559,6 +556,81 @@
                     container.innerHTML = "<p style='color:red;'>PDF를 불러올 수 없습니다.</p>";
                 });
         }
+    }
+    function showPdf(pdfUrl) {
+        console.log(" PDF.js를 사용하여 PDF 렌더링:", pdfUrl);
+
+        let container = document.getElementById("pdfContainer");
+        container.innerHTML = ""; // 기존 내용 초기화
+
+        // 🛠 스크롤 단일화 (이중 스크롤 제거)
+        container.style.overflowX = "hidden"; // 가로 스크롤 제거
+        container.style.overflowY = "hidden"; // 이중 스크롤 방지
+        container.style.maxHeight = "100vh";  // 전체 화면 높이 사용
+
+        // PDF 파일 불러오기
+        pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+            console.log(" PDF 로드 완료. 총 페이지 수:", pdf.numPages);
+
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                pdf.getPage(pageNum).then(page => {
+                    let viewport = page.getViewport({scale: 1.5}); // 기본 스케일
+
+                    // 🛠 컨테이너 너비에 맞춰 PDF를 자동 확대 (여백 없이 꽉 차게)
+                    let scale = container.clientWidth / viewport.width;
+                    let scaledViewport = page.getViewport({scale: scale});
+
+                    // 페이지별 <canvas> 생성
+                    let canvas = document.createElement("canvas");
+                    canvas.classList.add("pdf-page");
+                    container.appendChild(canvas);
+
+                    let context = canvas.getContext("2d");
+
+                    // 🛠 PDF 크기를 컨테이너에 맞게 설정 (여백 제거)
+                    let scaleFactor = 3; // 3배 확대
+                    canvas.width = scaledViewport.width * scaleFactor;
+                    canvas.height = scaledViewport.height * scaleFactor;
+                    canvas.style.width = "100%"; // 컨테이너에 맞게 꽉 채우기
+                    canvas.style.height = "auto"; // 세로 비율 유지
+
+                    // 고해상도 렌더링 (텍스트 선명하게)
+                    let renderContext = {
+                        canvasContext: context,
+                        viewport: scaledViewport,
+                        transform: [scaleFactor, 0, 0, scaleFactor, 0, 0]
+                    };
+
+                    page.render(renderContext);
+                });
+            }
+        }).catch(error => {
+            console.error(" PDF 렌더링 오류:", error);
+            alert(" PDF를 불러올 수 없습니다.");
+        });
+    }
+
+    //  PDF 다운로드 함수
+    function downloadPdf() {
+        if (!currentRealId) {
+            console.error(" 다운로드할 PDF 파일을 찾을 수 없습니다. (realId 없음)");
+            Alert.alert('', "다운로드할 PDF 파일을 찾을 수 없습니다.");
+            return;
+        }
+
+        console.log(" PDF 다운로드 시작: appnum=", currentRealId);
+
+        //`pdfDownload` API 호출하여 다운로드 실행
+        let downloadUrl = `/api/mobilePDF/pdfDownload?appnum=${currentRealId}`;
+        // console.log(" 다운로드 URL:", downloadUrl);  // 🔍 디버깅 확인
+
+        //강제 다운로드 실행
+        let anchor = document.createElement("a");
+        anchor.href = downloadUrl;
+        anchor.target = "_blank";
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
     }
 
     function closeModal(popupId) {
