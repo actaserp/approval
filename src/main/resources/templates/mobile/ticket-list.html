@@ -203,7 +203,41 @@
         </div> <!--//layout-contents end -->
 
     </div> <!-- //mobile-layout-contents end-->
-
+    <!-- PDF 보기 팝업 -->
+    <div class="mobile-layout-popup">
+        <div class="popup-overlay"></div>
+        <div class="popup-wrapper" id="popup-pdf-viewer">
+            <div class="popup-title">
+                <h3>PDF 문서 보기</h3>
+            </div>
+            <div class="popup-contents">
+                <div class="table-wrap">
+                    <div class="write-wrap">
+                        <section>
+                            <div class="tab-wrap" style="width: 100%;">
+                                <!-- PDF 뷰어 -->
+                                <section class="tab-item" id="pdfView" style="display: block;">
+                                    <div id="pdfContainer" style="
+                          width: 100%;
+                          height: auto;
+                          padding: 10px;
+                          background: #f8f9fa;
+                          overflow-y: auto;
+                          max-height: 600px;">
+                                        <!--  PDF 페이지가 동적으로 추가됩니다. -->
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <div class="popup-button">
+                <button class="btn-download btn-navy" id="btnDownloadPdf" onclick="downloadPdf()">다운로드</button>
+                <button class="btn-popup-close btn-navy" onclick="closeModal('popup-pdf-viewer')">닫기</button>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -267,9 +301,13 @@
                 cardColor = 'card-red';
             }
             // 버튼 처리
-            let buttonsHtml = `<button class="btn btn-popup-open" data-popup="popup-history" title="반려">반려</button>
-                               <button class="btn btn-popup-open" data-popup="popup-history" title="승인">승인</button>
-                               <button class="btn btn-register-view" data-realid="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;">전표 보기</button>`;
+            let buttonsHtml = `
+                                <div class = "button-container">
+                                    <button class="btn btn-popup-open" data-popup="popup-history" title="반려">반려</button>
+                                    <button class="btn btn-popup-open" data-popup="popup-history" title="승인">승인</button>
+                                    <button class="btn btn-register-view" data-realid="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;">전표 보기</button>
+                                </div>
+                                `;
             let cardHtml = '';
             if(item.flag === '1') {
 
