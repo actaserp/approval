@@ -72,11 +72,13 @@ header .right a {display: block;}
 .card-box .card-cont dl dt {width: 90px; font-size: 13px; font-weight: 600; color: #777;}
 .card-box .card-cont dl dd {width: calc(100% - 90px); font-size: 14px; font-weight: 500; text-align: right;}
 .card-box .card-btn {display: flex; gap: 8px; padding: 8px 0;}
-.card-box .card-btn button, .card-box .card-btn .btn { background-color: #119891; color: #fff; border:none;}
+.card-box .card-btn button:not(:disabled):hover, .card-box .card-btn .btn:not(:disabled):hover  { background-color: #119891; color: #fff; border:none;}
 .card-green .card-btn button, .card-green .card-btn .btn {background-color: #119891 !important;}
 .card-blue .card-btn button, .card-blue .card-btn .btn {background-color: #3069B3 !important;}
 .card-black .card-btn button, .card-black .card-btn .btn {background-color: #1D1D1D !important;}
 .card-red .card-btn button, .card-red .card-btn .btn {background-color: #EC193A !important;}
+.card-box .card-btn button:disabled,
+.card-box .card-btn .btn:disabled {background-color: #ccc !important; color: #999 !important; cursor: not-allowed !important;}
 
 /* status */
 .status-tag {display: flex; align-items: center; gap: 8px;}
@@ -275,7 +277,7 @@ header .right a {display: block;}
 .login-wrap .login-form .check-save {display: flex; align-items: center; margin-bottom: 24px;}
 .login-wrap .login-form .check-save label {margin-left: 10px;}
 .login-wrap .login-form .btn-login {display: flex; justify-content: center; align-items: center; width: 100%; height: 56px; background-color: #03428e; color: #fff; border-radius: 5px; margin-bottom: 24px; font-size: 18px; font-weight: 700;}
-.login-wrap .login-form .btn-login-etc {display: flex; justify-content: space-between; align-items: center; gap: 10px;}
+.login-wrap .login-form .btn-login-etc {display: flex; justify-content: space-evenly; align-items: center; gap: 10px;}
 .login-wrap .login-form .btn-login-etc li {width: 33.3%;}
 .login-wrap .login-form .btn-login-etc a {font-size: 14px; padding: 4px;}
 .hint, .hint-red {display: flex; align-items: center; margin-top: 6px; font-size: 13px;}

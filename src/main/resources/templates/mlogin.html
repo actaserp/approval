@@ -65,13 +65,13 @@
                     </div>
                     <button type="submit" class="btn-login" id="login">로그인</button>
                     <ul class="btn-login-etc">
-                        <li>
+                        <!--<li>
                             <a href="#" class="btn btn-popup-open" data-popup="popup1" onclick="RegisterUser()"
                                title="사용자 등록">사용자 등록</a>
-                        </li>
+                        </li>-->
                         <li>
-                            <a href="#" class="btn btn-popup-open" data-popup="popup2" title="아이디 찾기"
-                               onclick="openModal()">아이디 찾기</a>
+                            <a href="#" class="btn btn-popup-open" data-popup="popup2" title="등록 확인"
+                               onclick="openModal()">등록 확인</a>
                         </li>
                         <li>
                             <a href="#" class="btn btn-popup-open" data-popup="popup3" onclick="openPwModal()"
@@ -207,7 +207,7 @@
             <form id="bomForm2">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
                 <div class="popup-title">
-                    <h3>아이디 찾기</h3>
+                    <h3>등록여부 확인</h3>
                     <a onclick="ModalClose()" title="팝업닫기" class="btn-popup-close">
                         <img src="/assets_mobile/images/icon/btn-popup-close.svg" alt="닫기">
                     </a>
@@ -231,27 +231,23 @@
                             <dl>
                                 <dt>
                                     <label>
-                                        이메일
+                                        아이디
                                     </label>
                                 </dt>
                                 <dd>
                                     <div class="input-clear">
-                                        <input type="text" id="mail" name="mail" placeholder="이메일">
+                                        <input type="text" id="findUserid" name="findUserid" required="" maxlength="20" placeholder="아이디" autocomplete="off">
                                     </div>
                                 </dd>
                                 <div id="ErrMsg"
                                      style="margin-top: 10px;text-align: center; display: none; color: red;"><span>해당 사용자는 존재하지 않습니다.</span>
                                 </div>
-                                <div class="hint-red" id="ErrMessage" style="margin: 5px auto 0;">
-                                    <img src="/images/icon/ico-info-red.svg" alt="힌트메세지">신청시 등록한 이메일을 입력해주세요.
-                                </div>
-
                             </dl>
                         </div>
                     </div>
                 </div>
                 <div class="popup-button">
-                    <button class="btn-navy" type="button" id="btnSearch">아이디찾기</button>
+                    <button class="btn-navy" type="button" id="btnSearch">등록 확인</button>
                 </div>
             </form>
         </div>
@@ -300,7 +296,7 @@
                                         <button type="button" class="btn" id="BtnAuthentication" name="BtnAuthentication" title="코드발급">코드발급</button>
                                     </dd>
                                     <dd class="hint-red">
-                                        <img src="/images/icon/ico-info-red.svg" alt="힌트메세지">등록시 등록한 이메일을 입력해주세요.
+                                        <img src="/images/icon/ico-info-red.svg" alt="힌트메세지">인증번호를 받을 이메일을 입력해 주세요.
                                     </dd>
                                 </dl>
                             </div>
@@ -1126,39 +1122,28 @@
         errMsgDiv.classList.remove('show');
         errMsgSpan.textContent = '해당 사용자는 존재하지 않습니다.';
 
-        let usernm = document.getElementById('usernm').value;
-        let mail = document.getElementById('mail').value;
+        let usernm = document.getElementById('usernm').value;       //아이디
+        let findUserid = document.getElementById('findUserid').value;   //이름
 
-        if(usernm.trim().length === 0 || mail.trim().length === 0){
+        if(usernm.trim().length === 0 || findUserid.trim().length === 0) {
             Alert.alert('', '빈 값은 불가능합니다.');
             return false;
         }
+        let data = { usernm, findUserid, _CsrfValue }
 
-
-        if(!emailValidate(mail.trim()))
-        { Alert.alert('', '유효한 이메일 형식을 입력하세요.'); return false; }
-
-        let data = { usernm, mail}
-
-        let fnSuccess = function (res){
-            if(res.success){
-                if (Array.isArray(res.data)) {
-                    errMsgSpan.textContent = res.data.join(', ') + '입니다.'; // 각 배열 요소를 쉼표로 구분하여 표시
-                } else {
-                    errMsgSpan.textContent = res.data + '입니다.'; // 배열이 아니면 그대로 표시
-                }
+        let fnSuccess = function (res) {
+            if (res.success) {
+                errMsgSpan.textContent = '등록된 사원입니다.'; // 성공 시 메시지 변경
                 errMsgDiv.style.display = 'block';
                 errMsgDiv.style.color = 'black';
                 errMsgDiv.classList.add('show');
-            } else if (!res.success){
-
+            } else if (!res.success) {
                 errMsgDiv.style.display = 'block';
                 errMsgDiv.classList.add('show');
 
-                errMsgDiv.addEventListener('animationend', function() {
+                errMsgDiv.addEventListener('animationend', function () {
                     errMsgDiv.classList.remove('show');
                 });
-
             }
         };
         AjaxUtil.postAsyncData("/user-auth/searchAccount", data, fnSuccess, function(){ Alert.alert('', '서버통신 실패') });

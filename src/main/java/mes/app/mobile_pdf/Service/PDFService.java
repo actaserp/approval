@@ -59,6 +59,21 @@ public class PDFService {
     return Optional.empty();
   }
 
+  public List<Map<String, Object>> getRemarkpopup(String agencycd, String appnum) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("appnum", appnum);
+    params.addValue("perid", agencycd);
+    StringBuilder sql = new StringBuilder("""
+        select appgubun,appnum,appperid, papercd
+        from tb_e080 
+        where appnum =:appnum 
+        AND appperid = :perid;
+        """);
+    log.info("사유 팝업 필요데이터 조회  SQL: {}", sql);
+    log.info("SQL Parameters: {}", params.getValues());
+    return sqlRunner.getRows(sql.toString(), params);
+  }
+
 
   public class PdfFileInfo {
     private final String filePath;

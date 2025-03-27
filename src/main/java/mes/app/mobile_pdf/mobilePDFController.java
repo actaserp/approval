@@ -3,21 +3,21 @@ package mes.app.mobile_pdf;
 import lombok.extern.slf4j.Slf4j;
 import mes.app.mobile_pdf.Service.PDFService;
 import mes.domain.entity.User;
+import mes.domain.model.AjaxResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -138,4 +138,28 @@ public class mobilePDFController {
       return ResponseEntity.internalServerError().build();
     }
   }
+
+  @GetMapping("/remarkpopup")
+  public AjaxResult getRemarkpopup(@RequestParam(value = "appgubun", required = false) String appgubun,
+                                   @RequestParam(value = "appnum", required = false) String appnum,
+                                   Authentication auth) {
+      AjaxResult result = new AjaxResult();
+
+    try {
+      // 데이터 조회
+      User user = (User) auth.getPrincipal();
+      String agencycd = user.getAgencycd().replaceFirst("^p", "");
+
+      List<Map<String, Object>> getRemarkpopup = pdfService.getRemarkpopup(agencycd,appnum);
+
+      result.success = true;
+      result.message = "데이터 조회 성공";
+      result.data = getRemarkpopup;
+    }catch (Exception e) {
+      result.success = false;
+      result.message = "데이터 조회 중 오류 발생: " + e.getMessage();
+    }
+    return result;
+  }
+
 }

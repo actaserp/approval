@@ -354,7 +354,6 @@ public class PaymentDetailController {
   public AjaxResult currentAppperid(@RequestBody Map<String, Object> request,
                                     Authentication auth) {
     AjaxResult result = new AjaxResult();
-
     try {
       Object appnumObj = request.get("appnum");
       String appnum;
