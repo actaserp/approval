@@ -75,7 +75,7 @@ public class ProductionService {
                                   A.appdate,
                                   A.appperid,
                                   A.appgubun,
-                                  C.appnum,
+                                  C.appnum AS e080_appnum,
                                   C.appgubun AS e080_appgubun,
                                   C.title AS e080_title
                               FROM
@@ -236,16 +236,6 @@ public class ProductionService {
                 """);
 
         try {
-            System.out.println("──────────────────────────────");
-            System.out.println("📜 최종 실행 SQL:");
-            System.out.println(sql.toString());
-
-            System.out.println("\n📦 바인딩 파라미터:");
-            for (String key : dicParam.getValues().keySet()) {
-                System.out.println("→ " + key + " = " + dicParam.getValue(key));
-            }
-            System.out.println("──────────────────────────────");
-
             items = this.sqlRunner.getRows(String.valueOf(sql), dicParam);
         } catch (Exception e) {
             e.printStackTrace();

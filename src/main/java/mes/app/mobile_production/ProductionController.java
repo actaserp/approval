@@ -136,7 +136,6 @@ public class ProductionController {
         }
         AjaxResult result = new AjaxResult();
 
-        System.out.println("vacList : " + vacList);
         result.data = allList;
         return result;
     }

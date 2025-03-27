@@ -269,7 +269,7 @@
             // 버튼 처리
             let buttonsHtml = `<button class="btn btn-popup-open" data-popup="popup-history" title="반려">반려</button>
                                <button class="btn btn-popup-open" data-popup="popup-history" title="승인">승인</button>
-                               <button class="btn btn-popup-open" data-popup="popup-history" title="전표보기">전표보기</button>`;
+                               <button class="btn btn-register-view" data-realid="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;">전표 보기</button>`;
             let cardHtml = '';
             if(item.flag === '1') {
 
@@ -346,6 +346,39 @@
                 `.card-box[data-wono="${item.WONO}"] .btn-popup-open[data-popup="popup-history"]`
             );
             attachPopupEvent(historyButton, item, 'popup-history');
+
+            //  이벤트 위임을 사용하여 버튼 클릭 처리
+            listCardWrap.addEventListener('click', (event) => {
+                const button = event.target.closest('.btn-popup-open[data-popup="popup-history2"]');
+                const pdfButton = event.target.closest('.btn-register-view');
+                const delButton = event.target.closest('.btn-popup-open[data-popup="popup-details"]');
+                const address = event.target.closest('.realadd-click[data-popup="popup-history"]'); // 주소 클릭 이벤트 추가
+
+
+
+                if (button) {
+                    const cardBox = button.closest('.card-box');
+                    if (!cardBox) return;
+
+                    const realId = cardBox.getAttribute('data-realid');
+                    if (!realId) return;
+
+                    console.log("📌 상세보기 버튼 클릭됨! REALID:", realId);
+
+                    //cardDetail()` 함수 실행
+                    cardDetail(realId);
+                }
+
+                if (pdfButton) {  // PDF 보기 버튼이 클릭된 경우
+                    const realId = pdfButton.getAttribute("data-realid");
+                    if (!realId) return;
+
+                    console.log("PDF 보기 클릭됨! REALID:", realId);
+                    openModal('popup-pdf-viewer', `/api/IssueInquiry/pdf?realId=${realId}`, realId);
+                }
+
+
+            });
         });
     }
     function attachPopupEvent(button, item, popupType) {
@@ -433,6 +466,89 @@
             .catch(error => {
                 console.error('Error fetching options:', error);
             });
+    }
+
+    // 버튼 클릭 모달 이벤트 메서드
+    function openModal(popupId, pdfUrl = null, realId = null) {
+        let popup = document.getElementById(popupId);
+        let overlay = document.querySelector('.popup-overlay');
+        let container = document.getElementById("pdfContainer");
+
+        console.log(" openModal 실행됨! popupId:", popupId, "PDF URL:", pdfUrl);
+
+        if (!popup) {
+            console.error(` 팝업 ID (${popupId})를 찾을 수 없습니다.`);
+            return;
+        }
+
+        // 팝업 강제 표시
+        popup.style.display = "block";
+        setTimeout(() => {
+            popup.classList.add("active");
+            popup.style.opacity = "1";
+            popup.style.visibility = "visible";
+        }, 10);
+
+        if (overlay) {
+            overlay.style.display = "block";
+            overlay.classList.add("active");
+        }
+        if (realId) {
+            currentRealId = realId;
+            //  console.log(" 전역 변수에 realId 저장 완료:", realId);
+        } else {
+            // console.warn(" realId 값이 전달되지 않음!");
+        }
+
+        // PDF 파일이 존재하는지 확인 후 PDF.js로 렌더링
+        if (pdfUrl) {
+            console.log(" PDF URL 확인:", pdfUrl);
+
+            fetch(pdfUrl, {method: 'GET', mode: 'cors'})
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(' PDF 파일을 찾을 수 없습니다.');
+                    }
+                    // console.log(" PDF 파일 확인 완료:", pdfUrl);
+
+                    // 기존 내용 초기화 후 PDF 렌더링
+                    container.innerHTML = "";
+                    showPdf(pdfUrl);
+                })
+                .catch(error => {
+                    console.error(error.message);
+                    Alert.alert('', "PDF 파일이 존재하지 않습니다.");
+                    container.innerHTML = "<p style='color:red;'>PDF를 불러올 수 없습니다.</p>";
+                });
+        }
+    }
+
+    function closeModal(popupId) {
+        let popup = document.getElementById('popup-pdf-viewer');
+        let overlay = document.querySelector('.popup-overlay');
+        let iframe = document.getElementById("pdfFrame");
+        //console.log(" closeModal 실행됨! popupId:", popupId);
+        if (!popup) {
+            console.error(` 닫을 팝업 ID (${popupId})를 찾을 수 없습니다.`);
+            return;
+        }
+
+        // 해당 팝업만 닫기
+        popup.classList.remove("active");
+        setTimeout(() => {
+            popup.style.display = "none";
+        }, 300);
+
+        // 팝업이 모두 닫혔을 경우, 오버레이도 닫기
+        let allActivePopups = document.querySelectorAll('.mobile-layout-popup.active');
+        if (allActivePopups.length === 0 && overlay) {
+            overlay.classList.remove("active");
+        }
+
+        // iframe 초기화 (PDF URL 제거)
+        if (iframe) {
+            iframe.src = "";
+        }
     }
 
 
