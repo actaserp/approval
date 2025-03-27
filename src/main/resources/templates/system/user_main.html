@@ -80,7 +80,7 @@
                                 <td>
                                     <div class="input-clear">
                                         <input type="text" id="first_name" name="first_name" placeholder="이름"
-                                               style="width: 400px !important;">
+                                               style="width: 400px !important;" readonly>
                                         <input type="hidden" id="id">
                                     </div>
                                 </td>
@@ -105,7 +105,7 @@
                                 <td>
                                     <div class="input-clear">
                                         <input type="text" id="divinm" name="divinm" placeholder="부서"
-                                               style="width: 400px !important;">
+                                               style="width: 400px !important;" readonly>
                                     </div>
                                 </td>
                                 <th>
@@ -116,7 +116,7 @@
                                 <td>
                                     <div class="input-clear">
                                         <input type="text" id="rspnm" name="rspnm" placeholder="직급"
-                                               style="width: 400px !important;">
+                                               style="width: 400px !important;" readonly>
                                     </div>
                                 </td>
                             </tr>
@@ -129,7 +129,7 @@
                                 <td>
                                     <div class="input-clear">
                                         <input type="text" id="userid" name="userid" placeholder="아이디"
-                                               style="width: 400px !important;">
+                                               style="width: 400px !important;" readonly>
                                     </div>
                                 </td>
                                 <th><label for="is_active">사용여부</label></th>
@@ -658,8 +658,8 @@
                 formData.append("perid", $('#perid').val() || '');
                 formData.append("divinm", $('#divinm').val() || '');
                 formData.append("rspnm", $('#rspnm').val() || '');
-                formData.append("divinm", $('#divinm').val() || '');
-                formData.append("Password", $('#Password').val() || '');
+                formData.append("Password", $('#PasswordChange').val() || '');
+                formData.append("spjangcd", $('#spjType').val() || '');
 
                 // 체크박스 값 추가
                 const isActiveCheckbox = document.getElementById("is_active");
@@ -735,10 +735,18 @@
                 });
             });
         });
+
         // 사원코드 input 클릭 시 모달 열기
         document.getElementById('perid').addEventListener('click', function () {
-            console.log('📌 사원코드 input 클릭됨 → 사원 모달 오픈');
-            showPopupById('CltnmModal');  // 모달 열기 함수 호출
+            const input = this;
+
+            // readonly 속성이 없을 때만 실행
+            if (!input.hasAttribute('readonly')) {
+                console.log('📌 사원코드 input 클릭됨 → 사원 모달 오픈');
+                showPopupById('CltnmModal');
+            } else {
+                console.log('⚠️ readonly 상태이므로 모달을 열지 않음');
+            }
         });
 
         const modalDataLoaders = {
@@ -807,7 +815,7 @@
             });
 
             // 데이터가 비어 있으면 기본값 추가 (그리드가 깨지지 않도록)
-            if (data.length < 15) {
+            for (let i = data.length; i < 15; i++) {
                 data.push({
                     userid:  '',
                     perid:'',
@@ -861,10 +869,15 @@
                             $('#userid').val(clickedItem.userid);
                             $('#divinm').val(clickedItem.divinm);
                             $('#rspnm').val(clickedItem.rspnm);
-                            $('#pernm').val(clickedItem.pernm);
+                            $('#first_name').val(clickedItem.pernm);
+                            $('#is_active').prop('checked', clickedItem.useyn === '1');
 
                         }
-
+                        $('#userid').prop('readonly', true);
+                        $('#perid').prop('readonly', true);
+                        $('#first_name').prop('readonly', true);
+                        $('#divinm').prop('readonly', true);
+                        $('#rspnm').prop('readonly', true);
                         closePopup('CltnmModal'); // 모달 창 닫기
                     }
                 }

@@ -6,24 +6,19 @@ import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import mes.app.PaymentList.service.PaymentListService;
 import mes.app.UtilClass;
-import mes.app.account.service.TB_RP945_Service;
 import mes.app.account.service.TB_XClientService;
-import mes.domain.DTO.TB_RP945Dto;
+import mes.app.account.service.TB_xusersService;
 import mes.domain.entity.*;
-import mes.domain.entity.actasEntity.TB_XA012;
-import mes.domain.entity.actasEntity.TB_XCLIENT;
-import mes.domain.entity.actasEntity.TB_XCLIENTId;
+import mes.domain.entity.actasEntity.*;
 import mes.domain.repository.*;
 import mes.domain.repository.actasRepository.TB_XA012Repository;
-import mes.domain.repository.actasRepository.TB_XClientRepository;
+import mes.domain.repository.actasRepository.TB_xusersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -61,10 +56,10 @@ public class UserController {
 	private TB_RP945Repository tB_RP945Repository;
 
 	@Autowired
-	TB_XClientService tbXClientService;
+	TB_xusersService xusersService;
 
 	@Autowired
-	TB_XClientRepository tbXClientRepository;
+	TB_xusersRepository xusersRepository;
 
 	@Autowired
 	TB_XA012Repository tbXA012Repository;
@@ -156,22 +151,15 @@ public class UserController {
 	@Transactional
 	public AjaxResult saveUser(
 			@RequestParam(value = "id", required = false) Integer id,
-			@RequestParam(value = "cltnm") String cltnm,
-			@RequestParam(value = "prenm") String prenm,
-			@RequestParam(value = "biztypenm") String biztypenm,
-			@RequestParam(value = "bizitemnm") String bizitemnm,
-			@RequestParam(value = "tel") String tel,
-			@RequestParam(value = "Phone") String phone,
 			@RequestParam(value = "userid") String userid,
-			@RequestParam(value = "email") String email,
-			@RequestParam(value = "agencycd", required = false) String agencycd,
-			@RequestParam(value = "authType", required = false) String authType,
 			@RequestParam(value = "is_active") boolean isActive,
-			@RequestParam(value = "postno") String postno,
-			@RequestParam(value = "address1") String address1,
-			@RequestParam(value = "address2") String address2,
 			@RequestParam(value = "password") String password,
 			@RequestParam(value = "UserGroup_id", required = false) Integer UserGroup_id,
+			@RequestParam(value = "first_name", required = false ) String first_name,
+			@RequestParam(value = "perid", required = false) String perid,
+			@RequestParam(value = "divinm", required = false) String divinm,
+			@RequestParam(value = "rspnm", required = false) String rspnm,
+			@RequestParam(value = "spjangcd", required = false) String spjangcd,
 			Authentication auth
 	) {
 		AjaxResult result = new AjaxResult();
@@ -180,6 +168,7 @@ public class UserController {
 
 			boolean isNewUser = (id == null); // 새 사용자 여부 판단
 			User user;
+
 
 			if (isNewUser) {
 				// 중복된 아이디 확인
@@ -191,29 +180,25 @@ public class UserController {
 				user = User.builder()
 						.username(userid)
 						.password(Pbkdf2Sha256.encode(password))
-						.email(email)
-						.first_name(prenm)
-						.last_name("")
-						.tel(tel)
+						.first_name(first_name)
+						.last_name(first_name)
 						.active(true)
 						.is_staff(false)
 						.date_joined(new Timestamp(System.currentTimeMillis()))
 						.superUser(false)
-						.phone(phone)
-						.spjangcd("ZZ")
+						.agencycd(perid)
+						.spjangcd(spjangcd)
 						.build();
 			} else {
 				// 기존 사용자 업데이트
 				user = userRepository.findById(id)
 						.orElseThrow(() -> new RuntimeException("해당 사용자가 없습니다."));
-				/*user.setPassword(Pbkdf2Sha256.encode(password)); */
-				user.setEmail(email);
-				user.setFirst_name(prenm);
-				user.setLast_name("");
-				user.setTel(tel);
+				user.setPassword(Pbkdf2Sha256.encode(password));
+				user.setFirst_name(first_name);
+				user.setLast_name(first_name);
 				user.setActive(isActive);
-				user.setPhone(phone);
-				user.setAgencycd(agencycd);
+				user.setAgencycd(perid);
+				user.setSpjangcd(spjangcd);
 			}
 
 			// 사용자 저장
@@ -240,7 +225,7 @@ public class UserController {
 					profileSql,
 					new Timestamp(System.currentTimeMillis()), // _created
 					"ko-KR",                                  // lang_code
-					prenm,                                    // Name
+					first_name,                                    // Name
 					UserGroup_id,                             // UserGroup_id
 					user.getId()                              // User_id
 			);
@@ -259,53 +244,31 @@ public class UserController {
 				result.message = "custcd 및 spjangcd에 해당하는 데이터를 찾을 수 없습니다.";
 				return result;
 			}
+			String maxCltcd = xusersRepository.findMaxCltcd();
+			String newCltcd = generateNewCltcd(maxCltcd);
 
 			// 거래처 데이터 확인 및 저장
-			String maxCltcd = tbXClientRepository.findMaxCltcd();
-			String newCltcd = generateNewCltcd(maxCltcd);
-			String fullAddress = address1 + (address2 != null && !address2.isEmpty() ? " " + address2 : "");
-
-			Optional<TB_XCLIENT> existingClientOpt = tbXClientRepository.findBySaupnum(userid);
-			TB_XCLIENT tbXClient;
+			Optional<TB_XUSERS> existingClientOpt = xusersRepository.findByIdUserid(userid);
+			TB_XUSERS tbXusers;
 
 			if (existingClientOpt.isPresent()) {
-				tbXClient = existingClientOpt.get();
-				tbXClient.setPrenm(prenm);
-				tbXClient.setCltnm(cltnm);
-				tbXClient.setBiztypenm(biztypenm);
-				tbXClient.setBizitemnm(bizitemnm);
-				tbXClient.setZipcd(postno);
-				tbXClient.setCltadres(fullAddress);
-				tbXClient.setTelnum(tel);
-				tbXClient.setHptelnum(phone);
-				tbXClient.setAgneremail(email);
+				tbXusers = existingClientOpt.get();
+				tbXusers.setPernm(first_name);
+				tbXusers.setPerid(perid);
+				tbXusers.setSpjangcd(spjangcd);
+				tbXusers.setUseyn(String.valueOf(isActive ? 1 : 0));
 			} else {
-				tbXClient = TB_XCLIENT.builder()
-						.saupnum(userid)
-						.prenm(prenm)
-						.cltnm(cltnm)
-						.biztypenm(biztypenm)
-						.bizitemnm(bizitemnm)
-						.zipcd(postno)
-						.cltadres(fullAddress)
-						.telnum(tel)
-						.hptelnum(phone)
-						.agneremail(email)
-						.id(new TB_XCLIENTId(custcd, newCltcd))
-						.rnumchk("0")
-						.corpperclafi("0")
-						.cltdv("1")
-						.prtcltnm(cltnm)
-						.foreyn("0")
-						.relyn("0")		//거래중지컬럼 0은 해제 상태
-						.bonddv("0")
-						.nation("KR")
-						.clttype("2")
-						.cltynm("0")
+				tbXusers = TB_XUSERS.builder()
+						.pernm(first_name)
+						.id(new TB_XUSERSId(custcd, newCltcd))
+						.passwd2(password)
+						.passwd1(password)
+						.perid(perid)
+						.spjangcd(spjangcd)
 						.build();
 			}
 
-			tbXClientService.save(tbXClient);
+			xusersService.save(tbXusers);
 			System.out.println("TB_XCLIENT 저장 완료");
 
 			result.success = true;
@@ -356,7 +319,7 @@ public class UserController {
 		Optional<User> user = userRepository.findByUsername(UtilClass.removeBrackers(username));
 		if (user.isPresent()) {
 			System.out.println("User 조회 성공: " + user.get());
-			tbXClientRepository.deleteBySaupnum(user.get().getUsername());
+			xusersRepository.deleteById(user.get().getUsername());
 		} else {
 			System.out.println("User 조회 실패. username이 존재하지 않습니다.");
 		}
