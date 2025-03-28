@@ -340,8 +340,8 @@
             }
             // 버튼 처리
             let buttonsHtml = `
-                                    <button class="btn btn-detail-view" data-appnum="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;">상세 보기</button>
-                                    <button class="btn btn-register-view" data-realid="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease;">전표 보기</button>
+                                    <button class="btn btn-detail-view" data-appnum="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease; color: white;">상세 보기</button>
+                                    <button class="btn btn-register-view" data-appnum="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease; color: white;">전표 보기</button>
                                 `;
             let cardHtml = '';
             if(item.flag === '1') {
@@ -428,9 +428,11 @@
                 }
 
                 if (pdfButton) {
-                    const realId = pdfButton.getAttribute("data-realid");
-                    console.log("PDF 보기 클릭됨! REALID:", realId);
-                    openModal('popup-pdf-viewer', `/api/IssueInquiry/pdf?realId=${realId}`, realId);
+                    const e080_appnum = pdfButton.getAttribute("data-appnum");
+                    if (!e080_appnum) return;
+
+                    console.log("PDF 보기 클릭됨! e080_appnum:", e080_appnum);
+                    openModal('popup-pdf-viewer', `/api/mobilePDF/pdf?appnum=${e080_appnum}`, e080_appnum);
                 }
             });
             eventHandlerBound = true; // ✅ 다시 바인딩하지 않도록 플래그 설정
@@ -524,7 +526,7 @@
     }
 
     // 버튼 클릭 모달 이벤트 메서드
-    function openModal(popupId, pdfUrl = null, realId = null) {
+    function openModal(popupId, pdfUrl = null, e080_appnum = null) {
         let popup = document.getElementById(popupId);
         let overlay = document.querySelector('.popup-overlay');
         let container = document.getElementById("pdfContainer");
@@ -534,6 +536,10 @@
         if (!popup) {
             console.error(` 팝업 ID (${popupId})를 찾을 수 없습니다.`);
             return;
+        }
+        if (e080_appnum === currentRealId) {
+            console.warn("이미 열려있는 PDF입니다. 요청 생략:", e080_appnum);
+            return; // 중복 요청 방지
         }
 
         // 팝업 강제 표시
@@ -548,11 +554,11 @@
             overlay.style.display = "block";
             overlay.classList.add("active");
         }
-        if (realId) {
-            currentRealId = realId;
-            //  console.log(" 전역 변수에 realId 저장 완료:", realId);
+        if (e080_appnum) {
+            currentRealId = e080_appnum;
+            console.log(" 전역 변수에 realId 저장 완료:", e080_appnum);
         } else {
-            // console.warn(" realId 값이 전달되지 않음!");
+            console.warn(" realId 값이 전달되지 않음!");
         }
 
         // PDF 파일이 존재하는지 확인 후 PDF.js로 렌더링
@@ -564,7 +570,7 @@
                     if (!response.ok) {
                         throw new Error(' PDF 파일을 찾을 수 없습니다.');
                     }
-                    // console.log(" PDF 파일 확인 완료:", pdfUrl);
+                    console.log(" PDF 파일 확인 완료:", pdfUrl);
 
                     // 기존 내용 초기화 후 PDF 렌더링
                     container.innerHTML = "";
@@ -729,20 +735,25 @@
     }
     // pdf 조회 메서드
     function showPdf(filepath) {
-        console.log(" PDF.js를 사용하여 PDF 렌더링:", filepath);
+        console.log(" PDF.js를 사용하여 PDF 렌더링:", pdfUrl);
 
         let container = document.getElementById("pdfContainer");
         container.innerHTML = ""; // 기존 내용 초기화
 
-        // 🛠 PDF.js를 이용하여 PDF 불러오기
-        pdfjsLib.getDocument({url: filepath}).promise.then(pdf => {  // ✅ PDF.js는 Blob URL을 객체 형태로 받아야 함.
+        // 🛠 스크롤 단일화 (이중 스크롤 제거)
+        container.style.overflowX = "hidden"; // 가로 스크롤 제거
+        container.style.overflowY = "hidden"; // 이중 스크롤 방지
+        container.style.maxHeight = "100vh";  // 전체 화면 높이 사용
+
+        // PDF 파일 불러오기
+        pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
             console.log(" PDF 로드 완료. 총 페이지 수:", pdf.numPages);
 
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                 pdf.getPage(pageNum).then(page => {
                     let viewport = page.getViewport({scale: 1.5}); // 기본 스케일
 
-                    // 🛠 컨테이너 너비에 맞춰 PDF를 자동 확대
+                    // 🛠 컨테이너 너비에 맞춰 PDF를 자동 확대 (여백 없이 꽉 차게)
                     let scale = container.clientWidth / viewport.width;
                     let scaledViewport = page.getViewport({scale: scale});
 
@@ -753,7 +764,7 @@
 
                     let context = canvas.getContext("2d");
 
-                    // 🛠 PDF 크기를 컨테이너에 맞게 설정
+                    // 🛠 PDF 크기를 컨테이너에 맞게 설정 (여백 제거)
                     let scaleFactor = 3; // 3배 확대
                     canvas.width = scaledViewport.width * scaleFactor;
                     canvas.height = scaledViewport.height * scaleFactor;
@@ -771,8 +782,8 @@
                 });
             }
         }).catch(error => {
-            console.error("❌ PDF 렌더링 오류:", error);
-            Alert.alert('', " PDF를 불러올 수 없습니다.");
+            console.error(" PDF 렌더링 오류:", error);
+            alert(" PDF를 불러올 수 없습니다.");
         });
     }
 
