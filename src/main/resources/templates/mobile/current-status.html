@@ -340,6 +340,7 @@
             } else if (item.e080_appgubun === '131') {
                 cardColor = 'card-red';
             }
+            const badgeClass = cardColor.replace('card-', 'sta-');
             // 버튼 처리
             let buttonsHtml = `
                                     <button class="btn btn-detail-view" data-appnum="${item.e080_appnum}" style="padding: 4px 12px; border-radius: 20px; transition: background-color 0.3s ease; color: white;">상세 보기</button>
@@ -352,6 +353,7 @@
                         <div class="card-box ${cardColor}" data-wono="${item.WONO}">
                             <div class="card-tit">
                                 <h3>${item.e080_title}</h3>
+                                <h3><span class="${badgeClass}">${item.e080_appgubunnm}</span></h3>
                             </div>
                             <div class="card-cont">
                                 <dl>
@@ -371,7 +373,7 @@
                                     <dd>${item.setamtStr}</dd>
                                 </dl>
                             </div>
-                            <div class="card-btn">
+                            <div class="card-btn" style="display: flex;">
                                 ${buttonsHtml}
                             </div>
                         </div>
@@ -379,9 +381,10 @@
             }
             if(item.flag === '2'){
                 cardHtml = `
-                        <div class="card-box ${cardColor}" data-wono="${item.WONO}">
+                        <div class="card-box ${cardColor}" data-wono="${item.WONO} style="display: flex;">
                             <div class="card-tit">
                                 <h3>${item.e080_title}</h3>
+                                 <h3><span class="${badgeClass}">${item.e080_appgubunnm}</span></h3>
                             </div>
                             <div class="card-cont">
                                 <dl>
@@ -409,7 +412,7 @@
                                     <dd>${item.remark}</dd>
                                 </dl>
                             </div>
-                            <div class="card-btn">
+                            <div class="card-btn" style="display: flex;">
                                 ${buttonsHtml}
                             </div>
                         </div>

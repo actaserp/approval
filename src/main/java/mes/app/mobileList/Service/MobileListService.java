@@ -77,7 +77,8 @@ public class MobileListService {
                                   A.appgubun,
                                   C.appnum AS e080_appnum,
                                   C.appgubun AS e080_appgubun,
-                                  C.title AS e080_title
+                                  C.title AS e080_title,
+                                  U.Value AS e080_appgubunnm
                               FROM
                                   TB_AA007 A WITH (NOLOCK)
                               JOIN
@@ -91,6 +92,9 @@ public class MobileListService {
                                   ON C.appnum =  'S' + A.spdate + A.spnum + A.spjangcd
                                   AND C.spjangcd = A.spjangcd
                                   AND C.custcd = A.custcd
+                              LEFT JOIN
+                                  user_code U
+                                  ON C.appgubun = U.Code
                               OUTER APPLY (
                                   SELECT TOP 1 mssecnm
                                   FROM tb_x0005
@@ -106,7 +110,7 @@ public class MobileListService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  C.appnum, X.mssecnm, C.appgubun, C.title
+                                  C.appnum, X.mssecnm, C.appgubun, C.title, U.Value
                 
                               UNION ALL
                 
@@ -128,7 +132,8 @@ public class MobileListService {
                                   A.appgubun,
                                   C.appnum,
                                   C.appgubun AS e080_appgubun,
-                                  C.title AS e080_title
+                                  C.title AS e080_title,
+                                  U.Value AS e080_appgubunnm
                               FROM
                                   TB_AA009 A WITH (NOLOCK)
                               JOIN
@@ -142,6 +147,9 @@ public class MobileListService {
                                   ON C.appnum = A.spdate + A.spnum + A.spjangcd
                                   AND C.spjangcd = A.spjangcd
                                   AND C.custcd = A.custcd
+                              LEFT JOIN
+                                  user_code U
+                                  ON C.appgubun = U.Code
                               OUTER APPLY (
                                   SELECT TOP 1 mssecnm
                                   FROM tb_x0005
@@ -157,7 +165,7 @@ public class MobileListService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  C.appnum, X.mssecnm, C.appgubun, C.title
+                                  C.appnum, X.mssecnm, C.appgubun, C.title, U.Value
                           ) AS UNION_RESULT
                           ORDER BY spdate DESC, spnum DESC
                 """);
@@ -219,7 +227,8 @@ public class MobileListService {
                   C.appgubun AS e080_appgubun,
                   C.appnum   AS e080_appnum,
                   C.title    AS e080_title,
-                  X.pernm AS apppernm
+                  X.pernm AS apppernm,
+                  U.Value AS e080_appgubunnm
                 FROM TB_PB204 A WITH (NOLOCK)
                 LEFT JOIN TB_E080 C
                   ON 'V' + A.vayear + A.vanum + A.spjangcd = C.appnum
@@ -227,6 +236,9 @@ public class MobileListService {
                   AND A.custcd = C.custcd
                 LEFT JOIN tb_xusers X
                     ON 'p' + A.perid = X.perid
+                LEFT JOIN
+                    user_code U
+                    ON C.appgubun = U.Code
                 WHERE A.spjangcd = :search_spjangcd
                 AND A.reqdate BETWEEN :search_startdate AND :search_enddate
                 AND (:searchSubject = '%' OR A.remark LIKE :searchSubject)
@@ -257,7 +269,8 @@ public class MobileListService {
                   C.appgubun,
                   C.appnum,
                   C.title,
-                  X.pernm
+                  X.pernm,
+                  U.Value
                 ORDER BY A.reqdate DESC, A.vanum DESC;
                 """);
 
