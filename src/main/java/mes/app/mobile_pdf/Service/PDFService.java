@@ -98,13 +98,14 @@ public class PDFService {
     params.addValue("appnum", appnum);
     params.addValue("perid", perId);
 
-    String sql = "SELECT e.*, " +
+    String sql = "SELECT TOP 1 e.*, " +
             "aa.filepath AS atch_filepath, aa.filename AS atch_filename, " +
             "tap.filepath AS pdf_filepath, tap.filename AS pdf_filename " +
             "FROM tb_e080 e " +
             "LEFT JOIN TB_AA010ATCH aa ON aa.spdate = e.appnum " +
             "LEFT JOIN TB_AA010PDF tap ON tap.spdate = e.appnum " +
-            "WHERE e.appnum = :appnum AND e.repoperid = :perid;";
+            "WHERE e.appnum = :appnum AND e.repoperid = :perid " +
+            "ORDER BY appdate DESC";
 
     try {
       log.info("pdf조회 SQL: {}", sql);
