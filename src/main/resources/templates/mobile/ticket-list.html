@@ -306,8 +306,6 @@
             </div>
         </div>
     </div>
-
-
 </div> <!-- //page-wrapper end-->
 
 <script th:inline="javascript">
@@ -368,16 +366,16 @@
                 cardColor = 'card-red';
             }
             // 버튼 처리
-            let buttonsHtml = `<button class="btn-navy btn-popup-open btn-reject" data-popup="popup-details" data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}">반려</button>
-                               <button class="btn-navy btn-approve-action btn-hold"  onclick="Statechange('hold', '${item.e080_appnum}', '${item.e080_appgubun}')" data-popup="popup-details">보류</button>
-                               <button class="btn-navy btn-approve-action btn-approve" onclick="Statechange('approve','${item.e080_appnum}', '${item.e080_appgubun}')" data-action="approve" data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}">승인</button>
-                               <button class="btn-navy btn-approve-action btn-cancel"  onclick="Statechange('cancel','${item.e080_appnum}', '${item.e080_appgubun}')" data-action="cancel" data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}">승인취소</button>
+            let buttonsHtml = `<button class="btn-navy btn-popup-open btn-reject" data-popup="popup-details" data-appnum="${item.e080_appnum}">반려</button>
+                               <button class="btn-navy btn-approve-action btn-hold" data-action="hold" data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}" data-papercd="${item.papercd}" data-appperid="${item.e080_appperid}" data-appperid2="${item.appperid}">보류</button>
+                               <button class="btn-navy btn-approve-action btn-approve" data-action="approve" data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}" data-papercd="${item.papercd}" data-appperid="${item.e080_appperid}" data-appperid2="${item.appperid}">승인</button>
+                               <button class="btn-navy btn-approve-actions btn-cancel" data-action="cancel" data-appnum="${item.e080_appnum}" data-appgubun="${item.appgubun}" data-papercd="${item.papercd}" data-appperid="${item.e080_appperid}" data-appperid2="${item.appperid}">승인취소</button>
                               <button class="btn-navy btn-register-view" data-appnum="${item.e080_appnum}">전표 보기</button>`;
             let cardHtml = '';
             if(item.flag === '1') {
 
                 cardHtml = `
-                        <div class="card-box ${cardColor}" data-wono="${item.WONO}" data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}" >
+                        <div class="card-box ${cardColor}" data-wono="${item.WONO}" data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}" data-papercd="${item.papercd}" data-appperid="${item.e080_appperid}" >
                             <div class="card-tit">
                                 <h3>${item.e080_title}</h3>
                             </div>
@@ -407,7 +405,7 @@
             }
             if(item.flag === '2'){
                 cardHtml = `
-                        <div class="card-box ${cardColor}" data-wono="${item.WONO} data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}">
+                        <div class="card-box ${cardColor}" data-wono="${item.WONO} data-appnum="${item.e080_appnum}" data-appgubun="${item.appgubun}" data-papercd="${item.papercd}" data-appperid2="${item.appperid}">
                             <div class="card-tit">
                                 <h3>${item.e080_title}</h3>
                             </div>
@@ -458,6 +456,9 @@
                 const button = event.target.closest('.btn-popup-open[data-popup="popup-history2"]');
                 const delButton = event.target.closest('.btn-popup-open[data-popup="popup-details"]');  //사유 팝업
                 const pdfButton = event.target.closest('.btn-register-view');
+                const actionBut = event.target.closest('.btn-approve-action');
+                const actionBut2 = event.target.closest('.btn-approve-actions');
+
                 if (button) {
                     const cardBox = button.closest('.card-box');
                     if (!cardBox) return;
@@ -495,6 +496,30 @@
                     console.log("🚨 반려 버튼 클릭됨! e080_appnum, appgubun:", e080_appnum, appgubun);
 
                     handleClick(e080_appnum, appgubun); // 여기서 팝업 열거나 처리 시작
+                }
+
+                if(actionBut){
+
+                    const appnum = actionBut.getAttribute("data-appnum");
+                    const action = actionBut.getAttribute("data-action");
+                    const appgubun = actionBut.getAttribute("data-appgubun");
+                    const papercd = actionBut.getAttribute("data-papercd");
+                    const appperid = actionBut2.getAttribute("data-appperid") || actionBut2.getAttribute("data-appperid2");
+
+                    console.log('✅ 버튼 클릭됨:', { action, appnum, appgubun, papercd , appperid});
+                    Statechange({ action, appnum, appgubun , papercd, appperid});
+                }
+
+                if(actionBut2){
+
+                    const appnum = actionBut2.getAttribute("data-appnum");
+                    const action = actionBut2.getAttribute("data-action");
+                    const appgubun = actionBut2.getAttribute("data-appgubun");
+                    const papercd = actionBut2.getAttribute("data-papercd");
+                    const appperid = actionBut2.getAttribute("data-appperid") || actionBut2.getAttribute("data-appperid2");
+
+                    console.log('✅ 버튼 클릭됨:', { action, appnum, appgubun, papercd , appperid});
+                    Statechange({ action, appnum, appgubun , papercd, appperid});
                 }
 
             });
@@ -801,17 +826,33 @@
 
 
     // 결재 상태 업데이트
-    function Statechange(action) {
-        const appnum = document.getElementById("appnum").value; //문서번호
-        const appgubun = document.getElementById("appgubun").value; //결재구분
-        const remark = document.getElementById("remark").value; //사유
-        const appperid =  document.getElementById('appperid').value;
-        const papercd =  document.getElementById('papercd').value;
+    function Statechange(param) {
+        let action, appnum, appgubun;
+
+        if (typeof param === 'string') {
+            // 팝업에서 호출됨 (Statechange('reject'))
+            action = param;
+            appnum = document.getElementById("appnum")?.value || '';
+            appgubun = document.getElementById("appgubun")?.value || '';
+            papercd = document.getElementById("papercd")?.value || '';
+            appperid = document.getElementById("appperid")?.value || '';
+        } else if (typeof param === 'object' && param !== null) {
+            // 버튼에서 호출됨 (Statechange({ action, appnum, appgubun }))
+            action = param.action;
+            appnum = param.appnum || '';
+            appgubun = param.appgubun || '';
+            papercd = param.papercd ||'';
+            appperid = param.appperid || '';
+        }
+
+        const remark = document.getElementById("remark")?.value || '';
 
         if (!appnum || !appgubun) {
-            Alert.alert('', "문서번호와 결재구분이 없습니다.");
+            Alert.alert('', "문서번호 또는 결재구분이 없습니다.");
+            console.log("❗ 누락된 값:", { action, appnum, appgubun ,papercd, appperid});
             return;
         }
+
 
         console.log("상태 변경 요청:", {action, appnum, appgubun, remark});
 
@@ -876,7 +917,7 @@
 
                     case "001":
                         console.log("🟢 대기 상태 → 전체 버튼 활성화");
-                        [$btnReject, $btnHold, $btnApprove].forEach(btn => btn.prop("disabled", false));
+                        [$btnReject, $btnHold, $btnApprove ,$btnCancel].forEach(btn => btn.prop("disabled", false));
                         break;
 
                     case "201":

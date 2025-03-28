@@ -75,6 +75,8 @@ public class ProductionService {
                                   A.appdate,
                                   A.appperid,
                                   A.appgubun,
+                                  C.appperid AS e080_appperid,
+                                  C.papercd,
                                   C.appnum AS e080_appnum,
                                   C.appgubun AS e080_appgubun,
                                   C.title AS e080_title
@@ -106,7 +108,7 @@ public class ProductionService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  C.appnum, X.mssecnm, C.appgubun, C.title
+                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd,C.appperid
                 
                               UNION ALL
                 
@@ -126,6 +128,8 @@ public class ProductionService {
                                   A.appdate,
                                   A.appperid,
                                   A.appgubun,
+                                  C.appperid AS e080_appperid,
+                                  C.papercd,
                                   C.appnum,
                                   C.appgubun AS e080_appgubun,
                                   C.title AS e080_title
@@ -157,7 +161,7 @@ public class ProductionService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  C.appnum, X.mssecnm, C.appgubun, C.title
+                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd, C.appperid
                           ) AS UNION_RESULT
                           ORDER BY spdate DESC, spnum DESC
                 """);
@@ -216,6 +220,7 @@ public class ProductionService {
                   A.appnum,
                   A.yearflag,
                   A.reqdate AS spdate,
+                  C.papercd,
                   C.appgubun AS e080_appgubun,
                   C.appnum   AS e080_appnum,
                   C.title    AS e080_title,
