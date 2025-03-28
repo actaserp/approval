@@ -232,6 +232,32 @@ public class MobileListService {
                 AND (:searchSubject = '%' OR A.remark LIKE :searchSubject)
                 AND (:searchGubun = '%' OR C.appgubun LIKE :searchGubun)
                 AND C.repoperid = :search_perid
+                GROUP BY
+                                  A.reqdate,
+                  A.custcd,
+                  A.spjangcd,
+                  A.vayear,
+                  A.vanum,
+                  A.vafrdate,
+                  A.vatodate,
+                  A.vafrtime,
+                  A.vatotime,
+                  A.perid,
+                  A.reqdate,
+                  A.reasontxt,
+                  A.remark,
+                  A.gowhere,
+                  A.appdate,
+                  A.appgubun,
+                  A.appperid,
+                  A.appremark,
+                  A.appnum,
+                  A.yearflag,
+                  A.reqdate,
+                  C.appgubun,
+                  C.appnum,
+                  C.title,
+                  X.pernm
                 ORDER BY A.reqdate DESC, A.vanum DESC;
                 """);
 
