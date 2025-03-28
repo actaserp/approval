@@ -723,9 +723,9 @@
         }
 
         // 해당 팝업만 닫기
-        popupId.classList.remove("active");
+        document.getElementById(popupId).classList.remove("active");
         setTimeout(() => {
-            popupId.style.display = "none";
+            document.getElementById(popupId).style.display = "none";
         }, 300);
 
         // 팝업이 모두 닫혔을 경우, 오버레이도 닫기
