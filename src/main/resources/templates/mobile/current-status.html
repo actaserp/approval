@@ -564,24 +564,8 @@
 
         // PDF 파일이 존재하는지 확인 후 PDF.js로 렌더링
         if (pdfUrl) {
-            console.log(" PDF URL 확인:", pdfUrl);
-
-            fetch(pdfUrl, {method: 'GET', mode: 'cors'})
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(' PDF 파일을 찾을 수 없습니다.');
-                    }
-                    console.log(" PDF 파일 확인 완료:", pdfUrl);
-
-                    // 기존 내용 초기화 후 PDF 렌더링
-                    container.innerHTML = "";
-                    showPdf(pdfUrl);
-                })
-                .catch(error => {
-                    console.error(error.message);
-                    Alert.alert('', "PDF 파일이 존재하지 않습니다.");
-                    container.innerHTML = "<p style='color:red;'>PDF를 불러올 수 없습니다.</p>";
-                });
+            container.innerHTML = "";
+            showPdf(pdfUrl); // 바로 호출
         }
     }
 
@@ -783,9 +767,33 @@
                 });
             }
         }).catch(error => {
-            console.error(" PDF 렌더링 오류:", error);
-            alert(" PDF를 불러올 수 없습니다.");
+            console.error("PDF 렌더링 오류:", error);
+            Alert.alert('', "PDF 파일이 존재하지 않습니다.");
+            container.innerHTML = "<p style='color:red;'>PDF를 불러올 수 없습니다.</p>";
         });
+    }
+
+    //  PDF 다운로드 함수
+    function downloadPdf() {
+        if (!currentRealId) {
+            console.error(" 다운로드할 PDF 파일을 찾을 수 없습니다. (realId 없음)");
+            Alert.alert('', "다운로드할 PDF 파일을 찾을 수 없습니다.");
+            return;
+        }
+
+        console.log(" PDF 다운로드 시작: appnum=", currentRealId);
+
+        //`pdfDownload` API 호출하여 다운로드 실행
+        let downloadUrl = `/api/mobilePDF/pdfDownload2?appnum=${currentRealId}`;
+        // console.log(" 다운로드 URL:", downloadUrl);  // 🔍 디버깅 확인
+
+        //강제 다운로드 실행
+        let anchor = document.createElement("a");
+        anchor.href = downloadUrl;
+        anchor.target = "_blank";
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
     }
 
 </script>

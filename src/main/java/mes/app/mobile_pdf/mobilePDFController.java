@@ -194,6 +194,61 @@ public class mobilePDFController {
     }
   }
 
+  //pdf 다운로드
+  @RequestMapping(value = "/pdfDownload2", method = RequestMethod.GET)
+  public ResponseEntity<Resource> downloadPdf2(@RequestParam("appnum") String appnum,
+                                              Authentication auth) {
+    try {
+      log.info("📄 PDF 다운로드 요청: appnum={}", appnum);
+
+      User user = (User) auth.getPrincipal();
+      String perId = user.getAgencycd().replaceFirst("^p", "");
+
+      // DB에서 PDF 파일 정보 조회
+      Optional<PDFService.PdfFileInfo> optionalPdfFileInfo = pdfService.findPdfFileInfoByRepoperid(appnum, perId);
+      if (optionalPdfFileInfo.isEmpty()) {
+        log.warn("PDF 파일을 찾을 수 없음: appnum={}", appnum);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      PDFService.PdfFileInfo pdfFileInfo = optionalPdfFileInfo.get();
+      String pdfFilePath = pdfFileInfo.getFilePath();
+      String pdfFileName = pdfFileInfo.getFileName();
+
+      log.info("📎 다운로드 대상 파일명: {}, 경로: {}", pdfFileName, pdfFilePath);
+
+      Path path = Paths.get(pdfFilePath).normalize();
+      if (!Files.exists(path)) {
+        log.warn("파일이 존재하지 않음: {}", path);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+      }
+
+      File file = path.toFile();
+      Resource resource = new FileSystemResource(file);
+
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_PDF);
+      headers.setContentDisposition(
+              ContentDisposition.attachment()
+                      .filename(pdfFileName, StandardCharsets.UTF_8)
+                      .build()
+      );
+
+      headers.add("Access-Control-Allow-Origin", "*");
+      headers.add("Access-Control-Allow-Methods", "GET, OPTIONS");
+      headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+      return ResponseEntity.ok()
+              .headers(headers)
+              .contentLength(file.length())
+              .body(resource);
+
+    } catch (Exception e) {
+      log.error("❗ PDF 다운로드 처리 중 서버 오류 발생", e);
+      return ResponseEntity.internalServerError().build();
+    }
+  }
+
   @GetMapping("/remarkpopup")
   public AjaxResult getRemarkpopup(@RequestParam(value = "appgubun", required = false) String appgubun,
                                    @RequestParam(value = "appnum", required = false) String appnum,
