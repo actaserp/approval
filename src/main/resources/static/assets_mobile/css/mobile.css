@@ -71,7 +71,23 @@ header .right a {display: block;}
 .card-box .card-cont dl {display: flex; align-items: center; justify-content: space-between;  padding: 8px 0; border-bottom: 1px solid #f4f4f4;}
 .card-box .card-cont dl dt {width: 90px; font-size: 13px; font-weight: 600; color: #777;}
 .card-box .card-cont dl dd {width: calc(100% - 90px); font-size: 14px; font-weight: 500; text-align: right;}
-.card-box .card-btn {display: flex; gap: 8px; padding: 8px 0;  flex-wrap: wrap; }
+/*.card-box .card-btn {display: flex; gap: 8px; padding: 8px 0; }*/
+.card-box .card-btn {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    padding: 12px 0;
+}
+
+.card-box .card-btn button {
+    white-space: nowrap;
+    font-size: 14px;
+    padding: 10px 0;
+}
+
+.card-box .card-btn button:last-child {
+    grid-column: span 4;
+}
 .card-box .card-btn button:not(:disabled):hover, .card-box .card-btn .btn:not(:disabled):hover  { background-color: #119891; color: #fff; border:none;}
 .card-green .card-btn button, .card-green .card-btn .btn {background-color: #119891 !important;}
 .card-blue .card-btn button, .card-blue .card-btn .btn {background-color: #3069B3 !important;}
@@ -79,6 +95,7 @@ header .right a {display: block;}
 .card-red .card-btn button, .card-red .card-btn .btn {background-color: #EC193A !important;}
 .card-box .card-btn button:disabled,
 .card-box .card-btn .btn:disabled {background-color: #ccc !important; color: #999 !important; cursor: not-allowed !important;}
+
 
 /* status */
 .status-tag {display: flex; align-items: center; gap: 8px;}
