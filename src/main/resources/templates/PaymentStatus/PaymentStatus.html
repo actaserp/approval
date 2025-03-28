@@ -68,6 +68,7 @@
       <ul class="page-navi">
         <li><img src="/images/icon/ico-nav-home.svg" alt="홈아이콘"></li>
         <li>결재 현황</li>
+        <li>결재 현황</li>
       </ul>
     </div>
     <!-- Select -->
@@ -935,7 +936,6 @@
             switch (item.appgubun) {
               case "001":
                 $('.requestCnt').html(item.appgubun_count + '<span class="small-unit" style="font-size: 0.5em; opacity: 0.5;"> 건</span>');
-                totalCnt += item.appgubun_count;
                 break;
               case "101":
                 $('.checkCnt').html(item.appgubun_count + '<span class="small-unit" style="font-size: 0.5em; opacity: 0.5;"> 건</span>');
