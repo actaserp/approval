@@ -79,7 +79,8 @@ public class ProductionService {
                                   C.papercd,
                                   C.appnum AS e080_appnum,
                                   C.appgubun AS e080_appgubun,
-                                  C.title AS e080_title
+                                  C.title AS e080_title,
+                                  uc.Value AS appgubun_display
                               FROM
                                   TB_AA007 A WITH (NOLOCK)
                               JOIN
@@ -93,6 +94,7 @@ public class ProductionService {
                                   ON C.appnum =  'S' + A.spdate + A.spnum + A.spjangcd
                                   AND C.spjangcd = A.spjangcd
                                   AND C.custcd = A.custcd
+                              LEFT JOIN user_code uc ON uc.Code = C.appgubun
                               OUTER APPLY (
                                   SELECT TOP 1 mssecnm
                                   FROM tb_x0005
@@ -108,7 +110,7 @@ public class ProductionService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd,C.appperid
+                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd,C.appperid, uc.Value
                 
                               UNION ALL
                 
@@ -132,7 +134,8 @@ public class ProductionService {
                                   C.papercd,
                                   C.appnum,
                                   C.appgubun AS e080_appgubun,
-                                  C.title AS e080_title
+                                  C.title AS e080_title,
+                                  uc.Value AS appgubun_display
                               FROM
                                   TB_AA009 A WITH (NOLOCK)
                               JOIN
@@ -146,6 +149,7 @@ public class ProductionService {
                                   ON C.appnum = A.spdate + A.spnum + A.spjangcd
                                   AND C.spjangcd = A.spjangcd
                                   AND C.custcd = A.custcd
+                              LEFT JOIN user_code uc ON uc.Code = C.appgubun
                               OUTER APPLY (
                                   SELECT TOP 1 mssecnm
                                   FROM tb_x0005
@@ -161,7 +165,7 @@ public class ProductionService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd, C.appperid
+                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd, C.appperid,uc.Value
                           ) AS UNION_RESULT
                           ORDER BY spdate DESC, spnum DESC
                 """);
@@ -224,7 +228,8 @@ public class ProductionService {
                   C.appgubun AS e080_appgubun,
                   C.appnum   AS e080_appnum,
                   C.title    AS e080_title,
-                  X.pernm AS apppernm
+                  X.pernm AS apppernm,
+                  uc.Value AS appgubun_display
                 FROM TB_PB204 A WITH (NOLOCK)
                 LEFT JOIN TB_E080 C
                   ON 'V' + A.vayear + A.vanum + A.spjangcd = C.appnum
@@ -232,6 +237,7 @@ public class ProductionService {
                   AND A.custcd = C.custcd
                 LEFT JOIN tb_xusers X
                     ON 'p' + A.perid = X.perid
+                LEFT JOIN user_code uc ON uc.Code = C.appgubun
                 WHERE A.spjangcd = :search_spjangcd
                 AND A.reqdate BETWEEN :search_startdate AND :search_enddate
                 AND (:searchSubject = '%' OR A.remark LIKE :searchSubject)

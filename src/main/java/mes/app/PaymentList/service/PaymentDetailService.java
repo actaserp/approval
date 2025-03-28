@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,10 +62,11 @@ public class PaymentDetailService {
         """);
 
     // startDate 필터링
-    if (startDate != null && !startDate.isEmpty()) {
-      sql.append(" AND repodate >= :as_stdate ");
-      params.addValue("as_stdate", startDate);
-    }
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+    String startDateFormatted = LocalDate.parse(startDate).format(formatter);
+    sql.append(" AND repodate >= :as_stdate ");
+    params.addValue("as_stdate", startDateFormatted);
+
 
     // endDate 필터링
     if (endDate != null && !endDate.isEmpty()) {
@@ -92,9 +95,14 @@ public class PaymentDetailService {
 
   public List<Map<String, Object>> getPaymentList1(String spjangcd, String startDate, String endDate, String agencycd) {
     MapSqlParameterSource params = new MapSqlParameterSource();
+
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+    String startDateFormatted = LocalDate.parse(startDate).format(formatter);
+    String endDateFormatted = LocalDate.parse(endDate).format(formatter);
+
+    params.addValue("as_stdate", startDateFormatted);
+    params.addValue("as_enddate", endDateFormatted);
     params.addValue("as_spjangcd", spjangcd);
-    params.addValue("as_stdate", startDate);
-    params.addValue("as_enddate", endDate);
     params.addValue("as_perid", agencycd);
     StringBuilder sql = new StringBuilder("""
         SELECT (select count(appgubun) from tb_e080 WITH(NOLOCK) where appgubun = '001' AND appperid = :as_perid AND flag = '1' AND repodate Between :as_stdate AND :as_enddate and spjangcd = :as_spjangcd ) as appgubun1,

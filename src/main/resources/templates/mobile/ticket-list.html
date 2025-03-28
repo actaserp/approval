@@ -365,6 +365,7 @@
             } else if (item.e080_appgubun === '131') {
                 cardColor = 'card-red';
             }
+            const badgeClass = cardColor.replace('card-', 'sta-');
             // 버튼 처리
             let buttonsHtml = `<button class="btn-navy btn-popup-open btn-reject" data-popup="popup-details" data-appnum="${item.e080_appnum}">반려</button>
                                <button class="btn-navy btn-approve-action btn-hold" data-action="hold" data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}" data-papercd="${item.papercd}" data-appperid="${item.e080_appperid}" data-appperid2="${item.appperid}">보류</button>
@@ -378,6 +379,7 @@
                         <div class="card-box ${cardColor}" data-wono="${item.WONO}" data-appnum="${item.e080_appnum}" data-appgubun="${item.e080_appgubun}" data-papercd="${item.papercd}" data-appperid="${item.e080_appperid}" >
                             <div class="card-tit">
                                 <h3>${item.e080_title}</h3>
+                                <h3><span class="${badgeClass}">${item.appgubun_display}</span></h3>
                             </div>
                             <div class="card-cont">
                                 <dl>
@@ -408,6 +410,7 @@
                         <div class="card-box ${cardColor}" data-wono="${item.WONO} data-appnum="${item.e080_appnum}" data-appgubun="${item.appgubun}" data-papercd="${item.papercd}" data-appperid2="${item.appperid}">
                             <div class="card-tit">
                                 <h3>${item.e080_title}</h3>
+                                <h3>${item.appgubun_display}</h3>
                             </div>
                             <div class="card-cont">
                                 <dl>
