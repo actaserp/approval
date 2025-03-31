@@ -80,7 +80,8 @@ public class ProductionService {
                                   C.appnum AS e080_appnum,
                                   C.appgubun AS e080_appgubun,
                                   C.title AS e080_title,
-                                  uc.Value AS appgubun_display
+                                  uc.Value AS appgubun_display,
+                                  U.pernm AS repopernm
                               FROM
                                   TB_AA007 A WITH (NOLOCK)
                               JOIN
@@ -95,6 +96,7 @@ public class ProductionService {
                                   AND C.spjangcd = A.spjangcd
                                   AND C.custcd = A.custcd
                               LEFT JOIN user_code uc ON uc.Code = C.appgubun
+                              LEFT JOIN tb_xusers U ON 'p' + C.repoperid = U.perid
                               OUTER APPLY (
                                   SELECT TOP 1 mssecnm
                                   FROM tb_x0005
@@ -110,7 +112,7 @@ public class ProductionService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd,C.appperid, uc.Value
+                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd,C.appperid, uc.Value, U.pernm
                 
                               UNION ALL
                 
@@ -135,7 +137,8 @@ public class ProductionService {
                                   C.appnum,
                                   C.appgubun AS e080_appgubun,
                                   C.title AS e080_title,
-                                  uc.Value AS appgubun_display
+                                  uc.Value AS appgubun_display,
+                                  U.pernm AS repopernm
                               FROM
                                   TB_AA009 A WITH (NOLOCK)
                               JOIN
@@ -150,6 +153,7 @@ public class ProductionService {
                                   AND C.spjangcd = A.spjangcd
                                   AND C.custcd = A.custcd
                               LEFT JOIN user_code uc ON uc.Code = C.appgubun
+                              LEFT JOIN tb_xusers U ON 'p' + C.repoperid = U.perid
                               OUTER APPLY (
                                   SELECT TOP 1 mssecnm
                                   FROM tb_x0005
@@ -165,7 +169,7 @@ public class ProductionService {
                               GROUP BY
                                   A.custcd, A.spjangcd, A.spdate, A.spnum, A.tiosec,
                                   A.mssec, A.subject, A.appdate, A.appperid, A.appgubun,
-                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd, C.appperid,uc.Value
+                                  C.appnum, X.mssecnm, C.appgubun, C.title, C.papercd, C.appperid,uc.Value, U.pernm
                           ) AS UNION_RESULT
                           ORDER BY spdate DESC, spnum DESC
                 """);
