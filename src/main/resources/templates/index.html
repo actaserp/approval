@@ -98,7 +98,7 @@
                 <div class="alarm-box">
                     <ul class="alarm-tab-links">
                         <li class="active">
-                            <a href="#alarm-tab1" title="주문의뢰">주문의뢰(0)</a> <!-- 동적으로 업데이트 -->
+                            <a href="#alarm-tab1" title="결재">결재(0)건</a> <!-- 동적으로 업데이트 -->
                         </li>
                     </ul>
                     <div class="alarm-tab-contents">
@@ -832,7 +832,7 @@
     function clearNotifications() {
         const alarmTab = document.querySelector('.alarm-tab-links a');
         if (alarmTab) {
-            alarmTab.innerHTML = '주문의뢰(0)';
+            alarmTab.innerHTML = '결재(0)건';
         }
 
         const tableBody = document.querySelector('.alarm-tab-contents tbody');
