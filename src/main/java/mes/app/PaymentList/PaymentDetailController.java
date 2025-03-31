@@ -1,5 +1,8 @@
 package mes.app.PaymentList;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import mes.app.PaymentList.service.PaymentDetailService;
 import mes.domain.entity.User;
@@ -59,40 +62,29 @@ public class PaymentDetailController {
       String agencycd = user.getAgencycd().replaceFirst("^p", "");
       List<Map<String, Object>> getPaymentList = paymentDetailService.getPaymentList(spjangcd, startDate, endDate, SearchPayment,searchUserNm,agencycd);
 
+      ObjectMapper mapper = new ObjectMapper();
+
       for (Map<String, Object> item : getPaymentList) {
         //날짜 포맷 변환 (repodate)
         formatDateField(item, "repodate");
         //날짜 포맷 변환 (appdate)
         formatDateField(item, "appdate");
 
-        String appnum = (String) item.get("appnum");
-        if (appnum != null) {
-          List<Map<String, Object>> fileList = new ArrayList<>();
+        // fileListJson → fileList
+        List<Map<String, Object>> fileList = new ArrayList<>();
+        String fileListJson = (String) item.get("fileListJson");
 
-          if (appnum.startsWith("AS")) {
-            if (fileExistsInAtchTable(appnum)) {
-              fileList.add(createFileMapFromAtch(appnum, "첨부파일"));
-            }
-            if (fileExistsInPdfTable(appnum)) {
-              fileList.add(createFileMapFromPdf(appnum, "지출결의서"));
-            }
-          } else if (appnum.startsWith("A")) {
-            if (fileExistsInAtchTable(appnum)) {
-              fileList.add(createFileMapFromAtch(appnum, "첨부파일"));
-            }
-          } else if (appnum.startsWith("S")) {
-            if (fileExistsInPdfTable(appnum)) {
-              fileList.add(createFileMapFromPdf(appnum, "지출결의서"));
-            }
-          } else {
-            if (fileExistsInPdfTable(appnum)) {
-              fileList.add(createFileMapFromPdf(appnum, "전표파일"));
-            }
+        try {
+          if (fileListJson != null && !fileListJson.isBlank()) {
+            fileList = mapper.readValue(fileListJson, new TypeReference<>() {});
           }
-
-          item.put("fileList", fileList);
-          item.put("isdownload", !fileList.isEmpty());
+        } catch (JsonProcessingException e) {
+          log.warn("📄 파일 리스트 JSON 파싱 실패: {}", fileListJson);
         }
+
+        item.put("fileList", fileList);                  // ✅ 항상 넣고
+        item.put("isdownload", !fileList.isEmpty());     // ✅ 상태 표시
+
       }
 
       // 데이터가 있을 경우 성공 메시지

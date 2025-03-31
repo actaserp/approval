@@ -24,9 +24,10 @@ public class PaymentDetailService {
     params.addValue("as_spjangcd", spjangcd);
     params.addValue("agencycd", agencycd);
     StringBuilder sql = new StringBuilder("""
-        SELECT e080.repodate,
+        SELECT
+            e080.repodate,
             e080.repoperid,
-            (select pernm from tb_ja001 where perid = 'p' + repoperid) as repopernm,
+            (SELECT pernm FROM tb_ja001 WHERE perid = 'p' + e080.repoperid) AS repopernm,
             e080.appgubun,
             ca510.com_code AS papercd,
             ca510.com_cnam AS papercd_name,
@@ -36,31 +37,38 @@ public class PaymentDetailService {
             e080.appperid,
             e080.title,
             e080.remark,
-            CASE
-               WHEN EXISTS (
-                   SELECT 1 FROM TB_AA010ATCH
-                   WHERE spdate = 'A' + e080.appnum OR spdate = 'AS' + e080.appnum
-               ) THEN (
-                   SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
-                   FROM TB_AA010ATCH
-                   WHERE spdate = 'A' + e080.appnum OR spdate = 'AS' + e080.appnum
-               )
-               ELSE (
-                   SELECT TOP 1 CONCAT(spdate, '|', filename, '|', filepath)
-                   FROM TB_AA010PDF
-                   WHERE spdate = e080.appnum
-               )
-           END AS file_info
+            files.fileListJson
         FROM tb_e080 e080 WITH(NOLOCK)
-       LEFT JOIN user_code uc ON uc.Code = e080.appgubun
-       LEFT JOIN tb_ca510 ca510
-           ON ca510.com_cls = '620'
-          AND ca510.com_code = e080.papercd
-        WHERE spjangcd = :as_spjangcd
-        AND appperid = :agencycd
-        AND flag = '1'
-        """);
-
+        LEFT JOIN user_code uc ON uc.Code = e080.appgubun
+        LEFT JOIN tb_ca510 ca510 ON ca510.com_cls = '620' AND ca510.com_code = e080.papercd
+        OUTER APPLY (
+            SELECT 
+                (
+                    SELECT 
+                        f.spdate,
+                        f.filename AS fileornm,
+                        f.filename AS filesvnm,
+                        f.filepath,
+                        f.fileType
+                    FROM (
+                        SELECT spdate, filename, filepath, '첨부' AS fileType
+                        FROM TB_AA010ATCH
+                        WHERE spdate IN ('A' + e080.appnum, 'AS' + e080.appnum)
+        
+                        UNION ALL
+        
+                        SELECT spdate, filename, filepath, '전표' AS fileType
+                        FROM TB_AA010PDF
+                        WHERE spdate = e080.appnum
+                    ) AS f
+                    FOR JSON PATH
+                ) AS fileListJson
+        ) AS files
+        
+        WHERE e080.spjangcd = :as_spjangcd
+          AND e080.appperid = :agencycd
+          AND e080.flag = '1'
+""");
     // startDate 필터링
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     String startDateFormatted = LocalDate.parse(startDate).format(formatter);
@@ -91,7 +99,9 @@ public class PaymentDetailService {
 //    log.info("결재내역 List SQL: {}", sql);
 //    log.info("SQL Parameters: {}", params.getValues());
     return sqlRunner.getRows(sql.toString(), params);
+
   }
+
 
   public List<Map<String, Object>> getPaymentList1(String spjangcd, String startDate, String endDate, String agencycd) {
     MapSqlParameterSource params = new MapSqlParameterSource();
@@ -472,5 +482,6 @@ public class PaymentDetailService {
         ? row.get("spjangnm").toString()
         : "기관명 없음";
   }
+
 
 }
