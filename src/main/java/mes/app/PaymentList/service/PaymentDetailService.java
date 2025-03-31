@@ -24,51 +24,51 @@ public class PaymentDetailService {
     params.addValue("as_spjangcd", spjangcd);
     params.addValue("agencycd", agencycd);
     StringBuilder sql = new StringBuilder("""
-        SELECT
-            e080.repodate,
-            e080.repoperid,
-            (SELECT pernm FROM tb_ja001 WHERE perid = 'p' + e080.repoperid) AS repopernm,
-            e080.appgubun,
-            ca510.com_code AS papercd,
-            ca510.com_cnam AS papercd_name,
-            uc.Value AS appgubun_display,
-            e080.appdate,
-            e080.appnum,
-            e080.appperid,
-            e080.title,
-            e080.remark,
-            files.fileListJson
-        FROM tb_e080 e080 WITH(NOLOCK)
-        LEFT JOIN user_code uc ON uc.Code = e080.appgubun
-        LEFT JOIN tb_ca510 ca510 ON ca510.com_cls = '620' AND ca510.com_code = e080.papercd
-        OUTER APPLY (
-            SELECT 
-                (
+                SELECT
+                    e080.repodate,
+                    e080.repoperid,
+                    (SELECT pernm FROM tb_ja001 WHERE perid = 'p' + e080.repoperid) AS repopernm,
+                    e080.appgubun,
+                    ca510.com_code AS papercd,
+                    ca510.com_cnam AS papercd_name,
+                    uc.Value AS appgubun_display,
+                    e080.appdate,
+                    e080.appnum,
+                    e080.appperid,
+                    e080.title,
+                    e080.remark,
+                    files.fileListJson
+                FROM tb_e080 e080 WITH(NOLOCK)
+                LEFT JOIN user_code uc ON uc.Code = e080.appgubun
+                LEFT JOIN tb_ca510 ca510 ON ca510.com_cls = '620' AND ca510.com_code = e080.papercd
+                OUTER APPLY (
                     SELECT 
-                        f.spdate,
-                        f.filename AS fileornm,
-                        f.filename AS filesvnm,
-                        f.filepath,
-                        f.fileType
-                    FROM (
-                        SELECT spdate, filename, filepath, '첨부' AS fileType
-                        FROM TB_AA010ATCH
-                        WHERE spdate IN ('A' + e080.appnum, 'AS' + e080.appnum)
+                        (
+                            SELECT 
+                                f.spdate,
+                                f.filename AS fileornm,
+                                f.filename AS filesvnm,
+                                f.filepath,
+                                f.fileType
+                            FROM (
+                                SELECT spdate, filename, filepath, '첨부' AS fileType
+                                FROM TB_AA010ATCH
+                                WHERE spdate IN ('A' + e080.appnum, 'AS' + e080.appnum)
         
-                        UNION ALL
+                                UNION ALL
         
-                        SELECT spdate, filename, filepath, '전표' AS fileType
-                        FROM TB_AA010PDF
-                        WHERE spdate = e080.appnum
-                    ) AS f
-                    FOR JSON PATH
-                ) AS fileListJson
-        ) AS files
+                                SELECT spdate, filename, filepath, '전표' AS fileType
+                                FROM TB_AA010PDF
+                                WHERE spdate = e080.appnum
+                            ) AS f
+                            FOR JSON PATH
+                        ) AS fileListJson
+                ) AS files
         
-        WHERE e080.spjangcd = :as_spjangcd
-          AND e080.appperid = :agencycd
-          AND e080.flag = '1'
-""");
+                WHERE e080.spjangcd = :as_spjangcd
+                  AND e080.appperid = :agencycd
+                  AND e080.flag = '1'
+        """);
     // startDate 필터링
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
     String startDateFormatted = LocalDate.parse(startDate).format(formatter);
@@ -174,20 +174,20 @@ public class PaymentDetailService {
   public boolean updateStateForS(String appnum, String appgubun, String stateCode, String remark, String currentAppperid, String papercd) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("appnum", appnum);
-    
+
     // Step 1: TB_E080 결재라인 전체 조회
     String TB_E080Sql = """
-    SELECT COUNT(*) AS cnt
-    FROM TB_E080
-    WHERE appnum = :appnum
-      AND seq > (
-        SELECT seq
-        FROM TB_E080
-        WHERE appnum = :appnum
-          AND appperid = :currentAppperid
-      )
-      AND appgubun = '101'
-""";
+            SELECT COUNT(*) AS cnt
+            FROM TB_E080
+            WHERE appnum = :appnum
+              AND seq > (
+                SELECT seq
+                FROM TB_E080
+                WHERE appnum = :appnum
+                  AND appperid = :currentAppperid
+              )
+              AND appgubun = '101'
+        """;
 
     params.addValue("appnum", appnum);
     params.addValue("currentAppperid", currentAppperid);
@@ -205,11 +205,11 @@ public class PaymentDetailService {
 
     // Step 2: TB_AA007 문서 조회
     String aa007Sql = """
-      SELECT *
-      FROM TB_AA007
-      WHERE appnum = :appnum
-         OR 'S' + spdate + spnum + spjangcd = :appnum
-  """;
+            SELECT *
+            FROM TB_AA007
+            WHERE appnum = :appnum
+               OR 'S' + spdate + spnum + spjangcd = :appnum
+        """;
     List<Map<String, Object>> aa007Rows = sqlRunner.getRows(aa007Sql, params);
 
     if (aa007Rows != null && !aa007Rows.isEmpty()) {
@@ -217,13 +217,13 @@ public class PaymentDetailService {
 
       // TB_AA007 업데이트
       String updateAa007Sql = """
-        UPDATE TB_AA007
-        SET appgubun = :action,
-            remark = :remark,
-            inputdate = GETDATE()
-        WHERE appnum = :appnum
-           OR 'S' + spdate + spnum + spjangcd = :appnum
-    """;
+              UPDATE TB_AA007
+              SET appgubun = :action,
+                  remark = :remark,
+                  inputdate = GETDATE()
+              WHERE appnum = :appnum
+                 OR 'S' + spdate + spnum + spjangcd = :appnum
+          """;
 
       params.addValue("action", stateCode);
       params.addValue("remark", remark);
@@ -236,24 +236,78 @@ public class PaymentDetailService {
 
     // Step 3: TB_E080 업데이트 (현재 결재자만 대상)
     String updateE080Sql = """
-      UPDATE TB_E080
-      SET appgubun = :action,
-          remark = :remark,
-        appdate = CONVERT(varchar(8), GETDATE(), 112)
-      WHERE appnum = :appnum
-        AND appperid = :currentAppperid
-        AND papercd = :papercd
-  """;
-
+            UPDATE TB_E080
+            SET appgubun = :action,
+                remark = :remark,
+                appdate = CONVERT(varchar(8), GETDATE(), 112)
+            WHERE appnum = :appnum
+              AND appperid = :currentAppperid
+              AND papercd = :papercd
+        """;
     params.addValue("currentAppperid", currentAppperid);
     params.addValue("papercd", String.valueOf(papercd));
     int e080Affected = sqlRunner.execute(updateE080Sql, params);
-    log.info("📝 TB_E080 업데이트 완료: 변경된 row 수 = {}", e080Affected);
+    log.info("📝 TB_E080 상태 업데이트 완료: {}건", e080Affected);
 
+    // Step 4: 상태코드에 따른 flag 처리
+    if ("101".equals(stateCode) || "001".equals(stateCode)) {
+      // 1. 현재 결재자 seq 가져오기
+      String getSeqSql = """
+      SELECT seq FROM TB_E080
+      WHERE appnum = :appnum
+        AND appperid = :currentAppperid
+  """;
+      Object seqObj = sqlRunner.getRow(getSeqSql, params).get("seq");
+
+      int currentSeq = 0;
+      if (seqObj instanceof Number) {
+        currentSeq = ((Number) seqObj).intValue();
+      } else if (seqObj instanceof String) {
+        currentSeq = Integer.parseInt((String) seqObj);
+      }
+      params.addValue("currentSeq", currentSeq);
+
+      // 2. 다음 결재자 찾기
+      String findNextSql = """
+      SELECT TOP 1 seq FROM TB_E080
+      WHERE appnum = :appnum
+        AND seq > :currentSeq
+        AND flag = """ + ("101".equals(stateCode) ? "0" : "1") + """
+      ORDER BY seq ASC
+  """;
+      Map<String, Object> nextRow = sqlRunner.getRow(findNextSql, params);
+
+      if (nextRow != null && nextRow.get("seq") != null) {
+        Object nextSeqObj = nextRow.get("seq");
+        int nextSeq = 0;
+        if (nextSeqObj instanceof Number) {
+          nextSeq = ((Number) nextSeqObj).intValue();
+        } else if (nextSeqObj instanceof String) {
+          nextSeq = Integer.parseInt((String) nextSeqObj);
+        }
+
+        String updateFlagSql = """
+        UPDATE TB_E080
+        SET flag = """ + ("101".equals(stateCode) ? "1" : "0") + """
+        WHERE appnum = :appnum
+          AND seq = :nextSeq
+    """;
+        MapSqlParameterSource nextParams = new MapSqlParameterSource();
+        nextParams.addValue("appnum", appnum);
+        nextParams.addValue("nextSeq", nextSeq);
+
+        int affected = sqlRunner.execute(updateFlagSql, nextParams);
+        log.info("🔄 다음 결재자 flag = {} → 완료 (seq = {})",
+            "101".equals(stateCode) ? "1" : "0", nextSeq);
+      } else {
+        log.info("📭 다음 결재자 없음 → 최종 승인자 또는 초기화 대상 없음");
+      }
+    }
     return e080Affected > 0;
   }
 
-  // 전표문서 (TB_AA009, TB_E080)
+
+    // 전표문서 (TB_AA009, TB_E080)
   public boolean updateStateForNumberZZ(String appnum, String appgubun, String stateCode, String remark, String currentAppperid, String papercd) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("appnum", appnum);
@@ -331,9 +385,64 @@ public class PaymentDetailService {
     int e080Affected = sqlRunner.execute(updateE080Sql, params);
     log.info("📝 TB_E080 업데이트 완료: 변경된 row 수 = {}", e080Affected);
 
-    return e080Affected > 0;
+    // Step 4: 상태코드에 따른 flag 처리
+    if ("101".equals(stateCode) || "001".equals(stateCode)) {
+      // 1. 현재 결재자 seq 가져오기
+      String getSeqSql = """
+      SELECT seq FROM TB_E080
+      WHERE appnum = :appnum
+        AND appperid = :currentAppperid
+  """;
+      Object seqObj = sqlRunner.getRow(getSeqSql, params).get("seq");
 
+      int currentSeq = 0;
+      if (seqObj instanceof Number) {
+        currentSeq = ((Number) seqObj).intValue();
+      } else if (seqObj instanceof String) {
+        currentSeq = Integer.parseInt((String) seqObj);
+      }
+      params.addValue("currentSeq", currentSeq);
+
+      // 2. 다음 결재자 찾기
+      String findNextSql = """
+      SELECT TOP 1 seq FROM TB_E080
+      WHERE appnum = :appnum
+        AND seq > :currentSeq
+        AND flag = """ + ("101".equals(stateCode) ? "0" : "1") + """
+      ORDER BY seq ASC
+  """;
+      Map<String, Object> nextRow = sqlRunner.getRow(findNextSql, params);
+
+      if (nextRow != null && nextRow.get("seq") != null) {
+        Object nextSeqObj = nextRow.get("seq");
+        int nextSeq = 0;
+        if (nextSeqObj instanceof Number) {
+          nextSeq = ((Number) nextSeqObj).intValue();
+        } else if (nextSeqObj instanceof String) {
+          nextSeq = Integer.parseInt((String) nextSeqObj);
+        }
+
+        String updateFlagSql = """
+        UPDATE TB_E080
+        SET flag = """ + ("101".equals(stateCode) ? "1" : "0") + """
+        WHERE appnum = :appnum
+          AND seq = :nextSeq
+    """;
+        MapSqlParameterSource nextParams = new MapSqlParameterSource();
+        nextParams.addValue("appnum", appnum);
+        nextParams.addValue("nextSeq", nextSeq);
+
+        int affected = sqlRunner.execute(updateFlagSql, nextParams);
+        log.info("🔄 다음 결재자 flag = {} → 완료 (seq = {})",
+            "101".equals(stateCode) ? "1" : "0", nextSeq);
+      } else {
+        log.info("📭 다음 결재자 없음 → 최종 승인자 또는 초기화 대상 없음");
+      }
+    }
+
+    return e080Affected > 0;
   }
+
 
   // 휴가 문서 상태 변경 (TB_PB204, TB_E080)
   public boolean updateStateForV(String appnum, String appgubun, String stateCode, String remark, String currentAppperid, String papercd) {
@@ -414,11 +523,67 @@ public class PaymentDetailService {
     int e080Affected = sqlRunner.execute(updateE080Sql, params);
     log.info("📝 TB_E080 업데이트 완료: 변경된 row 수 = {}", e080Affected);
 
+    // Step 4: 상태코드에 따른 flag 처리
+    if ("101".equals(stateCode) || "001".equals(stateCode)) {
+      // 1. 현재 결재자 seq 가져오기
+      String getSeqSql = """
+      SELECT seq FROM TB_E080
+      WHERE appnum = :appnum
+        AND appperid = :currentAppperid
+  """;
+      Object seqObj = sqlRunner.getRow(getSeqSql, params).get("seq");
+
+      int currentSeq = 0;
+      if (seqObj instanceof Number) {
+        currentSeq = ((Number) seqObj).intValue();
+      } else if (seqObj instanceof String) {
+        currentSeq = Integer.parseInt((String) seqObj);
+      }
+      params.addValue("currentSeq", currentSeq);
+
+      // 2. 다음 결재자 찾기
+      String findNextSql = """
+      SELECT TOP 1 seq FROM TB_E080
+      WHERE appnum = :appnum
+        AND seq > :currentSeq
+        AND flag = """ + ("101".equals(stateCode) ? "0" : "1") + """
+      ORDER BY seq ASC
+  """;
+      Map<String, Object> nextRow = sqlRunner.getRow(findNextSql, params);
+
+      if (nextRow != null && nextRow.get("seq") != null) {
+        Object nextSeqObj = nextRow.get("seq");
+        int nextSeq = 0;
+        if (nextSeqObj instanceof Number) {
+          nextSeq = ((Number) nextSeqObj).intValue();
+        } else if (nextSeqObj instanceof String) {
+          nextSeq = Integer.parseInt((String) nextSeqObj);
+        }
+
+        String updateFlagSql = """
+        UPDATE TB_E080
+        SET flag = """ + ("101".equals(stateCode) ? "1" : "0") + """
+        WHERE appnum = :appnum
+          AND seq = :nextSeq
+    """;
+        MapSqlParameterSource nextParams = new MapSqlParameterSource();
+        nextParams.addValue("appnum", appnum);
+        nextParams.addValue("nextSeq", nextSeq);
+
+        int affected = sqlRunner.execute(updateFlagSql, nextParams);
+        log.info("🔄 다음 결재자 flag = {} → 완료 (seq = {})",
+            "101".equals(stateCode) ? "1" : "0", nextSeq);
+      } else {
+        log.info("📭 다음 결재자 없음 → 최종 승인자 또는 초기화 대상 없음");
+      }
+    }
+
     return e080Affected > 0;
   }
 
 
-  public boolean canCancelApproval(String appnum, String appperid) {
+
+  /*public boolean canCancelApproval(String appnum, String appperid) {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("appnum", appnum);
     params.addValue("appperid", appperid);
@@ -435,11 +600,10 @@ public class PaymentDetailService {
 
     // 자신보다 높은 seq가 결재했는지 체크
     String checkSql = """
-        SELECT COUNT(1)
-        FROM TB_E080
-        WHERE appnum = :appnum
-          AND seq > :mySeq
-          AND appgubun <> '101'
+       SELECT *
+       FROM TB_E080
+       WHERE appnum = :appnum
+         AND seq > :mySeq
     """;
 
     params.addValue("mySeq", mySeq);
@@ -451,15 +615,55 @@ public class PaymentDetailService {
 
     // 나는 가장 마지막 순번인가?
     String maxSeqSql = """
-        SELECT MAX(seq)
-        FROM TB_E080
-        WHERE appnum = :appnum
+       SELECT seq
+       FROM tb_e080
+       WHERE appnum = :appnum
+         AND appperid = :appperid;
     """;
 
     int maxSeq = sqlRunner.queryForObject(maxSeqSql, params, (rs, rowNum) -> rs.getInt(1));
 
     return mySeq == maxSeq || count == 0;
+  }*/
+
+  public boolean canCancelApproval(String appnum, String appperid) {
+    MapSqlParameterSource params = new MapSqlParameterSource();
+    params.addValue("appnum", appnum);
+    params.addValue("appperid", appperid);
+
+    // 1. 내 seq 조회
+    String seqSql = """
+        SELECT seq
+        FROM TB_E080
+        WHERE appnum = :appnum
+          AND appperid = :appperid
+    """;
+    Integer mySeq = sqlRunner.queryForObject(seqSql, params, (rs, rowNum) -> rs.getInt(1));
+    if (mySeq == null) {
+      log.warn("❌ 결재자 seq 찾지 못함: appnum={}, appperid={}", appnum, appperid);
+      return false;
+    }
+
+    // 2. 내 seq보다 뒤에 결재자 중 이미 승인한 사람이 있는지 확인
+    String checkSql = """
+        SELECT COUNT(1)
+        FROM TB_E080
+        WHERE appnum = :appnum
+          AND seq > :mySeq
+          AND appgubun = '101'
+    """;
+    params.addValue("mySeq", mySeq);
+    int approvedAfterMe = sqlRunner.queryForCount(checkSql, params);
+
+    if (approvedAfterMe > 0) {
+      log.info("❌ 뒤에 결재자가 이미 승인함 → 취소 불가");
+      return false;
+    }
+
+    log.info("✅ 취소 가능: 뒤에 승인 없음");
+    return true;
   }
+
 
   public boolean isAlreadyApproved(String appnum, String appperid) {
     String sql = """
