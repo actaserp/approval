@@ -511,7 +511,7 @@
                     const action = actionBut.getAttribute("data-action");
                     const appgubun = actionBut.getAttribute("data-appgubun");
                     const papercd = actionBut.getAttribute("data-papercd");
-                    const appperid = actionBut2.getAttribute("data-appperid") || actionBut2.getAttribute("data-appperid2");
+                    const appperid = actionBut.getAttribute("data-appperid") || actionBut.getAttribute("data-appperid2");
 
                     console.log('✅ 버튼 클릭됨:', { action, appnum, appgubun, papercd , appperid});
                     Statechange({ action, appnum, appgubun , papercd, appperid});

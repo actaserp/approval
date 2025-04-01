@@ -215,39 +215,59 @@ public class PaymentDetailService {
     if (aa007Rows != null && !aa007Rows.isEmpty()) {
       log.info("✅ TB_AA007 문서 찾음: appnum={}", appnum);
 
-      // TB_AA007 업데이트
-      String updateAa007Sql = """
-              UPDATE TB_AA007
-              SET appgubun = :action,
-                  remark = :remark,
-                  inputdate = GETDATE()
-              WHERE appnum = :appnum
-                 OR 'S' + spdate + spnum + spjangcd = :appnum
-          """;
+      // 📌 remark 조건에 따라 동적 SQL 생성
+      StringBuilder updateSql = new StringBuilder("""
+        UPDATE TB_AA007
+        SET appgubun = :action,
+            inputdate = GETDATE()
+    """);
+
+      if (remark != null && !remark.trim().isEmpty()) {
+        updateSql.append(", remark = :remark");
+        params.addValue("remark", remark);
+      }
+
+      updateSql.append("""
+        WHERE appnum = :appnum
+           OR 'S' + spdate + spnum + spjangcd = :appnum
+    """);
 
       params.addValue("action", stateCode);
-      params.addValue("remark", remark);
-      int aa007Affected = sqlRunner.execute(updateAa007Sql, params);
+      int aa007Affected = sqlRunner.execute(updateSql.toString(), params);
       log.info("📝 TB_AA007 업데이트 완료: 변경된 row 수 = {}", aa007Affected);
+
     } else {
       log.warn("❌ TB_AA007에서 문서 찾지 못함: appnum={}", appnum);
       return false;
     }
 
-    // Step 3: TB_E080 업데이트 (현재 결재자만 대상)
-    String updateE080Sql = """
-            UPDATE TB_E080
-            SET appgubun = :action,
-                remark = :remark,
-                appdate = CONVERT(varchar(8), GETDATE(), 112)
-            WHERE appnum = :appnum
-              AND appperid = :currentAppperid
-              AND papercd = :papercd
-        """;
+// Step 3: TB_E080 업데이트 (현재 결재자만 대상)
+    StringBuilder updateE080Sql = new StringBuilder("""
+    UPDATE TB_E080
+    SET appgubun = :action,
+        remark = :remark,
+""");
+
+    if ("001".equals(stateCode)) {
+      updateE080Sql.append("        appdate = NULL\n");
+    } else {
+      updateE080Sql.append("        appdate = CONVERT(varchar(8), GETDATE(), 112)\n");
+    }
+
+    updateE080Sql.append("""
+    WHERE appnum = :appnum
+      AND appperid = :currentAppperid
+      AND papercd = :papercd
+""");
+
+    params.addValue("action", stateCode);
+    params.addValue("remark", remark);
     params.addValue("currentAppperid", currentAppperid);
-    params.addValue("papercd", String.valueOf(papercd));
-    int e080Affected = sqlRunner.execute(updateE080Sql, params);
+    params.addValue("papercd", papercd);
+
+    int e080Affected = sqlRunner.execute(updateE080Sql.toString(), params);
     log.info("📝 TB_E080 상태 업데이트 완료: {}건", e080Affected);
+
 
     // Step 4: 상태코드에 따른 flag 처리
     if ("101".equals(stateCode) || "001".equals(stateCode)) {
@@ -350,39 +370,55 @@ public class PaymentDetailService {
     if (AA009Rows != null && !AA009Rows.isEmpty()) {
       log.info("✅ TB_AA009 문서 찾음: appnum={}", appnum);
 
-      // TB_AA009 업데이트
-      String updateAa009Sql = """
+      StringBuilder updateSql = new StringBuilder("""
         UPDATE TB_AA009
         SET appgubun = :action,
-            remark = :remark,
             inputdate = GETDATE()
+    """);
+
+      if (remark != null && !remark.trim().isEmpty()) {
+        updateSql.append(", remark = :remark");
+        params.addValue("remark", remark);
+      }
+
+      updateSql.append("""
         WHERE appnum = :appnum
-           OR spdate  + spnum + SPJANGCD = :appnum;
-    """;
+           OR spdate + spnum + SPJANGCD = :appnum
+    """);
 
       params.addValue("action", stateCode);
-      params.addValue("remark", remark);
-      int aa009Affected = sqlRunner.execute(updateAa009Sql, params);
+
+      int aa009Affected = sqlRunner.execute(updateSql.toString(), params);
       log.info("📝 TB_AA009 업데이트 완료: 변경된 row 수 = {}", aa009Affected);
     } else {
       log.warn("❌ TB_AA009 문서 찾지 못함: appnum={}", appnum);
       return false;
     }
+// Step 3: TB_E080 업데이트 (현재 결재자만 대상)
+    StringBuilder updateE080Sql = new StringBuilder("""
+    UPDATE TB_E080
+    SET appgubun = :action,
+        remark = :remark,
+""");
 
-    // Step 3: TB_E080 업데이트 (현재 결재자만 대상)
-    String updateE080Sql = """
-      UPDATE TB_E080
-      SET appgubun = :action,
-          remark = :remark,
-         appdate = CONVERT(varchar(8), GETDATE(), 112)
-      WHERE appnum = :appnum
-        AND appperid = :currentAppperid
-        AND papercd = :papercd
-  """;
+    if ("001".equals(stateCode)) {
+      updateE080Sql.append("        appdate = NULL\n");
+    } else {
+      updateE080Sql.append("        appdate = CONVERT(varchar(8), GETDATE(), 112)\n");
+    }
 
+    updateE080Sql.append("""
+    WHERE appnum = :appnum
+      AND appperid = :currentAppperid
+      AND papercd = :papercd
+""");
+
+    params.addValue("action", stateCode);
+    params.addValue("remark", remark);
     params.addValue("currentAppperid", currentAppperid);
-    params.addValue("papercd", String.valueOf(papercd));
-    int e080Affected = sqlRunner.execute(updateE080Sql, params);
+    params.addValue("papercd", papercd);
+
+    int e080Affected = sqlRunner.execute(updateE080Sql.toString(), params);
     log.info("📝 TB_E080 업데이트 완료: 변경된 row 수 = {}", e080Affected);
 
     // Step 4: 상태코드에 따른 flag 처리
@@ -488,40 +524,59 @@ public class PaymentDetailService {
     if (TB_PB204Rows != null && !TB_PB204Rows.isEmpty()) {
       log.info("✅ TB_PB204 문서 찾음: appnum={}", appnum);
 
-      // TB_PB204 업데이트
-      String updatePB204SqlSql = """
+      // remark 유무에 따라 동적 쿼리 구성
+      StringBuilder updateSql = new StringBuilder("""
         UPDATE TB_PB204
         SET appgubun = :action,
-            remark = :remark,
             appdate = CONVERT(varchar(8), GETDATE(), 112)
+    """);
+
+      if (remark != null && !remark.trim().isEmpty()) {
+        updateSql.append(", remark = :remark");
+        params.addValue("remark", remark);
+      }
+
+      updateSql.append("""
         WHERE appnum = :appnum
-            OR 'V' + VAYEAR + VANUM + SPJANGCD = :appnum
-    """;
+           OR 'V' + VAYEAR + VANUM + SPJANGCD = :appnum
+    """);
 
       params.addValue("action", stateCode);
-      params.addValue("remark", remark);
-      int TB_PB204ffected = sqlRunner.execute(updatePB204SqlSql, params);
-      log.info("📝 TB_PB204 업데이트 완료: 변경된 row 수 = {}", TB_PB204ffected);
+
+      int affected = sqlRunner.execute(updateSql.toString(), params);
+      log.info("📝 TB_PB204 업데이트 완료: 변경된 row 수 = {}", affected);
     } else {
       log.warn("❌ TB_PB204에서 문서 찾지 못함: appnum={}", appnum);
       return false;
     }
 
     // Step 3: TB_E080 업데이트 (현재 결재자만 대상)
-    String updateE080Sql = """
-      UPDATE TB_E080
-      SET appgubun = :action,
-          remark = :remark,
-        appdate = CONVERT(varchar(8), GETDATE(), 112)
-      WHERE appnum = :appnum
-        AND appperid = :currentAppperid
-        AND papercd = :papercd
-  """;
+    StringBuilder updateE080Sql = new StringBuilder("""
+    UPDATE TB_E080
+    SET appgubun = :action,
+        remark = :remark,
+""");
 
+    if ("001".equals(stateCode)) {
+      updateE080Sql.append("        appdate = NULL\n");
+    } else {
+      updateE080Sql.append("        appdate = CONVERT(varchar(8), GETDATE(), 112)\n");
+    }
+
+    updateE080Sql.append("""
+    WHERE appnum = :appnum
+      AND appperid = :currentAppperid
+      AND papercd = :papercd
+""");
+
+    params.addValue("action", stateCode);
+    params.addValue("remark", remark);
     params.addValue("currentAppperid", currentAppperid);
     params.addValue("papercd", String.valueOf(papercd));
-    int e080Affected = sqlRunner.execute(updateE080Sql, params);
+
+    int e080Affected = sqlRunner.execute(updateE080Sql.toString(), params);
     log.info("📝 TB_E080 업데이트 완료: 변경된 row 수 = {}", e080Affected);
+
 
     // Step 4: 상태코드에 따른 flag 처리
     if ("101".equals(stateCode) || "001".equals(stateCode)) {
@@ -580,51 +635,6 @@ public class PaymentDetailService {
 
     return e080Affected > 0;
   }
-
-
-
-  /*public boolean canCancelApproval(String appnum, String appperid) {
-    MapSqlParameterSource params = new MapSqlParameterSource();
-    params.addValue("appnum", appnum);
-    params.addValue("appperid", appperid);
-
-    // 로그인한 사람의 seq 찾기
-    String seqSql = """
-        SELECT seq
-        FROM TB_E080
-        WHERE appnum = :appnum AND appperid = :appperid
-    """;
-
-    Integer mySeq = sqlRunner.queryForObject(seqSql, params, (rs, rowNum) -> rs.getInt(1));
-    if (mySeq == null) return false;
-
-    // 자신보다 높은 seq가 결재했는지 체크
-    String checkSql = """
-       SELECT *
-       FROM TB_E080
-       WHERE appnum = :appnum
-         AND seq > :mySeq
-    """;
-
-    params.addValue("mySeq", mySeq);
-    int count = sqlRunner.queryForCount(checkSql, params);
-
-    if (count > 0) {
-      return false;
-    }
-
-    // 나는 가장 마지막 순번인가?
-    String maxSeqSql = """
-       SELECT seq
-       FROM tb_e080
-       WHERE appnum = :appnum
-         AND appperid = :appperid;
-    """;
-
-    int maxSeq = sqlRunner.queryForObject(maxSeqSql, params, (rs, rowNum) -> rs.getInt(1));
-
-    return mySeq == maxSeq || count == 0;
-  }*/
 
   public boolean canCancelApproval(String appnum, String appperid) {
     MapSqlParameterSource params = new MapSqlParameterSource();

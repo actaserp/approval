@@ -9,13 +9,11 @@ import mes.domain.entity.User;
 import mes.domain.model.AjaxResult;
 import mes.domain.repository.approval.TB_AA010ATCHRepository;
 import mes.domain.repository.approval.tb_aa010Repository;
-import org.aspectj.weaver.loadtime.Aj;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
