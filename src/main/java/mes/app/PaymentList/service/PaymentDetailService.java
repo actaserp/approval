@@ -53,7 +53,7 @@ public class PaymentDetailService {
                             FROM (
                                 SELECT spdate, filename, filepath, '첨부' AS fileType
                                 FROM TB_AA010ATCH
-                                WHERE spdate IN ('A' + e080.appnum, 'AS' + e080.appnum)
+                                WHERE spdate IN ('A' + e080.appnum, 'AS' + e080.appnum, 'AJ' + e080.appnum)
         
                                 UNION ALL
         
@@ -152,7 +152,7 @@ public class PaymentDetailService {
     MapSqlParameterSource params = new MapSqlParameterSource();
     params.addValue("appnum", appnum);
 
-    String sql = "select filename from TB_AA010ATCH WHERE spdate = 'A' + :appnum;";
+    String sql = "select filename from TB_AA010ATCH WHERE spdate like 'A%' + :appnum;";
 
     try {
       // SQL 실행 후 결과 조회

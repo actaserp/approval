@@ -49,34 +49,32 @@ public class PdfService {
       // 📌 결과 확인 후 변환
       if (result != null && result.containsKey("pdf_data")) {
         byte[] pdfData = (byte[]) result.get("pdf_data");
-        //log.info("✅ PDF 데이터 조회 성공: key={}", key);
+//        log.info("✅ PDF 데이터 조회 성공: key={}", key);
         return pdfData;
       } else {
-        log.warn("❌ PDF 데이터 없음: key={}", key);
+//        log.warn("❌ PDF 데이터 없음: key={}", key);
         return null;
       }
     } catch (Exception e) {
-      log.error("🚨 PDF 데이터 조회 중 오류 발생: key={}, error={}", key, e.getMessage(), e);
+//      log.error("🚨 PDF 데이터 조회 중 오류 발생: key={}, error={}", key, e.getMessage(), e);
       return null;
     }
   }
 
-
-
   // 📌 spdate를 기반으로 custcd 조회
   public String getCustcdBySpdate(String fileKey) {
     try {
-     // log.info("🔹 회사 코드(custcd) 조회 시작: fileKey={}", fileKey);
+//      log.info("🔹 회사 코드(custcd) 조회 시작: fileKey={}", fileKey);
       String sql = """
                 SELECT custcd 
                 FROM tb_xa012 
                 WHERE spjangcd = (SELECT spjangcd FROM TB_AA010PDF WHERE spdate = ?)
             """;
       String custcd = jdbcTemplate.queryForObject(sql, new Object[]{fileKey}, String.class);
-     // log.info("✅ 회사 코드 조회 성공: fileKey={}, custcd={}", fileKey, custcd);
+//      log.info("✅ 회사 코드 조회 성공: fileKey={}, custcd={}", fileKey, custcd);
       return custcd;
     } catch (EmptyResultDataAccessException e) {
-      log.warn("❌ 회사 코드 없음: fileKey={}", fileKey);
+//      log.warn("❌ 회사 코드 없음: fileKey={}", fileKey);
       return null;
     } catch (Exception e) {
       log.error("🚨 회사 코드 조회 중 오류 발생: fileKey={}, error={}", fileKey, e.getMessage(), e);
@@ -128,7 +126,7 @@ public class PdfService {
   // 📌 A로 시작하는 key에 대해 다른 테이블에서 고객 코드 조회
   public String getCustcdBySpdateForA(String fileKey) {
     try {
-     // log.info("🔹 A 전용 고객 코드 조회 시작: fileKey={}", fileKey);
+//      log.info("🔹 A 전용 고객 코드 조회 시작: fileKey={}", fileKey);
 
       // 📌 SQL 쿼리 (A 전용 테이블에서 조회)
       String sql = """
@@ -139,7 +137,7 @@ public class PdfService {
 
       // 📌 JDBC를 이용해 조회
       String custcd = jdbcTemplate.queryForObject(sql, new Object[]{fileKey}, String.class);
-      //log.info("✅ A 전용 고객 코드 조회 성공: fileKey={}, custcd={}", fileKey, custcd);
+//      log.info("✅ A 전용 고객 코드 조회 성공: fileKey={}, custcd={}", fileKey, custcd);
       return custcd;
 
     } catch (EmptyResultDataAccessException e) {
@@ -157,14 +155,14 @@ public class PdfService {
       int updatedRows;
       if (key.startsWith("A")) {
         // "A"로 시작하는 경우 A 테이블 업데이트
-        //log.info("🔹 A용 테이블 업데이트: key={}, filePath={}", key, filePath);
+//        log.info("🔹 A용 테이블 업데이트: key={}, filePath={}", key, filePath);
 
         String sql = "UPDATE TB_AA010ATCH SET filepath = ? WHERE spdate = ?";
         updatedRows = jdbcTemplate.update(sql, filePath, key);
 
       } else {
         // 일반 테이블 업데이트
-        //log.info("🔹 기존 테이블 업데이트: key={}, filePath={}", key, filePath);
+//        log.info("🔹 기존 테이블 업데이트: key={}, filePath={}", key, filePath);
 
         String sql = "UPDATE TB_AA010PDF SET filepath = ? WHERE spdate = ?";
         updatedRows = jdbcTemplate.update(sql, filePath, key);
@@ -179,11 +177,11 @@ public class PdfService {
 
   public String getFilenameByKeyForA(String key) {
     try {
-      //log.info("🔹 첨부파일 데이터 조회 시작: key={}", key);
+//      log.info("🔹 첨부파일 데이터 조회 시작: key={}", key);
 
       // 📌 key 값의 앞뒤 공백 제거
       String trimmedKey = key.trim();
-     // log.info("🔹 공백 제거된 key: {}", trimmedKey);
+//      log.info("🔹 공백 제거된 key: {}", trimmedKey);
 
       // 📌 SQL 파라미터 설정
       MapSqlParameterSource params = new MapSqlParameterSource();
@@ -207,7 +205,7 @@ public class PdfService {
         String filename = (value != null) ? value.toString() : null;
         return filename;
       } else {
-        log.warn("❌ 첨부파일 데이터 없음: key={}", key);
+//        log.warn("❌ 첨부파일 데이터 없음: key={}", key);
         return null;
       }
     } catch (Exception e) {
