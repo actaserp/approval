@@ -52,7 +52,7 @@ public class PaymentDetailController {
                                    @RequestParam(value = "searchUserNm", required = false) String searchUserNm,
                                    Authentication auth) {
     AjaxResult result = new AjaxResult();
-    log.info("결재 내역 read 들어온 데이터:startDate{}, endDate{}, spjangcd {}, SearchPayment {} ,searchUserNm {} ", startDate, endDate, spjangcd, SearchPayment,searchUserNm);
+//    log.info("결재 내역 read 들어온 데이터:startDate{}, endDate{}, spjangcd {}, SearchPayment {} ,searchUserNm {} ", startDate, endDate, spjangcd, SearchPayment,searchUserNm);
 
     try {
       // 데이터 조회
@@ -105,7 +105,7 @@ public class PaymentDetailController {
                                     @RequestParam(value = "search_spjangcd", required = false) String spjangcd,
                                     Authentication auth) {
     AjaxResult result = new AjaxResult();
-    log.info("결재목록_문서현황 read 들어온 데이터:startDate{}, endDate{}, spjangcd {} ", startDate, endDate, spjangcd);
+//    log.info("결재목록_문서현황 read 들어온 데이터:startDate{}, endDate{}, spjangcd {} ", startDate, endDate, spjangcd);
 
     try {
 
