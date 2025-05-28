@@ -258,8 +258,8 @@ public class UserService {
            au.username AS userid,
            xu.pernm AS usernm,
            xu.perid,
-           (select divinm from tb_jc002 where divicd=b.divicd and spjangcd=b.spjangcd) as divinm,\s
-         (select rspnm from tb_pz001 where rspcd=b.rspcd and spjangcd=b.spjangcd) as rspnm,\s
+           (select divinm from tb_jc002 where divicd=b.divicd and spjangcd=b.spjangcd) as divinm,
+         (select rspnm from tb_pz001 where rspcd=b.rspcd and spjangcd=b.spjangcd) as rspnm,
            xu.custcd
            FROM auth_user au
            left join TB_XUSERS xu on au.username = xu.userid

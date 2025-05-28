@@ -134,6 +134,7 @@ public class DashBoardService2 {
                                WHERE
                                CONVERT(DATE, repodate, 112) BETWEEN CONVERT(DATE, ThisYearStart, 112) AND CONVERT(DATE, ThisYearEnd, 112)
                                AND spjangcd = :spjangcd AND (appperid = :as_perid)
+                               AND flag = '1'
                                GROUP BY appgubun
             """;
         dicParam.addValue("spjangcd", spjangcd);
