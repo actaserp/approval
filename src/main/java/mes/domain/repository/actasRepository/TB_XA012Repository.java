@@ -15,4 +15,6 @@ public interface TB_XA012Repository extends JpaRepository<TB_XA012, TB_XA012ID> 
     List<TB_XA012> findByCustcdAndSpjangcds(@Param("custcd") String custcd, @Param("spjangcds") List<String> spjangcds);
 
     Optional<TB_XA012> findById_CustcdAndId_Spjangcd(String custcd, String spjangcd);
+
+    Optional<TB_XA012> findById_Spjangcd(String spjangcd);
 }

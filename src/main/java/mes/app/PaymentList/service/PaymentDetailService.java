@@ -626,10 +626,10 @@ public class PaymentDetailService {
         nextParams.addValue("nextSeq", nextSeq);
 
         int affected = sqlRunner.execute(updateFlagSql, nextParams);
-        log.info("🔄 다음 결재자 flag = {} → 완료 (seq = {})",
-            "101".equals(stateCode) ? "1" : "0", nextSeq);
+    /*    log.info("🔄 다음 결재자 flag = {} → 완료 (seq = {})",
+            "101".equals(stateCode) ? "1" : "0", nextSeq);*/
       } else {
-        log.info("📭 다음 결재자 없음 → 최종 승인자 또는 초기화 대상 없음");
+        //log.info("📭 다음 결재자 없음 → 최종 승인자 또는 초기화 대상 없음");
       }
     }
 
@@ -650,7 +650,7 @@ public class PaymentDetailService {
     """;
     Integer mySeq = sqlRunner.queryForObject(seqSql, params, (rs, rowNum) -> rs.getInt(1));
     if (mySeq == null) {
-      log.warn("❌ 결재자 seq 찾지 못함: appnum={}, appperid={}", appnum, appperid);
+      //log.warn("❌ 결재자 seq 찾지 못함: appnum={}, appperid={}", appnum, appperid);
       return false;
     }
 
@@ -666,11 +666,11 @@ public class PaymentDetailService {
     int approvedAfterMe = sqlRunner.queryForCount(checkSql, params);
 
     if (approvedAfterMe > 0) {
-      log.info("❌ 뒤에 결재자가 이미 승인함 → 취소 불가");
+      //log.info("❌ 뒤에 결재자가 이미 승인함 → 취소 불가");
       return false;
     }
 
-    log.info("✅ 취소 가능: 뒤에 승인 없음");
+    //log.info("✅ 취소 가능: 뒤에 승인 없음");
     return true;
   }
 

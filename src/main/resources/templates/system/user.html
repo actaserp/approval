@@ -689,7 +689,7 @@
         }
 
         function clearForm(){
-            ['id', 'userid', 'usernm', 'authType', 'email','password', 'tel', 'divinm2', 'agencycd', 'firstSelect', 'secondSelect', 'thirdSelect'].forEach(id => {
+            ['id', 'userid', 'usernm', 'authType', 'email','PasswordChange','PasswordChangeChk', 'tel', 'divinm2', 'agencycd', 'firstSelect', 'secondSelect', 'thirdSelect'].forEach(id => {
                 document.getElementById(id).value = '';
             });
             let smtpLabel = document.getElementById('smtpLabel');
@@ -777,13 +777,15 @@
 
         $(document).ready(function (e) {
 
-            initializeSelect({
+            AjaxUtil.fillSelectOptions($('#cboUserGroup'), 'user_group', 'choose');
+
+            /*initializeSelect({
                 url: '/user-auth/type',
                 params: {},
                 elementId: 'cboUserGroup',
                 valueField: "id",
                 textField: "name"
-            })
+            })*/
             initializeSelect({
                 url: '/user-auth/type',
                 params: {},

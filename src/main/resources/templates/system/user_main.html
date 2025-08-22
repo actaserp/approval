@@ -509,7 +509,7 @@
         }
 
         function clearForm() {
-            ['id', 'userid', 'rspnm', 'divinm', 'first_name', 'perid'].forEach(id => {
+            ['id', 'userid', 'rspnm', 'divinm', 'first_name', 'perid','PasswordChange','PasswordChangeChk'].forEach(id => {
                 const element = document.getElementById(id);
                 if (element) { // 요소가 존재하는 경우에만 실행
                     element.value = '';
@@ -660,6 +660,7 @@
                 formData.append("rspnm", $('#rspnm').val() || '');
                 formData.append("Password", $('#PasswordChange').val() || '');
                 formData.append("spjangcd", $('#spjType').val() || '');
+                formData.append("UserGroup_id", $('#authType').val() || '');
 
                 // 체크박스 값 추가
                 const isActiveCheckbox = document.getElementById("is_active");
@@ -870,7 +871,10 @@
                             $('#divinm').val(clickedItem.divinm);
                             $('#rspnm').val(clickedItem.rspnm);
                             $('#first_name').val(clickedItem.pernm);
-                            $('#is_active').prop('checked', clickedItem.useyn === '1');
+                            $('#is_active').prop(
+                                'checked',
+                                clickedItem.useyn === '1' || clickedItem.useyn === '사용'
+                            );
 
                         }
                         $('#userid').prop('readonly', true);

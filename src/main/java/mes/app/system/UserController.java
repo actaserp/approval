@@ -15,6 +15,7 @@ import mes.domain.entity.*;
 import mes.domain.entity.actasEntity.*;
 import mes.domain.repository.*;
 import mes.domain.repository.actasRepository.TB_XA012Repository;
+import mes.domain.repository.actasRepository.TB_XClientRepository;
 import mes.domain.repository.actasRepository.TB_xusersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -70,6 +71,8 @@ public class UserController {
 	@Autowired
 	private PaymentListService paymentListService;
 
+	@Autowired
+	TB_XClientRepository tbXClientRepository;
 
 	@GetMapping("/read")
 	public AjaxResult getUserList(@RequestParam(value = "userGroup", required = false) String userGroup, // 사용자그룹
@@ -78,7 +81,7 @@ public class UserController {
 		AjaxResult result = new AjaxResult();
 		User user = (User)auth.getPrincipal();
 		boolean superUser = user.getSuperUser();
-		log.info("사용자 관리__ userGroup: {}, keyword: {}", userGroup, keyword);
+//		log.info("사용자 관리__ userGroup: {}, keyword: {}", userGroup, keyword);
 		if (!superUser) {
 			superUser = user.getUserProfile().getUserGroup().getCode().equals("dev");
 		}
@@ -153,7 +156,7 @@ public class UserController {
 			@RequestParam(value = "id", required = false) Integer id,
 			@RequestParam(value = "userid") String userid,
 			@RequestParam(value = "is_active") boolean isActive,
-			@RequestParam(value = "password") String password,
+			@RequestParam(value = "Password") String password,
 			@RequestParam(value = "UserGroup_id", required = false) Integer UserGroup_id,
 			@RequestParam(value = "first_name", required = false ) String first_name,
 			@RequestParam(value = "perid", required = false) String perid,
@@ -207,45 +210,46 @@ public class UserController {
 
 			// 사용자 프로필 처리
 			String profileSql = """
-			SET IDENTITY_INSERT user_profile ON;
-		
-			MERGE INTO user_profile AS target
-			USING (SELECT ? AS _created, ? AS lang_code, ? AS Name, ? AS UserGroup_id, ? AS User_id) AS source
-			ON target.User_id = source.User_id
-			WHEN MATCHED THEN
-				UPDATE SET Name = source.Name, UserGroup_id = source.UserGroup_id
-			WHEN NOT MATCHED THEN
-				INSERT (_created, lang_code, Name, UserGroup_id, User_id)
-				VALUES (source._created, source.lang_code, source.Name, source.UserGroup_id, source.User_id);
-		
-			SET IDENTITY_INSERT user_profile OFF;
-			""";
+				MERGE user_profile AS target
+				USING (
+						SELECT CAST(? AS smalldatetime) AS _created,
+									 CAST(? AS nvarchar(30))  AS lang_code,
+									 CAST(? AS nvarchar(100)) AS Name,
+									 CAST(? AS int)           AS UserGroup_id,
+									 CAST(? AS int)           AS User_id
+				) AS source
+				ON target.User_id = source.User_id
+				WHEN MATCHED THEN
+						UPDATE SET Name = source.Name, UserGroup_id = source.UserGroup_id
+				WHEN NOT MATCHED THEN
+						INSERT (_created, lang_code, Name, UserGroup_id, User_id)
+						VALUES (source._created, source.lang_code, source.Name, source.UserGroup_id, source.User_id);
+				""";
 
 			jdbcTemplate.update(
 					profileSql,
-					new Timestamp(System.currentTimeMillis()), // _created
-					"ko-KR",                                  // lang_code
-					first_name,                                    // Name
-					UserGroup_id,                             // UserGroup_id
-					user.getId()                              // User_id
+					new java.sql.Timestamp(System.currentTimeMillis()), // _created (smalldatetime에 분 단위로 절삭됨)
+					"ko-KR",                                           // lang_code
+					first_name,                                        // Name
+					UserGroup_id,                                      // UserGroup_id
+					user.getId()                                       // User_id
 			);
+
 
 			System.out.println("User Profile 저장 또는 업데이트 완료");
 
 
 
-			// 거래처 처리 로직
-			String custcd = "SWSPANEL";
-			List<String> spjangcds = Arrays.asList("ZZ", "YY");
+			Optional<TB_XA012> xa012Opt = tbXA012Repository.findById_Spjangcd(spjangcd);
 
-			List<TB_XA012> tbX_A012List = tbXA012Repository.findByCustcdAndSpjangcds(custcd, spjangcds);
-			if (tbX_A012List.isEmpty()) {
+			if (xa012Opt.isEmpty()) {
 				result.success = false;
-				result.message = "custcd 및 spjangcd에 해당하는 데이터를 찾을 수 없습니다.";
+				result.message = "해당 spjangcd에 해당하는 사업장 정보가 없습니다.";
 				return result;
 			}
+			String custcd = xa012Opt.get().getId().getCustcd();
 			String maxCltcd = xusersRepository.findMaxCltcd();
-			String newCltcd = generateNewCltcd(maxCltcd);
+			String newCltcd = generateNewCltcd();
 
 			// 거래처 데이터 확인 및 저장
 			Optional<TB_XUSERS> existingClientOpt = xusersRepository.findByIdUserid(userid);
@@ -283,15 +287,16 @@ public class UserController {
 	}
 
 	// 새로운 cltcd 생성 메서드
-	private String generateNewCltcd(String maxCltcd) {
+	private String generateNewCltcd() {
+		String maxCltcd = tbXClientRepository.findMaxCltcd(); // DB에서 최대값 조회
+
 		int newNumber = 1; // 기본값
-		// 최대 cltcd 값이 null이 아니고 "SW"로 시작하는 경우
-		if (maxCltcd != null && maxCltcd.startsWith("SW")) {
-			String numberPart = maxCltcd.substring(2); // "SW"를 제외한 부분
-			newNumber = Integer.parseInt(numberPart) + 1; // 숫자 증가
+
+		if (maxCltcd != null && !maxCltcd.isBlank()) {
+			newNumber = Integer.parseInt(maxCltcd) + 1;
 		}
-		// 새로운 cltcd 생성: "SW" 접두사와 5자리 숫자로 포맷
-		return String.format("SW%05d", newNumber);
+
+		return String.format("%05d", newNumber);
 	}
 	@GetMapping("/check")
 	public ResponseEntity<Map<String, Boolean>> checkUserExists(@RequestParam(value = "id") Integer id) {
@@ -471,7 +476,7 @@ public class UserController {
 	public AjaxResult getPaymentList2(@RequestParam(value = "search_spjangcd", required = false) String spjangcd,
 																		@RequestParam(value = "appnum", required = false) String appnum) {
 		AjaxResult result = new AjaxResult();
-		log.info("더블클릭(결재목록) 들어온 데이터:spjangcd {}, appnum: {} ", spjangcd, appnum);
+//		log.info("더블클릭(결재목록) 들어온 데이터:spjangcd {}, appnum: {} ", spjangcd, appnum);
 
 		try {
 

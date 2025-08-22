@@ -185,15 +185,19 @@ public class PaymentListService {//결재목록
                 xu.passwd2,
                 xu.custnm ,
                 xu.pernm  ,
-                xu.useyn  ,
+               CASE xu.useyn
+                    WHEN 1 THEN '사용'
+                    ELSE '미사용'
+               END AS useyn,
                 xu.perid  ,
                 xu.spjangcd ,
          	(select divinm from tb_jc002 where divicd=b.divicd and spjangcd=b.spjangcd) as divinm,
            	(select rspnm from tb_pz001 where rspcd=b.rspcd and spjangcd=b.spjangcd) as rspnm
          from TB_XUSERS xu
-         JOIN tb_ja001 B on b.perid = xu.perid and b.spjangcd= xu.spjangcd;
+         JOIN tb_ja001 B on b.perid = xu.perid and b.spjangcd= xu.spjangcd
+         WHERE xu.useyn = 1 ;
         """);
-//    log.info("더블클릭 결재상세 SQL: {}", sql);
+//    log.info("더블클릭 사원정보 SQL: {}", sql);
 //    log.info("SQL Parameters: {}", params.getValues());
     return sqlRunner.getRows(sql.toString(), params);
 

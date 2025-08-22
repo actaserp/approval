@@ -133,17 +133,17 @@ public class TB_XA012 {
     @Column(name = "guchung", length = 40)
     private String guchung;
 
-    @Column(name = "espjangnm", length = 40)
-    private String espjangnm;
+//    @Column(name = "espjangnm", length = 40)
+//    private String espjangnm;
+//
+//    @Column(name = "ezipcd", length = 20)
+//    private String ezipcd;
 
-    @Column(name = "ezipcd", length = 20)
-    private String ezipcd;
-
-    @Column(name = "eadresa", length = 100)
+/*    @Column(name = "eadresa", length = 100)
     private String eadresa;
-
     @Column(name = "eadresb", length = 100)
     private String eadresb;
+
 
     @Column(name = "etelno", length = 30)
     private String etelno;
@@ -152,7 +152,7 @@ public class TB_XA012 {
     private String efaxno;
 
     @Column(name = "epernm", length = 30)
-    private String epernm;
+    private String epernm;*/
 
 
 }
